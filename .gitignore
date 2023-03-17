@@ -1,3 +1,5 @@
 /venv
 .idea
-.env
+ProjectManagement/.env
+db.sqlite3
+__pycache__
