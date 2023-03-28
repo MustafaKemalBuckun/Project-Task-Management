@@ -38,12 +38,25 @@ class Task(models.Model):
         (HIGH, "Yüksek"),
     )
 
+    WAITING = "Beklemede"
+    INACTIVE = "İnaktif"
+    ACTIVE = "Aktif"
+    DONE = "Tamamlandı"
+
+    STATUS_CHOICES = (
+        (WAITING, "Beklemede"),
+        (INACTIVE, "İnaktif"),
+        (ACTIVE, "Aktif"),
+        (DONE, "Tamamlandı"),
+    )
+
     title = models.CharField(max_length=30)
     description = models.CharField(max_length=300)
     assigned_to = models.ManyToManyField(settings.AUTH_USER_MODEL)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=True)
     board = models.ForeignKey(Board, on_delete=models.CASCADE, blank=True)
     priority = models.CharField(max_length=5, choices=PRIORITY_CHOICES, default=MID)
+    status = models.CharField(max_length=11, choices=STATUS_CHOICES, default=WAITING)
 
 
 class Post(models.Model):
