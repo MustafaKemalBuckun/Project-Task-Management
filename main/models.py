@@ -6,16 +6,17 @@ from ckeditor.fields import RichTextField
 class Company(models.Model):
     name = models.CharField(max_length=30)
     description = RichTextField(max_length=200, default=None)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
-    employees = models.ManyToManyField(settings.AUTH_USER_MODEL, null=True, blank=True)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name='owner')
+    employees = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='employees')
 
 
 class Project(models.Model):
     name = models.CharField(max_length=30, default=None)
     description = RichTextField(max_length=200, default=None)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, blank=True, on_delete=models.SET_NULL)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
+                              blank=True, on_delete=models.SET_NULL, related_name='project_owner')
     company = models.ForeignKey(Company, null=True, blank=True, on_delete=models.SET_NULL)
-    users = models.ManyToManyField(settings.AUTH_USER_MODEL, null=True, blank=True)
+    users = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='users')
     date_created = models.DateField(auto_now_add=True)
 
 
@@ -55,7 +56,7 @@ class Task(models.Model):
     assigned_to = models.ManyToManyField(settings.AUTH_USER_MODEL)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=True)
     board = models.ForeignKey(Board, on_delete=models.CASCADE, blank=True)
-    priority = models.CharField(max_length=5, choices=PRIORITY_CHOICES, default=MID)
+    priority = models.CharField(max_length=6, choices=PRIORITY_CHOICES, default=MID)
     status = models.CharField(max_length=11, choices=STATUS_CHOICES, default=WAITING)
 
 
@@ -63,7 +64,7 @@ class Post(models.Model):
     title = models.CharField(max_length=30)
     content = RichTextField(max_length=500)
     files = models.FileField(upload_to='uploads/', null=True)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     board = models.ForeignKey(Board, null=True, on_delete=models.CASCADE)
     task = models.ForeignKey(Task, null=True, on_delete=models.CASCADE)
@@ -74,9 +75,9 @@ class Label(models.Model):
     title = models.CharField(max_length=30)
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, blank=True, on_delete=models.CASCADE)
-    tagged_users = models.ManyToManyField(settings.AUTH_USER_MODEL, null=True, blank=True)
-    tagged_tasks = models.ManyToManyField(Task, null=True, blank=True)
-    tagged_boards = models.ManyToManyField(Board, null=True, blank=True)
+    tagged_users = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='tagged_users')
+    tagged_tasks = models.ManyToManyField(Task, blank=True)
+    tagged_boards = models.ManyToManyField(Board, blank=True)
 
 
 class Message(models.Model):
