@@ -12,6 +12,13 @@
                         <form method="post">
                             {% csrf_token %}
                             <div class="row">
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        <div class="alert alert-{{ message.tags }}">
+                                            {{ message }}
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
                                 <div class="col-md-6 mb-4 pb-2">
                                     <div>
                                         <h6 class="mb-0">Adınız:</h6>

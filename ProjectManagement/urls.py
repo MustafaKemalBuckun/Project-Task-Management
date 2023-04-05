@@ -17,11 +17,16 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from main import views
+from main import views as user_views
 
 urlpatterns = [
+    # path('logout/', user_views.logout.as_view(template_name='accounts/logout.html'), name='logout'),
     path('admin/', admin.site.urls),
-    path('', views.index, name='home'),
+    path('', user_views.index, name='home'),
+    path('register/', user_views.register, name='register'),
+    path('login/', user_views.login_view, name='login'),
+    path('logout/', user_views.logout, name='logout'),
+
 ]
 
 if settings.DEBUG:
