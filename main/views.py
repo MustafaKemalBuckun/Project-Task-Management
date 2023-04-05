@@ -39,22 +39,3 @@ def login_view(request):
     else:
         loginform = LoginForm(request.POST)
     return render(request, 'accounts/login.html', {'loginform': loginform})
-
-"""
-def logout(request):
-    context = {
-        'users': User.objects.all(),
-    }
-    return redirect(request, 'accounts/login.html')
-
-
-
-def logout(request):
-    logout(request)
-    return HttpResponseRedirect(reverse('accounts/login.html'))
-
-
-def profile(request):
-    return render(request, 'accounts/profile.html')
-
-"""
