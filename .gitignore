@@ -4,3 +4,4 @@ ProjectManagement/.env
 db.sqlite3
 __pycache__
 .idea/vcs.xml
+.idea/codeStyles/codeStyleConfig.xml
