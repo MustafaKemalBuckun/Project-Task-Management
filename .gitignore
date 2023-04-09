@@ -1,5 +1,6 @@
 /venv
-/.idea/workspace.xml
+.idea/workspace.xml
 ProjectManagement/.env
 db.sqlite3
 __pycache__
+.idea/vcs.xml

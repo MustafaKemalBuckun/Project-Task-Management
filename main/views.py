@@ -4,26 +4,32 @@ from .forms import UserRegisterForm
 from .forms import LoginForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+
+
 # Create your views here.
+from .models import Project
 
 
 def index(request):
     context = {
         'users': User.objects.all(),
+        'projects': Project.objects.all(),
     }
     return render(request, 'home/index.html', context)
 
+
 def register(request):
-   if request.method == 'POST':
-       registerform = UserRegisterForm(request.POST)
-       if registerform.is_valid():
-           registerform.save()
-           username = registerform.cleaned_data.get('username')
-           messages.success(request, f'{username} kullanıcısı için hesap başarıyla oluşturuldu! Giriş yapabilirsiniz.')
-           return redirect('login')
-   else:
-       registerform = UserRegisterForm()
-   return render(request, 'accounts/register.html', {'registerform': registerform})
+    if request.method == 'POST':
+        registerform = UserRegisterForm(request.POST)
+        if registerform.is_valid():
+            registerform.save()
+            username = registerform.cleaned_data.get('username')
+            messages.success(request, f'{username} kullanıcısı için hesap başarıyla oluşturuldu! Giriş yapabilirsiniz.')
+            return redirect('login')
+    else:
+        registerform = UserRegisterForm()
+    return render(request, 'accounts/register.html', {'registerform': registerform})
+
 
 def login_view(request):
     if request.method == 'POST':

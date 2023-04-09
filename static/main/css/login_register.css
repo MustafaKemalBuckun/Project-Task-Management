@@ -1,0 +1,28 @@
+.card {
+    background-color: #212B31;
+}
+
+h3{
+    color: white;
+}
+
+h6 {
+    color: white;
+}
+
+p {
+    color: white;
+}
+
+.btn {
+    background-color: #0b0e0f;
+    border-color: #0b0e0f;
+}
+
+.btn:hover {
+    background-color: #c3c8cc;
+}
+
+section {
+    background-color: #33444C;
+}
