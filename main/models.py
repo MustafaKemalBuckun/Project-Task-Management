@@ -14,6 +14,19 @@ class Company(models.Model):
 
 
 class Project(models.Model):
+
+    WAITING = "Beklemede"
+    INACTIVE = "İnaktif"
+    ACTIVE = "Aktif"
+    DONE = "Tamamlandı"
+
+    STATUS_CHOICES = (
+        (WAITING, "Beklemede"),
+        (INACTIVE, "İnaktif"),
+        (ACTIVE, "Aktif"),
+        (DONE, "Tamamlandı"),
+    )
+
     name = models.CharField(max_length=30, default=None)
     description = RichTextField(max_length=200, default=None)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
@@ -23,6 +36,7 @@ class Project(models.Model):
     date_created = models.DateField(auto_now_add=True)
     is_pinned = models.BooleanField(default=False, blank=True)
     is_private = models.BooleanField(default=False, blank=True)
+    status = models.CharField(max_length=11, choices=STATUS_CHOICES, default=ACTIVE)
 
 
 class Board(models.Model):
