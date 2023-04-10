@@ -9,6 +9,9 @@ class Company(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name='owner')
     employees = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='employees')
 
+    def __str__(self):
+        return self.name
+
 
 class Project(models.Model):
     name = models.CharField(max_length=30, default=None)
@@ -18,6 +21,8 @@ class Project(models.Model):
     company = models.ForeignKey(Company, null=True, blank=True, on_delete=models.SET_NULL)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='users')
     date_created = models.DateField(auto_now_add=True)
+    is_pinned = models.BooleanField(default=False, blank=True)
+    is_private = models.BooleanField(default=False, blank=True)
 
 
 class Board(models.Model):

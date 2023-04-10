@@ -1,21 +1,28 @@
+from django.db.models import Q
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from accounts.models import User
-from .forms import UserRegisterForm
+from .forms import UserRegisterForm, ProjectForm
 from .forms import LoginForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 
 
 # Create your views here.
-from .models import Project
+from .models import Project, Company
 
 
 def index(request):
-    context = {
-        'users': User.objects.all(),
-        'projects': Project.objects.all(),
-    }
-    return render(request, 'home/index.html', context)
+    user = request.user
+    if not user.is_anonymous:
+        context = {
+            'user': user,
+            'user_projects': Project.objects.filter(Q(users=user) | Q(owner=user)),
+            'user_companies': Company.objects.filter(Q(owner=user) | Q(employees=user)),
+        }
+        return render(request, 'home/index.html', context)
+    else:
+        return redirect('login')
 
 
 def register(request):
@@ -43,5 +50,37 @@ def login_view(request):
                 login(request, user)
                 return redirect('home')
     else:
-        loginform = LoginForm(request.POST)
+        loginform = LoginForm()
     return render(request, 'accounts/login.html', {'loginform': loginform})
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+
+def base_context(request):   # used for base.html
+    user = request.user
+    user_projects = Project.objects.filter(users=user)
+    context = {
+        'user': user,
+        'user_projects': user_projects
+    }
+    return context
+
+
+def create_project(request):
+    user = request.user
+    companies = Company.objects.filter(Q(owner=user) | Q(employees=user)).distinct()
+    if request.method == 'POST':
+        projectform = ProjectForm(companies, request.POST)
+        if projectform.is_valid():
+            print("validated.")
+            project = projectform.save(commit=False)
+            project.owner = user
+            project.save()
+        else:
+            print("not valid.")
+    else:
+        projectform = ProjectForm(companies)
+    return render(request, 'project/create_project.html', {'projectform': projectform})

@@ -1,0 +1,77 @@
+{% extends 'core/base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card mt-4 mb-4 justify-content-center">
+                    <div class="card-header">Proje Oluştur</div>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ projectform.media }}
+                        <div class="row px-4">
+                            <div class="col-md-6">
+                                <div class="card-body">
+                                    <div class="row align-items-center pt-4 pb-3">
+                                        <div class="col-md-3 ps-5">
+
+                                            <h6 class="mb-0">Proje Başlığı:</h6>
+
+                                        </div>
+                                        <div class="col-md-9 pe-5">
+
+                                            {% render_field projectform.name class+="form-control" placeholder="Başlık" %}
+
+                                        </div>
+                                    </div>
+
+                                    <hr class="mx-n3">
+
+                                    <div class="row py-3">
+                                        <div class="col-md-3 ps-5">
+
+                                            <h6 class="mb-0">Proje Açıklaması: </h6>
+
+                                        </div>
+                                        <div class="col-md-9 pl-5">
+
+                                            {% render_field projectform.description class+="form-control" %}
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card-body">
+
+                                    <div class="row align-items-center pt-4 pb-3">
+                                        <div class="col-md-3 ps-5">
+
+                                            <h6 class="mb-0">Şirket:</h6>
+
+                                        </div>
+                                        <div class="col-md-9 pe-5">
+
+                                            {% render_field projectform.company class+="form-control" %}
+
+                                        </div>
+                                    </div>
+
+                                    <hr class="mx-n3">
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-muted pl-5">*Proje ayarlarınızı daha sonra da düzenleyebilirsiniz.</p>
+                        <div class="row justify-content-center">
+                            <div class="px-5 pb-4 text-lg-center">
+                                <button type="submit" class="btn btn-primary btn-lg" style="width: 240px;">Kaydet</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
