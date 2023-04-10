@@ -27,7 +27,8 @@ body {
   line-height: 1.5;
   color: #151b1e;
   text-align: left;
-  background-color: #c3c8cc; }
+  /*background-color: #c3c8cc; */
+}
 
 ol,
 ul,
@@ -151,6 +152,14 @@ button {
   color: #fff;
   text-decoration: none;
   background-color: #3a9d5d; }
+
+.project-card {
+  background-color: #d0d0f1;
+}
+
+.company-card {
+  background-color: #befca7;
+}
 
 .app {
   display: -ms-flexbox;
@@ -1160,7 +1169,7 @@ article, aside, dialog, figcaption, figure, footer, header, hgroup, main, nav, s
   flex-direction: column;
   min-width: 0;
   word-wrap: break-word;
-  background-color: #fff;
+  /*background-color: #fff;*/
   background-clip: border-box;
   border: 1px solid #c2cfd6; }
 .card > hr {
@@ -1182,6 +1191,11 @@ article, aside, dialog, figcaption, figure, footer, header, hgroup, main, nav, s
 .card-text:last-child {
   margin-bottom: 0; }
 
+.card-text {
+  color: black;
+  text-decoration: none;
+}
+
 .card-link:hover {
   text-decoration: none; }
 
@@ -1191,7 +1205,7 @@ article, aside, dialog, figcaption, figure, footer, header, hgroup, main, nav, s
 .card-header {
   padding: 0.75rem 1.25rem;
   margin-bottom: 0;
-  background-color: #f0f3f5;
+  background-color: inherit;
   border-bottom: 1px solid #c2cfd6; }
 .card-header + .list-group .list-group-item:first-child {
   border-top: 0; }
@@ -1285,6 +1299,10 @@ article, aside, dialog, figcaption, figure, footer, header, hgroup, main, nav, s
 p {
   margin-top: 0;
   margin-bottom: 1rem; }
+
+.main {
+  background-color: #e4e5e6;
+}
 
 .aside-menu-fixed .main, .aside-menu-fixed .app-footer {
   margin-right: 250px; }

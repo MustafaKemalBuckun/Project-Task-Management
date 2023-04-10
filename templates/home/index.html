@@ -9,7 +9,7 @@
                     <div class="row mt-4">
                         <div class="col-12">
                             <div class="card">
-                                <div class="card-header">
+                                <div class="card-header" style="background-color: #f0f3f5">
                                     <i class="fa fa-align-justify"></i> Projelerim
                                 </div>
                                 <div class="card-body">
@@ -22,7 +22,7 @@
                                 </div>
                             </div>
                             <div class="card my-4">
-                                <div class="card-header">
+                                <div class="card-header" style="background-color: #f0f3f5">
                                     <i class="fa fa-align-justify"></i> Şirketlerim
                                 </div>
                                 <div class="card-body">
@@ -40,6 +40,75 @@
             </div>
         </div>
     {% else %}
+        <div class="container-fluid">
+            <div id="ui-view" style="opacity: 1;">
+                <div class="animated fadeIn">
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header" style="background-color: #f0f3f5">
+                                    <i class="fa fa-align-justify"></i> Projelerim
+                                </div>
+                                <div class="card-body row">
+                                    {% for user_project in user_projects %}
+                                        <div class="col-2 text-center">
+                                            <a href="/projects/{{ user_project.id }}">
+                                                <div class="card project-card h-100">
+                                                    <div class="card-body">
+                                                        <div class="card-header" style="height: 30px; padding: 0 0;
+                                                            border-bottom: 1px solid black; text-transform: uppercase">
+                                                            <p class="card-text">{{ user_project.name }}</p>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <p class="card-text">{{ user_project.description|safe }}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    {% endfor %}
+                                    <div class="col-2 text-center">
+                                        <div class="card h-100" style="border-color: #2A97D0; border-radius: 2%">
+                                            <div class="card-body d-flex align-items-center justify-content-center">
+                                                <a href="/create_project"><i class="bi bi-plus-square-fill" style="color: #2A97D0; font-size: 5rem"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card my-4">
+                                <div class="card-header" style="background-color: #f0f3f5">
+                                    <i class="fa fa-align-justify"></i> Şirketlerim
+                                </div>
+                                <div class="card-body row">
+                                    {% for user_company in user_companies %}
+                                        <div class="col-2 text-center">
+                                            <a href="/projects/{{ user_company.id }}">
+                                                <div class="card company-card h-100">
+                                                    <div class="card-body">
+                                                        <div class="card-header" style="height: 30px; padding: 0 0;
+                                                            border-bottom: 1px solid black; text-transform: uppercase">
+                                                            <p>{{ user_company.name }}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    {% endfor %}
+                                    <div class="col-2 text-center">
+                                        <div class="card h-100" style="border-color: #2A97D0; border-radius: 2%">
+                                            <div class="card-body d-flex align-items-center justify-content-center">
+                                                <a href="/create_company"><i class="bi bi-plus-square-fill" style="color: #2A97D0; font-size: 5rem"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     {#  #TODO  #}
     {% endif %}
 {% endblock %}
