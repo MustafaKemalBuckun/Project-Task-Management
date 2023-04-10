@@ -42,4 +42,7 @@ class ProjectForm(forms.ModelForm):
 
     def __init__(self, companies, *args, **kwargs):
         super(ProjectForm, self).__init__(*args, **kwargs)
-        self.fields['company'] = ModelChoiceField(queryset=companies)
+        self.fields['company'] = ModelChoiceField(queryset=companies, required=False)
+
+    def is_valid(self):
+        return super(ProjectForm, self).is_valid()
