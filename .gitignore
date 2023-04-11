@@ -5,3 +5,4 @@ db.sqlite3
 __pycache__
 .idea/vcs.xml
 .idea/codeStyles/codeStyleConfig.xml
+.idea/git_toolbox_prj.xml

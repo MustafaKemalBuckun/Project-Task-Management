@@ -8,6 +8,7 @@ class Company(models.Model):
     description = RichTextField(max_length=200, default=None)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name='owner')
     employees = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='employees')
+    logo = models.ImageField(default=None, blank=True, null=True, upload_to='media/')
 
     def __str__(self):
         return self.name

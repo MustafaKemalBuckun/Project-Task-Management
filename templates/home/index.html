@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-    {% if not user_projects and not user_companies %}
+    {% if not user_projects %}
         <div class="container-fluid">
             <div id="ui-view" style="opacity: 1;">
                 <div class="animated fadeIn">
@@ -18,19 +18,6 @@
                                         <p>Proje oluşturarak uygulamayı kullanmaya başlayabilirsiniz.</p>
                                         <hr class="my-4">
                                         <a class="btn btn-primary btn-lg" href="/create_project" role="button">Proje oluştur</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card my-4">
-                                <div class="card-header" style="background-color: #f0f3f5">
-                                    <i class="fa fa-align-justify"></i> Şirketlerim
-                                </div>
-                                <div class="card-body">
-                                    <div class="jumbotron bg-white">
-                                        <h4 class="display-4">Kendi şirketleriniz veya çalıştığınız şirketler burada görünür.</h4>
-                                        <p>Henüz katılımcısı olduğunuz bir şirket yok.</p>
-                                        <hr class="my-4">
-                                        <a class="btn btn-success btn-lg" href="/create_company" role="button">Şirket oluştur</a>
                                     </div>
                                 </div>
                             </div>
@@ -51,29 +38,14 @@
                                 </div>
                                 <div class="card-body row">
                                     {% for user_project in user_projects %}
-{#                                        <div class="col-3">#}
-{#                                            <a href="/projects/{{ user_project.id }}">#}
-{#                                                <div class="card mb-4 project-card h-100">#}
-{#                                                    <div class="card-body">#}
-{#                                                        <div class="card-header text-center" style="height: 30px; padding: 0 0;#}
-{#                                                            border-bottom: 1px solid black; text-transform: uppercase">#}
-{#                                                            <p class="card-text">{{ user_project.name }}</p>#}
-{#                                                        </div>#}
-{#                                                        <div class="card-body" style="padding: 0 0">#}
-{#                                                            <p class="card-text">{{ user_project.description|safe }}</p>#}
-{#                                                        </div>#}
-{#                                                    </div>#}
-{#                                                </div>#}
-{#                                            </a>#}
-{#                                        </div>#}
                                         <div class="col-3 my-3">
                                             <a href="/projects/{{ user_project.id }}">
                                                 <div class="card project-card p-3 pb-3 h-100 ml-2" style="min-height: 300px">
-                                                    <div class="d-flex justify-content-between" style="border-bottom: 1px solid black">
-                                                        <div class="d-flex flex-row align-items-center">
-                                                            <div class="icon"> <img style="width: 42px; height: 42px" alt="" src="{% static 'main/img/icons/project-icon.png' %}"> </div>
+                                                    <div class="d-flex justify-content-between">
+                                                        <div class="row col-9 d-flex flex-row align-items-center px-3" style="height: 40px">
+                                                            {#                                                            <div class="icon"> <img style="width: 42px; height: 42px" alt="" src="{% static 'main/img/icons/project-icon.png' %}"> </div>#}
                                                             <div class="ms-2 c-details ml-1">
-                                                                <h6 class="mb-0 mr-3">{{ user_project.name }}</h6>
+                                                                <h5 class="mb-0 mr-3">{{ user_project.name }}</h5>
                                                                 {% if user_project.company %}
                                                                     <span class="text-muted">{{ user_project.company }}</span>
                                                                 {% else %}
@@ -82,14 +54,14 @@
                                                             </div>
                                                         </div>
                                                         {% if user_project.status == 'Aktif' %}
-                                                            <div class="card-badge" style="color: #000000;
+                                                            <div class="col-3 card-badge" style="color: #000000;
                                                                 background-color: #8bffb1; width: 60px; height: 25px;
                                                                 padding-bottom: 3px; border-radius: 5px; display: flex;
                                                                 justify-content: center; align-items: center">
                                                                 <span><strong>Aktif</strong></span>
                                                             </div>
                                                         {% elif user_project.status == 'İnaktif' %}
-                                                            <div class="card-badge" style="color: #000000;
+                                                            <div class="col-3 card-badge" style="color: #000000;
                                                                 background-color: #f66e6e; width: 60px; height: 25px;
                                                                 padding-bottom: 3px; border-radius: 5px; display: flex;
                                                                 justify-content: center; align-items: center">
@@ -100,16 +72,16 @@
                                                     <div class="mt-5">
                                                         <div class="row flex-row">
                                                             <div class="col-6 text-center" style="min-height: 40px;">
-                                                                <div class="card-body align-items-center justify-content-center">
+                                                                <div class="align-items-center justify-content-center">
                                                                     <i class="bi bi-list-stars" style="font-size: 2rem"></i>
                                                                     <p><strong>{{ user_project.task_count }}</strong></p>
                                                                     <p class="mt-0"><strong>Görev</strong></p>
                                                                 </div>
                                                             </div>
                                                             <div class="col-6 text-center" style="min-height: 40px; border-radius: 10%">
-                                                                <div class="card-body align-items-center justify-content-center">
+                                                                <div class="align-items-center justify-content-center">
                                                                     <i class="bi bi-person-fill" style="font-size: 2rem"></i>
-                                                                    <p><strong>{{ user_project.users.count }}</strong></p>
+                                                                    <p><strong>{{ user_project.users.count }} </strong></p>
                                                                     <p><strong>Katılımcı</strong></p>
                                                                 </div>
                                                             </div>
@@ -140,34 +112,29 @@
                                     <div class="col-3 h-100"></div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {#  #TODO  #}
+    {% endif %}
+    {% if not user_companies %}
+        <div class="container-fluid">
+            <div id="ui-view" style="opacity: 1;">
+                <div class="animated fadeIn">
+                    <div class="row mt-4">
+                        <div class="col-12">
                             <div class="card my-4">
                                 <div class="card-header" style="background-color: #f0f3f5">
                                     <i class="fa fa-align-justify"></i> Şirketlerim
                                 </div>
-                                <div class="card-body row">
-                                    {% for user_company in user_companies %}
-                                        <div class="col-2">
-                                            <a href="/companies/{{ user_company.id }}">
-                                                <div class="card company-card h-100">
-                                                    <div class="card-body">
-                                                        <div class="card-header text-center" style="height: 30px; padding: 0 0;
-                                                            border-bottom: 1px solid black; text-transform: uppercase">
-                                                            <p>{{ user_company.name }}</p>
-                                                        </div>
-                                                        <div class="card-body pt-3" style="padding: 0 0">
-                                                            <p class="card-text">{{ user_company.description|safe }}</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    {% endfor %}
-                                    <div class="col-2 text-center">
-                                        <div class="card h-100" style="border-color: #2A97D0; border-radius: 2%">
-                                            <div class="card-body d-flex align-items-center justify-content-center">
-                                                <a href="/create_company"><i class="bi bi-plus-square-fill" style="color: #2A97D0; font-size: 5rem"></i></a>
-                                            </div>
-                                        </div>
+                                <div class="card-body">
+                                    <div class="jumbotron bg-white">
+                                        <h4 class="display-4">Kendi şirketleriniz veya çalıştığınız şirketler burada görünür.</h4>
+                                        <p>Henüz katılımcısı olduğunuz bir şirket yok.</p>
+                                        <hr class="my-4">
+                                        <a class="btn btn-success btn-lg" href="/create_company" role="button">Şirket oluştur</a>
                                     </div>
                                 </div>
                             </div>
@@ -176,6 +143,47 @@
                 </div>
             </div>
         </div>
-    {#  #TODO  #}
+    {% else %}
+        <div class="container-fluid">
+            <div id="ui-view" style="opacity: 1;">
+                <div class="animated fadeIn">
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card my-4">
+                                <div class="card-header" style="background-color: #f0f3f5">
+                                    <i class="fa fa-align-justify"></i> Şirketlerim
+                                </div>
+                                <div class="card-body row">
+                                    {% for user_company in user_companies %}
+                                    <div class="col-2">
+                                        <a href="/companies/{{ user_company.id }}">
+                                            <div class="card company-card h-100">
+                                                <div class="card-body">
+                                                    <div class="card-header text-center" style="height: 30px; padding: 0 0;
+                                                                border-bottom: 1px solid black; text-transform: uppercase">
+                                                        <p>{{ user_company.name }}</p>
+                                                    </div>
+                                                    <div class="card-body pt-3" style="padding: 0 0">
+                                                        <p class="card-text">{{ user_company.description|safe }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div class="col-2 text-center">
+                                        <div class="card h-100" style="border-color: #2A97D0; border-radius: 2%">
+                                            <div class="card-body d-flex align-items-center justify-content-center">
+                                                <a href="/create_company"><i class="bi bi-plus-square-fill" style="color: #2A97D0; font-size: 5rem"></i></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     {% endif %}
 {% endblock %}
