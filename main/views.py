@@ -14,6 +14,7 @@ from .models import Project, Company
 def index(request):
     user = request.user
     projects = Project.objects.filter(Q(users=user) | Q(owner=user)).annotate(task_count=Count('task'))
+    projects = sorted(projects, key=lambda obj: obj.is_pinned, reverse=True)
     if not user.is_anonymous:
         context = {
             'user': user,
@@ -79,8 +80,22 @@ def create_project(request):
             project = projectform.save(commit=False)
             project.owner = user
             project.save()
+            project.users.add(user)
+            project.save()
         else:
             print("not valid.")
     else:
         projectform = ProjectForm(companies)
     return render(request, 'project/create_project.html', {'projectform': projectform})
+
+
+def pin_project(request, project_id: int):
+    project = Project.objects.get(id=project_id)
+    if project.is_pinned:
+        project.is_pinned = False
+        project.save()
+    else:
+        project.is_pinned = True
+        project.save()
+
+    return index(request)

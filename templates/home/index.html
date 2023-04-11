@@ -36,74 +36,93 @@
                                 <div class="card-header" style="background-color: #f0f3f5">
                                     <i class="fa fa-align-justify"></i> Projelerim
                                 </div>
-                                <div class="card-body row">
+                                <div class="card-body row pr-4">
                                     {% for user_project in user_projects %}
                                         <div class="col-3 my-3">
-                                            <a href="/projects/{{ user_project.id }}">
-                                                <div class="card project-card p-3 pb-3 h-100 ml-2" style="min-height: 300px">
-                                                    <div class="d-flex justify-content-between">
-                                                        <div class="row col-9 d-flex flex-row align-items-center px-3" style="height: 40px">
-                                                            {#                                                            <div class="icon"> <img style="width: 42px; height: 42px" alt="" src="{% static 'main/img/icons/project-icon.png' %}"> </div>#}
-                                                            <div class="ms-2 c-details ml-1">
+                                            <div class="card project-card p-3 pb-3 h-100 ml-2" style="min-height: 300px">
+                                                <div class="row d-flex justify-content-between px-3 py-3">
+                                                    <div class="col-9 d-flex flex-row align-items-center pt-3" style="height: 40px">
+                                                        <div class="ms-2 c-details ml-1">
+                                                            <a href="/projects/{{ user_project.id }}">
                                                                 <h5 class="mb-0 mr-3">{{ user_project.name }}</h5>
                                                                 {% if user_project.company %}
                                                                     <span class="text-muted">{{ user_project.company }}</span>
                                                                 {% else %}
                                                                     <span class="text-muted">{{ user_project.owner.first_name }}</span>
                                                                 {% endif %}
-                                                            </div>
+                                                            </a>
                                                         </div>
-                                                        {% if user_project.status == 'Aktif' %}
-                                                            <div class="col-3 card-badge" style="color: #000000;
-                                                                background-color: #8bffb1; width: 60px; height: 25px;
-                                                                padding-bottom: 3px; border-radius: 5px; display: flex;
-                                                                justify-content: center; align-items: center">
-                                                                <span><strong>Aktif</strong></span>
-                                                            </div>
-                                                        {% elif user_project.status == 'İnaktif' %}
-                                                            <div class="col-3 card-badge" style="color: #000000;
-                                                                background-color: #f66e6e; width: 60px; height: 25px;
-                                                                padding-bottom: 3px; border-radius: 5px; display: flex;
-                                                                justify-content: center; align-items: center">
-                                                                <span><strong>İnaktif</strong></span>
-                                                            </div>
-                                                        {% endif %}
                                                     </div>
-                                                    <div class="mt-5">
-                                                        <div class="row flex-row">
-                                                            <div class="col-6 text-center" style="min-height: 40px;">
-                                                                <div class="align-items-center justify-content-center">
-                                                                    <i class="bi bi-list-stars" style="font-size: 2rem"></i>
-                                                                    <p><strong>{{ user_project.task_count }}</strong></p>
-                                                                    <p class="mt-0"><strong>Görev</strong></p>
-                                                                </div>
+                                                    {% if user_project.status == 'Aktif' %}
+                                                        <div class="col-3 card-badge mt-4" style="color: #000000;
+                                                            background-color: #8bffb1; width: 60px; height: 25px;
+                                                            padding-bottom: 3px; border-radius: 5px; display: flex;
+                                                            justify-content: center; align-items: center; position: absolute; top: 40px; right: 20px;">
+                                                            <span><strong>Aktif</strong></span>
+                                                        </div>
+                                                        <a onclick="pin({{ user_project.id }})">
+                                                            <div class="mr-2" style="position: absolute; top: 10px; right: 25px">
+                                                                {% if user_project.is_pinned %}
+                                                                    <span class="bi bi-pin-angle-fill" style="font-size: 2rem;
+                                                                    color: darkorange;"></span>
+                                                                {% else %}
+                                                                    <span class="bi bi-pin-angle" style="font-size: 2rem;"></span>
+                                                                {% endif %}
                                                             </div>
-                                                            <div class="col-6 text-center" style="min-height: 40px; border-radius: 10%">
-                                                                <div class="align-items-center justify-content-center">
-                                                                    <i class="bi bi-person-fill" style="font-size: 2rem"></i>
-                                                                    <p><strong>{{ user_project.users.count }} </strong></p>
-                                                                    <p><strong>Katılımcı</strong></p>
-                                                                </div>
+                                                        </a>
+                                                    {% elif user_project.status == 'İnaktif' %}
+                                                        <div class="col-3 card-badge mt-4" style="color: #000000;
+                                                            background-color: #f66e6e; width: 60px; height: 25px;
+                                                            padding-bottom: 3px; border-radius: 5px; display: flex;
+                                                            justify-content: center; align-items: center ;position: absolute; top: 40px; right: 20px;">
+                                                            <span><strong>İnaktif</strong></span>
+                                                        </div>
+                                                        <a onclick="pin({{ user_project.id }})">
+                                                            <div class="mr-2" style="position: absolute; top: 10px; right: 25px">
+                                                                {% if user_project.is_pinned %}
+                                                                    <span class="bi bi-pin-angle-fill" style="font-size: 2rem;
+                                                                    color: darkorange;"></span>
+                                                                {% else %}
+                                                                    <span class="bi bi-pin-angle" style="font-size: 2rem;"></span>
+                                                                {% endif %}
+                                                            </div>
+                                                        </a>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="mt-5">
+                                                    <div class="row flex-row">
+                                                        <div class="col-6 text-center" style="min-height: 40px;">
+                                                            <div class="align-items-center justify-content-center">
+                                                                <i class="bi bi-list-stars" style="font-size: 2rem"></i>
+                                                                <p><strong>{{ user_project.task_count }}</strong></p>
+                                                                <p class="mt-0"><strong>Görev</strong></p>
                                                             </div>
                                                         </div>
-                                                        <div class="flex-row mt-5">
-                                                            <div class="progress">
-                                                                <div class="progress-bar" role="progressbar"
-                                                                     style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        <div class="col-6 text-center" style="min-height: 40px; border-radius: 10%">
+                                                            <div class="align-items-center justify-content-center">
+                                                                <i class="bi bi-person-fill" style="font-size: 2rem"></i>
+                                                                <p><strong>{{ user_project.users.count }} </strong></p>
+                                                                <p><strong>Katılımcı</strong></p>
                                                             </div>
-                                                            <div class="mt-3">
-                                                                <span style="font-size: 14px; font-weight: 600">Yüzde
-                                                                    <span style="color: #a5aec0">veya görev sayısı eklenecek.</span>
-                                                                </span>
-                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex-row mt-5">
+                                                        <div class="progress">
+                                                            <div class="progress-bar" role="progressbar"
+                                                                 style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                        <div class="mt-3">
+                                                            <span style="font-size: 14px; font-weight: 600">Yüzde
+                                                                <span style="color: #a5aec0">veya görev sayısı eklenecek.</span>
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </a>
+                                            </div>
                                         </div>
                                     {% endfor %}
                                     <div class="col-3 text-center my-3">
-                                        <div class="card h-100 ml-2 mr-2" style="border-color: #2A97D0; border-radius: 2%; min-height: 300px">
+                                        <div class="card h-100 ml-2 mr-2" style="border-color: #2A97D0; border-radius: 2%; min-height: 300px; min-width: 275px">
                                             <div class="card-body d-flex align-items-center justify-content-center">
                                                 <a href="/create_project"><i class="bi bi-plus-square-fill" style="color: #2A97D0; font-size: 5rem"></i></a>
                                             </div>
@@ -186,4 +205,17 @@
             </div>
         </div>
     {% endif %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script>
+        const pin = (project_id) => {
+            fetch(`/pin/${project_id}/`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(rest => {
+                window.location.reload();
+            })
+        }
+    </script>
 {% endblock %}

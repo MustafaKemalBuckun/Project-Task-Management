@@ -28,6 +28,7 @@ urlpatterns = [
     path('logout/', user_views.logout_view, name='logout'),
     path('create_project/', user_views.create_project, name='create_project'),
     path('ckeditor/', include('ckeditor_uploader.urls')),
+    path('pin/<int:project_id>/', user_views.pin_project)
 ]
 
 if settings.DEBUG:
