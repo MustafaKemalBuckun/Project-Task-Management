@@ -13,14 +13,26 @@ from .models import Project, Company
 
 def index(request):
     user = request.user
-    projects = Project.objects.filter(Q(users=user) | Q(owner=user)).annotate(task_count=Count('task'))
-    projects = sorted(projects, key=lambda obj: obj.is_pinned, reverse=True)
     if not user.is_anonymous:
+        projects = Project.objects.filter(Q(users=user) | Q(owner=user)).annotate(task_count=Count('task'))
+        projects = sorted(projects, key=lambda obj: obj.is_pinned, reverse=True)
+        percentages = []
+        for project in projects:
+            total_tasks = project.task_set.count()
+            completed_tasks = project.task_set.filter(status='Tamamlandı').count()
+            if total_tasks > 0:
+                progress = int((completed_tasks / total_tasks) * 100)
+            else:
+                progress = 0
+            percentages.append(progress)
+
         context = {
             'user': user,
             'user_projects': projects,
             'user_companies': Company.objects.filter(Q(owner=user) | Q(employees=user)),
+            'project_data': zip(projects, percentages)
         }
+
         return render(request, 'home/index.html', context)
     else:
         return redirect('login')
