@@ -51,29 +51,93 @@
                                 </div>
                                 <div class="card-body row">
                                     {% for user_project in user_projects %}
-                                        <div class="col-2 text-center">
+{#                                        <div class="col-3">#}
+{#                                            <a href="/projects/{{ user_project.id }}">#}
+{#                                                <div class="card mb-4 project-card h-100">#}
+{#                                                    <div class="card-body">#}
+{#                                                        <div class="card-header text-center" style="height: 30px; padding: 0 0;#}
+{#                                                            border-bottom: 1px solid black; text-transform: uppercase">#}
+{#                                                            <p class="card-text">{{ user_project.name }}</p>#}
+{#                                                        </div>#}
+{#                                                        <div class="card-body" style="padding: 0 0">#}
+{#                                                            <p class="card-text">{{ user_project.description|safe }}</p>#}
+{#                                                        </div>#}
+{#                                                    </div>#}
+{#                                                </div>#}
+{#                                            </a>#}
+{#                                        </div>#}
+                                        <div class="col-3 my-3">
                                             <a href="/projects/{{ user_project.id }}">
-                                                <div class="card project-card h-100">
-                                                    <div class="card-body">
-                                                        <div class="card-header" style="height: 30px; padding: 0 0;
-                                                            border-bottom: 1px solid black; text-transform: uppercase">
-                                                            <p class="card-text">{{ user_project.name }}</p>
+                                                <div class="card project-card p-3 pb-3 h-100 ml-2" style="min-height: 300px">
+                                                    <div class="d-flex justify-content-between" style="border-bottom: 1px solid black">
+                                                        <div class="d-flex flex-row align-items-center">
+                                                            <div class="icon"> <img style="width: 42px; height: 42px" alt="" src="{% static 'main/img/icons/project-icon.png' %}"> </div>
+                                                            <div class="ms-2 c-details ml-1">
+                                                                <h6 class="mb-0 mr-3">{{ user_project.name }}</h6>
+                                                                {% if user_project.company %}
+                                                                    <span class="text-muted">{{ user_project.company }}</span>
+                                                                {% else %}
+                                                                    <span class="text-muted">{{ user_project.owner.first_name }}</span>
+                                                                {% endif %}
+                                                            </div>
                                                         </div>
-                                                        <div class="card-body">
-                                                            <p class="card-text">{{ user_project.description|safe }}</p>
+                                                        {% if user_project.status == 'Aktif' %}
+                                                            <div class="card-badge" style="color: #000000;
+                                                                background-color: #8bffb1; width: 60px; height: 25px;
+                                                                padding-bottom: 3px; border-radius: 5px; display: flex;
+                                                                justify-content: center; align-items: center">
+                                                                <span><strong>Aktif</strong></span>
+                                                            </div>
+                                                        {% elif user_project.status == 'İnaktif' %}
+                                                            <div class="card-badge" style="color: #000000;
+                                                                background-color: #f66e6e; width: 60px; height: 25px;
+                                                                padding-bottom: 3px; border-radius: 5px; display: flex;
+                                                                justify-content: center; align-items: center">
+                                                                <span><strong>İnaktif</strong></span>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="mt-5">
+                                                        <div class="row flex-row">
+                                                            <div class="col-6 text-center" style="min-height: 40px;">
+                                                                <div class="card-body align-items-center justify-content-center">
+                                                                    <i class="bi bi-list-stars" style="font-size: 2rem"></i>
+                                                                    <p><strong>{{ user_project.task_count }}</strong></p>
+                                                                    <p class="mt-0"><strong>Görev</strong></p>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-6 text-center" style="min-height: 40px; border-radius: 10%">
+                                                                <div class="card-body align-items-center justify-content-center">
+                                                                    <i class="bi bi-person-fill" style="font-size: 2rem"></i>
+                                                                    <p><strong>{{ user_project.users.count }}</strong></p>
+                                                                    <p><strong>Katılımcı</strong></p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex-row mt-5">
+                                                            <div class="progress">
+                                                                <div class="progress-bar" role="progressbar"
+                                                                     style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            </div>
+                                                            <div class="mt-3">
+                                                                <span style="font-size: 14px; font-weight: 600">Yüzde
+                                                                    <span style="color: #a5aec0">veya görev sayısı eklenecek.</span>
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </a>
                                         </div>
                                     {% endfor %}
-                                    <div class="col-2 text-center">
-                                        <div class="card h-100" style="border-color: #2A97D0; border-radius: 2%">
+                                    <div class="col-3 text-center my-3">
+                                        <div class="card h-100 ml-2 mr-2" style="border-color: #2A97D0; border-radius: 2%; min-height: 300px">
                                             <div class="card-body d-flex align-items-center justify-content-center">
                                                 <a href="/create_project"><i class="bi bi-plus-square-fill" style="color: #2A97D0; font-size: 5rem"></i></a>
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="col-3 h-100"></div>
                                 </div>
                             </div>
                             <div class="card my-4">
@@ -82,13 +146,16 @@
                                 </div>
                                 <div class="card-body row">
                                     {% for user_company in user_companies %}
-                                        <div class="col-2 text-center">
-                                            <a href="/projects/{{ user_company.id }}">
+                                        <div class="col-2">
+                                            <a href="/companies/{{ user_company.id }}">
                                                 <div class="card company-card h-100">
                                                     <div class="card-body">
-                                                        <div class="card-header" style="height: 30px; padding: 0 0;
+                                                        <div class="card-header text-center" style="height: 30px; padding: 0 0;
                                                             border-bottom: 1px solid black; text-transform: uppercase">
                                                             <p>{{ user_company.name }}</p>
+                                                        </div>
+                                                        <div class="card-body pt-3" style="padding: 0 0">
+                                                            <p class="card-text">{{ user_company.description|safe }}</p>
                                                         </div>
                                                     </div>
                                                 </div>

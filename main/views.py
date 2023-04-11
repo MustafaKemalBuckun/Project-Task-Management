@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from accounts.models import User
@@ -6,18 +6,18 @@ from .forms import UserRegisterForm, ProjectForm
 from .forms import LoginForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-
+from .models import Project, Company
 
 # Create your views here.
-from .models import Project, Company
 
 
 def index(request):
     user = request.user
+    projects = Project.objects.filter(Q(users=user) | Q(owner=user)).annotate(task_count=Count('task'))
     if not user.is_anonymous:
         context = {
             'user': user,
-            'user_projects': Project.objects.filter(Q(users=user) | Q(owner=user)),
+            'user_projects': projects,
             'user_companies': Company.objects.filter(Q(owner=user) | Q(employees=user)),
         }
         return render(request, 'home/index.html', context)

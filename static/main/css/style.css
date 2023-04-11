@@ -66,12 +66,12 @@ dd {
   margin-left: 0; }
 
 a {
-  color: #20a8d8;
+  color: inherit;
   text-decoration: none;
   background-color: transparent; }
 a:hover {
-  color: #167495;
-  text-decoration: underline; }
+  color: inherit;
+  text-decoration: none; }
 
 img {
   vertical-align: middle;
@@ -179,7 +179,7 @@ progress {
   background-color: #3a9d5d; }
 
 .project-card {
-  background-color: #d0d0f1;
+  background-color: #f5f7ff;
 }
 
 .company-card {
