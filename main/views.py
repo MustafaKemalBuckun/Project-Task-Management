@@ -2,7 +2,7 @@ from django.db.models import Q, Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from accounts.models import User
-from .forms import UserRegisterForm, ProjectForm
+from .forms import UserRegisterForm, ProjectForm, CompanyForm
 from .forms import LoginForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -99,6 +99,24 @@ def create_project(request):
     else:
         projectform = ProjectForm(companies)
     return render(request, 'project/create_project.html', {'projectform': projectform})
+
+
+def create_company(request):
+    user = request.user
+    if request.method == 'POST':
+        companyform = CompanyForm(request.POST, request.FILES)
+        if companyform.is_valid():
+            print("validated.")
+            company = companyform.save(commit=False)
+            company.owner = user
+            company.save()
+            company.employees.add(user)
+            company.save()
+        else:
+            print("not valid.")
+    else:
+        companyform = CompanyForm()
+    return render(request, 'companies/create_company.html', {'companyform': companyform})
 
 
 def pin_project(request, project_id: int):

@@ -27,9 +27,11 @@ urlpatterns = [
     path('login/', user_views.login_view, name='login'),
     path('logout/', user_views.logout_view, name='logout'),
     path('create_project/', user_views.create_project, name='create_project'),
+    path('create_company/', user_views.create_company, name='create_company'),
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path('pin/<int:project_id>/', user_views.pin_project),
     path('delete_project/<int:project_id>/', user_views.delete_project, name='delete_project')
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
