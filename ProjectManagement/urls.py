@@ -28,8 +28,10 @@ urlpatterns = [
     path('logout/', user_views.logout_view, name='logout'),
     path('create_project/', user_views.create_project, name='create_project'),
     path('ckeditor/', include('ckeditor_uploader.urls')),
-    path('pin/<int:project_id>/', user_views.pin_project)
-]
+    path('pin/<int:project_id>/', user_views.pin_project),
+    path('delete_project/<int:project_id>/', user_views.delete_project, name='delete_project')
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+

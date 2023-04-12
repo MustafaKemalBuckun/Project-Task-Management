@@ -6,7 +6,8 @@ from .forms import UserRegisterForm, ProjectForm
 from .forms import LoginForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from .models import Project, Company
+from .models import Project, Company, PinnedProjects
+
 
 # Create your views here.
 
@@ -14,8 +15,9 @@ from .models import Project, Company
 def index(request):
     user = request.user
     if not user.is_anonymous:
-        projects = Project.objects.filter(Q(users=user) | Q(owner=user)).annotate(task_count=Count('task'))
-        projects = sorted(projects, key=lambda obj: obj.is_pinned, reverse=True)
+        projects = Project.objects.filter(Q(users=user) | Q(owner=user)).annotate(
+            task_count=Count('task')).order_by('pinnedprojects', 'pinnedprojects__pinned_at')
+        pinned_projects = PinnedProjects.objects.filter(user=user).values_list('project_id', flat=True)
         percentages = []
         for project in projects:
             total_tasks = project.task_set.count()
@@ -30,7 +32,8 @@ def index(request):
             'user': user,
             'user_projects': projects,
             'user_companies': Company.objects.filter(Q(owner=user) | Q(employees=user)),
-            'project_data': zip(projects, percentages)
+            'project_data': zip(projects, percentages),
+            'pinned_projects': pinned_projects,
         }
 
         return render(request, 'home/index.html', context)
@@ -55,7 +58,6 @@ def login_view(request):
     if request.method == 'POST':
         loginform = LoginForm(request.POST)
         if loginform.is_valid():
-            print("test")
             username = loginform.cleaned_data.get("username")
             password = loginform.cleaned_data.get("password")
             user = authenticate(request, username=username, password=password)
@@ -88,26 +90,30 @@ def create_project(request):
     if request.method == 'POST':
         projectform = ProjectForm(companies, request.POST)
         if projectform.is_valid():
-            print("validated.")
             project = projectform.save(commit=False)
             project.owner = user
             project.save()
             project.users.add(user)
             project.save()
-        else:
-            print("not valid.")
+        return redirect('home')
     else:
         projectform = ProjectForm(companies)
     return render(request, 'project/create_project.html', {'projectform': projectform})
 
 
 def pin_project(request, project_id: int):
+    user = request.user
     project = Project.objects.get(id=project_id)
-    if project.is_pinned:
-        project.is_pinned = False
-        project.save()
+    pinned = PinnedProjects.objects.filter(project=project, user=user)
+    if pinned:
+        PinnedProjects.objects.get(project=project, user=user).delete()
     else:
-        project.is_pinned = True
-        project.save()
+        project.pinnedprojects_set.create(project=project, user=user)
 
     return index(request)
+
+
+def delete_project(request, project_id: int):
+    project = Project.objects.get(id=project_id)
+    project.delete()
+    return redirect('home')
