@@ -3,8 +3,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
 from django.forms import ModelChoiceField
-
-from main.models import Project
+from main.models import Project, Company
 
 User = get_user_model()
 
@@ -46,3 +45,14 @@ class ProjectForm(forms.ModelForm):
 
     def is_valid(self):
         return super(ProjectForm, self).is_valid()
+
+
+class CompanyForm(forms.ModelForm):
+    class Meta:
+        model = Company
+        exclude = {
+            'owner',
+        }
+        widgets = {
+            'description': RichTextFormField(config_name="default"),
+        }

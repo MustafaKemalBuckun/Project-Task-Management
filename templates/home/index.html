@@ -159,17 +159,32 @@
                                         <a href="/companies/{{ user_company.id }}">
                                             <div class="card company-card h-100">
                                                 <div class="card-body">
-                                                    <div class="card-header text-center" style="height: 30px; padding: 0 0;
+                                                    <div style="padding: 0 0; text-align: center;">
+                                                    {% if user_company.logo %}
+                                                        <a target="#" href="/companies/{{ user_company.id }}">
+                                                            <img style="height: 50px; width: 50px; border-radius: 50%;"
+                                                                 src="{{ user_company.logo.url }}" class="" alt="{{ company }}">
+                                                        </a>
+                                                        {% else %}
+                                                        <a target="#" href="/companies/{{ user_company.id }}">
+                                                            <img style="height: 50px; width: 50px; border-radius: 50%;"
+                                                                 src="media/media/default_company_logo.png" class="" alt="{{ company }}">
+                                                        </a>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div class="card-header text-center" style="height: 30px; padding: 5px 5px;
                                                                 border-bottom: 1px solid black; text-transform: uppercase">
                                                         <p>{{ user_company.name }}</p>
                                                     </div>
-                                                    <div class="card-body pt-3" style="padding: 0 0">
+
+                                                    <div class="card-body pt-3" style="padding: 5px 5px">
                                                         <p class="card-text">{{ user_company.description|safe }}</p>
                                                     </div>
                                                 </div>
                                             </div>
                                         </a>
                                     </div>
+                                    {% endfor %}
                                     <div class="col-2 text-center">
                                         <div class="card h-100" style="border-color: #2A97D0; border-radius: 2%">
                                             <div class="card-body d-flex align-items-center justify-content-center">
@@ -177,7 +192,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                    {% endfor %}
                                 </div>
                             </div>
                         </div>
