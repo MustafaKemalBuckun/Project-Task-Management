@@ -30,10 +30,18 @@ urlpatterns = [
     path('create_company/', user_views.create_company, name='create_company'),
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path('pin/<int:project_id>/', user_views.pin_project),
-    path('delete_project/<int:project_id>/', user_views.delete_project, name='delete_project')
+    path('delete_project/<int:project_id>/', user_views.delete_project, name='delete_project'),
+    path('project/<int:project_id>/', user_views.project_view, name='project'),
+    path('leave_project/<int:project_id>/', user_views.leave_project, name='leave_project'),
+    path('update_project/<int:project_id>/', user_views.update_project, name='update_project'),
+    path('add_member/<int:project_id>/', user_views.add_project_member, name='add_member'),
+    path('add_staff/<int:project_id>/', user_views.add_project_staff, name='add_project_staff'),
+    path('accept_invitation/<int:project_id>/', user_views.accept_invitation, name='accept_invitation'),
+    path('decline_invitation/<int:project_id>/', user_views.decline_invitation, name='decline_invitation'),
+    path('remove/<int:project_id>/<int:user_id>/', user_views.remove_member, name='remove_member'),
+    path('remove_staff/<int:project_id>/<int:user_id>/', user_views.remove_staff, name='remove_staff'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-

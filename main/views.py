@@ -1,12 +1,13 @@
+from django.contrib.messages import get_messages
 from django.db.models import Q, Count
-from django.http import HttpResponseRedirect
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from accounts.models import User
-from .forms import UserRegisterForm, ProjectForm, CompanyForm
+from .forms import UserRegisterForm, ProjectForm, CompanyForm, ProjectUpdateForm, AddStaff
 from .forms import LoginForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from .models import Project, Company, PinnedProjects
+from .models import Project, Company, PinnedProjects, Board, Task, ProjectStaff, Invitation
 
 
 # Create your views here.
@@ -15,10 +16,16 @@ from .models import Project, Company, PinnedProjects
 def index(request):
     user = request.user
     if not user.is_anonymous:
-        projects = Project.objects.filter(Q(users=user) | Q(owner=user)).annotate(
-            task_count=Count('task')).order_by('pinnedprojects', 'pinnedprojects__pinned_at')
-        pinned_projects = PinnedProjects.objects.filter(user=user).values_list('project_id', flat=True)
+        projects = Project.objects.filter(Q(users=user) | Q(owner=user)).annotate(task_count=Count('task'))
+        pinned_projects = PinnedProjects.objects.filter(user=user).order_by('pinned_at')
+        print(pinned_projects.values_list('project_id'))
+        unpinned_projects = Project.objects.filter(Q(users=user) | Q(owner=user)).annotate(
+            task_count=Count('task')).exclude(pinnedprojects__in=pinned_projects)
+        print(unpinned_projects)
         percentages = []
+        user_companies = Company.objects.filter(Q(owner=user) | Q(employees=user))
+
+        user_invitations = Invitation.objects.filter(invited=user)
         for project in projects:
             total_tasks = project.task_set.count()
             completed_tasks = project.task_set.filter(status='Tamamlandı').count()
@@ -31,9 +38,11 @@ def index(request):
         context = {
             'user': user,
             'user_projects': projects,
-            'user_companies': Company.objects.filter(Q(owner=user) | Q(employees=user)),
-            'project_data': zip(projects, percentages),
+            'user_companies': user_companies,
+            'unpinned_project_data': zip(unpinned_projects, percentages),
+            'pinned_project_data': zip(pinned_projects, percentages),
             'pinned_projects': pinned_projects,
+            'user_invitations': user_invitations,
         }
 
         return render(request, 'home/index.html', context)
@@ -46,8 +55,6 @@ def register(request):
         registerform = UserRegisterForm(request.POST)
         if registerform.is_valid():
             registerform.save()
-            username = registerform.cleaned_data.get('username')
-            messages.success(request, f'{username} kullanıcısı için hesap başarıyla oluşturuldu! Giriş yapabilirsiniz.')
             return redirect('login')
     else:
         registerform = UserRegisterForm()
@@ -77,16 +84,18 @@ def logout_view(request):
 def base_context(request):   # used for base.html
     user = request.user
     user_projects = Project.objects.filter(users=user)
+    user_invitations = Invitation.objects.filter(invited=user)
     context = {
         'user': user,
-        'user_projects': user_projects
+        'user_projects': user_projects,
+        'user_invitations': user_invitations,
     }
     return context
 
 
 def create_project(request):
     user = request.user
-    companies = Company.objects.filter(Q(owner=user) | Q(employees=user)).distinct()
+    companies = Company.objects.filter(owner=user)
     if request.method == 'POST':
         projectform = ProjectForm(companies, request.POST)
         if projectform.is_valid():
@@ -95,10 +104,12 @@ def create_project(request):
             project.save()
             project.users.add(user)
             project.save()
+            staff = ProjectStaff.objects.create(user=user, project=project)
+            staff.save()
         return redirect('home')
     else:
         projectform = ProjectForm(companies)
-    return render(request, 'project/create_project.html', {'projectform': projectform})
+    return render(request, 'projects/create_project.html', {'projectform': projectform})
 
 
 def create_company(request):
@@ -135,3 +146,122 @@ def delete_project(request, project_id: int):
     project = Project.objects.get(id=project_id)
     project.delete()
     return redirect('home')
+
+
+def project_view(request, project_id: int):
+    user = request.user
+    project = Project.objects.get(id=project_id)
+    project_staff = User.objects.filter(projectstaff__project=project)
+    project_users = project.users.exclude(Q(id=project.owner.id) | Q(projectstaff__project=project))
+    boards = Board.objects.filter(project=project)
+    tasks = Task.objects.filter(project=project, board__in=boards)
+    projectform = ProjectUpdateForm(instance=project)
+    staff_form = AddStaff(project_users)
+    message = get_messages(request)
+    print(project_staff.values_list('username'))
+    print(project_users.values_list('username'))
+    context = {
+        'messages': message,
+        'project': project,
+        'boards': boards,
+        'tasks': tasks,
+        'user': user,
+        'projectform': projectform,
+        'staff_form': staff_form,
+        'project_staff': project_staff,
+    }
+
+    return render(request, 'projects/project.html', context)
+
+
+def leave_project(request, project_id: int):
+    user = request.user
+    project = Project.objects.get(id=project_id)
+    project.users.remove(user)
+    return redirect('home')
+
+
+def update_project(request, project_id: int):
+    project = Project.objects.get(id=project_id)
+    project_users = project.users.all()
+    project_staff = project.projectstaff_set.all()
+    if request.method == 'POST':
+        projectform = ProjectUpdateForm(request.POST, instance=project)
+        if projectform.is_valid():
+            p = projectform.save(commit=False)
+            p.users.set(project_users)
+            p.projectstaff_set.set(project_staff)
+            p.save()
+        else:
+            print('fail.')
+        return redirect('project', project_id)
+
+
+def add_project_member(request, project_id: int):
+    project = Project.objects.get(id=project_id)
+    if request.method == "POST":
+        username = request.POST.get('username')
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Kullanıcı bulunamadı.'})
+        if project.users.filter(username=username).exists():
+            return JsonResponse({'status': 'warning', 'message': 'Bu kullanıcı zaten eklenmiş.'})
+        invitation = Invitation.objects.filter(inviter=project.owner, invited=user, project=project)
+        if invitation:
+            return JsonResponse({'status': 'warning', 'message': 'Bu kullanıcıya zaten davet gönderilmiş.'})
+        invite = Invitation.objects.create(inviter=project.owner, invited=user, project=project)
+        invite.save()
+        return JsonResponse({'status': 'success', 'message': 'Kullanıcıya davet gönderildi!'})
+    else:
+        return redirect('project', project_id)
+
+
+def add_project_staff(request, project_id: int):
+    project = Project.objects.get(id=project_id)
+    project_users = project.users.exclude(Q(id=project.owner.id) & Q(projectstaff__user__in=project.users.all()))
+    if request.method == "POST":
+        staff_form = AddStaff(project_users, request.POST)
+        if staff_form.is_valid():
+            s = staff_form.save(commit=False)
+            s.project = project
+            s.save()
+            print('not fail.')
+        else:
+            print('failed.')
+        return redirect('project', project_id)
+
+
+def accept_invitation(request, project_id: int):
+    user = request.user
+    project = Project.objects.get(id=project_id)
+    project.users.add(user)
+    project.save()
+    invitation = Invitation.objects.get(inviter=project.owner, invited=user, project=project)
+    invitation.delete()
+    return redirect('project', project_id)
+
+
+def decline_invitation(request, project_id: int):
+    user = request.user
+    project = Project.objects.get(id=project_id)
+    invitation = Invitation.objects.get(inviter=project.owner, invited=user, project=project)
+    invitation.delete()
+    return redirect('home')
+
+
+def remove_member(request, project_id: int, user_id: int):
+    user = User.objects.get(id=user_id)
+    project = Project.objects.get(id=project_id)
+    project.users.remove(user)
+    print('we here')
+    return redirect('project', project_id)
+
+
+def remove_staff(request, project_id: int, user_id: int):
+    user = User.objects.get(id=user_id)
+    project = Project.objects.get(id=project_id)
+    project_staff = ProjectStaff.objects.get(user=user, project=project)
+    project_staff.delete()
+    print('we here')
+    return redirect('project', project_id)

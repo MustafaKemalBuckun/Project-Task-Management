@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
 from django.forms import ModelChoiceField
-from main.models import Project, Company
+from main.models import Project, Company, ProjectStaff
 
 User = get_user_model()
 
@@ -56,3 +56,26 @@ class CompanyForm(forms.ModelForm):
         widgets = {
             'description': RichTextFormField(config_name="default"),
         }
+
+
+class ProjectUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        exclude = {
+            'owner',
+            'date_created',
+            'company',
+            'users',
+        }
+
+
+class AddStaff(forms.ModelForm):
+    class Meta:
+        model = ProjectStaff
+        exclude = {
+            'project',
+        }
+
+    def __init__(self, project_users, *args, **kwargs):
+        super(AddStaff, self).__init__(*args, **kwargs)
+        self.fields['user'].queryset = project_users

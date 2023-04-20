@@ -4,10 +4,19 @@
 <head>
     <meta charset="utf-8">
     <title>Project Management</title>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js" integrity="sha512-pumBsjNRGGqkPzKHndZMaAG+bir374sORyzM3uulLV14lN5LyykqNk8eEeUlUkB3U0M4FApyaHraT65ihJhDpQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.2/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.html5.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/dataTables.bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="{% static 'main/css/style.css' %}" rel="stylesheet">
+    <script src="{% static 'main/vendors/js/bootstrap.min.js'%}"></script>
+    <script src="{% static 'main/js/app.js'%}"></script>
 </head>
 <body class="app header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden">
 
@@ -57,8 +66,8 @@
                     <strong>Hesap</strong>
                 </div>
                 {% if user.is_authenticated %}
-                    <a class="dropdown-item" href=""><i class="bi bi-envelope-fill"></i> Davetler<span class="badge badge-success">{{ user.received_invites.count }}</span></a>
-                    <a class="dropdown-item" href="#"><i class="bi bi-list-task"></i> Görevler<span class="badge badge-danger">{{ user.task_set.values.count }}</span></a>
+                    <a class="dropdown-item" href="" data-toggle="modal" data-target="#davetler"><i class="bi bi-envelope-fill"></i> Davetler{% if user_invitations %}<span class="badge badge-success">{{ user_invitations.count }}</span>{% endif %}</a>
+                    <a class="dropdown-item" href="#"><i class="bi bi-list-task"></i> Görevler {% if user.task_set.values.count > 0 %}<span class="badge badge-danger">{{ user.task_set.values.count }}</span>{% endif %}</a>
                     <div class="dropdown-header text-center">
                         <strong>Ayarlar</strong>
                     </div>
@@ -150,14 +159,32 @@
         {% endblock %}
     </main>
 </div>
-
-<script src="{% static 'main/vendors/js/jquery.min.js'%}"></script>
-<script src="{% static 'main/vendors/js/popper.min.js'%}"></script>
-<script src="{% static 'main/vendors/js/bootstrap.min.js'%}"></script>
-<script src="{% static 'main/vendors/js/pace.min.js'%}"></script>
-<script src="{% static 'main/vendors/js/Chart.min.js'%}"></script>
-<script src="{% static 'main/js/app.js'%}"></script>
-<script src="{% static 'main/js/main.js'%}"></script>
-
+<div class="modal fade" id="davetler" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="davetler">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                {% if user_invitations %}
+                    {% for invitation in user_invitations %}
+                        <hr class="mb-4">
+                        <div class="row justify-content-center">
+                            <p class="text-center" style="font-size: 1.5rem">{{ invitation.inviter }} sizi  {{ invitation.project.name }} {% if invitation.project.company %}(<a href="/company/{{ invitation.project.company.id }}" style="color: #1b8eb7">{{ invitation.project.company.name }}</a>){% endif %} projesine davet etti.</p>
+                        </div>
+                        <div class="row justify-content-center">
+                            <a href="{% url 'accept_invitation' invitation.project.id %}" class="btn btn-success mx-3" style="width: 100px">Kabul Et</a>
+                            <a href="{% url 'decline_invitation' invitation.project.id %}" class="btn btn-danger mx-3" style="width: 100px">Reddet</a>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="row justify-content-center">
+                        <p class="text-center" style="font-size: 2rem">Hiçbir yeni davetiniz yok.</p>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer align-content-center justify-content-center">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

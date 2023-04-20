@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.db import models
 from django.conf import settings
 from ckeditor.fields import RichTextField
@@ -31,7 +29,7 @@ class Project(models.Model):
     )
 
     name = models.CharField(max_length=30, default=None)
-    description = RichTextField(max_length=200, default=None)
+    description = RichTextField(max_length=1000, default=None)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True,
                               blank=True, on_delete=models.SET_NULL, related_name='project_owner')
     company = models.ForeignKey(Company, null=True, blank=True, on_delete=models.SET_NULL)
@@ -113,3 +111,15 @@ class Message(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     # recipients = models.ManyToManyField(settings.AUTH_USER_MODEL)  //??
+
+
+class ProjectStaff(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=False)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=False, default=None)
+
+
+class Invitation(models.Model):
+    inviter = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sender')
+    invited = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='recipient')
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    date_created = models.DateField(auto_now_add=True)

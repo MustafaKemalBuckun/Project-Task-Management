@@ -1,5 +1,5 @@
 """
-WSGI config for ProjectManagement project.
+WSGI config for ProjectManagement projects.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
