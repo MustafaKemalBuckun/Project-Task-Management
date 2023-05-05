@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
 from django.forms import ModelChoiceField
-from main.models import Project, Company, ProjectStaff
+from main.models import Project, Company, ProjectStaff, Message
 
 User = get_user_model()
 
@@ -79,3 +79,21 @@ class AddStaff(forms.ModelForm):
     def __init__(self, project_users, *args, **kwargs):
         super(AddStaff, self).__init__(*args, **kwargs)
         self.fields['user'].queryset = project_users
+
+
+class CreateAnnouncement(forms.ModelForm):
+    class Meta:
+        model = Message
+        exclude = {
+            'owner',
+            'project',
+        }
+
+
+class UpdateAnnouncement(forms.ModelForm):
+    class Meta:
+        model = Message
+        exclude = {
+            'owner',
+            'project',
+        }

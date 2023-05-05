@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'accounts',
     'ckeditor',
     'widget_tweaks',
+    'celery',
 ]
 
 
@@ -113,7 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'tr-TR'
 
 TIME_ZONE = 'UTC'
 

@@ -1,13 +1,16 @@
 from django.contrib.messages import get_messages
-from django.db.models import Q, Count
-from django.http import JsonResponse
+from django.db.models import Q, Count, Case, When, Value, IntegerField
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
+
 from accounts.models import User
-from .forms import UserRegisterForm, ProjectForm, CompanyForm, ProjectUpdateForm, AddStaff
+from .forms import UserRegisterForm, ProjectForm, CompanyForm, ProjectUpdateForm, AddStaff, CreateAnnouncement, \
+    UpdateAnnouncement
 from .forms import LoginForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from .models import Project, Company, PinnedProjects, Board, Task, ProjectStaff, Invitation
+from .models import Project, Company, PinnedProjects, Board, Task, ProjectStaff, Invitation, Message
 
 
 # Create your views here.
@@ -157,18 +160,29 @@ def project_view(request, project_id: int):
     tasks = Task.objects.filter(project=project, board__in=boards)
     projectform = ProjectUpdateForm(instance=project)
     staff_form = AddStaff(project_users)
+    announcement_form = CreateAnnouncement()
+    announcements = Message.objects.filter(project=project)
     message = get_messages(request)
-    print(project_staff.values_list('username'))
-    print(project_users.values_list('username'))
+    sort_algorithm = Case(
+        When(id=project.owner.id, then=Value(0)),
+        When(id__in=project_staff.values('id'), then=Value(1)),
+        default=Value(2),
+        output_field=IntegerField()
+    )
+    all_users = project.users.order_by(sort_algorithm)
     context = {
+        'project_members': project_users,
         'messages': message,
         'project': project,
         'boards': boards,
         'tasks': tasks,
-        'user': user,
+        'current_user': user,
         'projectform': projectform,
         'staff_form': staff_form,
         'project_staff': project_staff,
+        'all_users': all_users,
+        'announcement_form': announcement_form,
+        'announcements': announcements,
     }
 
     return render(request, 'projects/project.html', context)
@@ -264,4 +278,39 @@ def remove_staff(request, project_id: int, user_id: int):
     project_staff = ProjectStaff.objects.get(user=user, project=project)
     project_staff.delete()
     print('we here')
+    return redirect('project', project_id)
+
+
+def create_announcement(request, project_id: int):
+    user = request.user
+    project = Project.objects.get(id=project_id)
+    if request.method == 'POST':
+        announcement_form = CreateAnnouncement(request.POST)
+        if announcement_form.is_valid():
+            announcement = announcement_form.save(commit=False)
+            announcement.owner = user
+            announcement.project = project
+            announcement.save()
+            return redirect('project', project_id)
+
+
+def update_status(request, project_id: int):
+    if request.method == 'POST':
+        user = request.user
+        project = Project.objects.get(id=project_id)
+        if user == project.owner and project.status == 'Aktif':
+            project.status = 'İnaktif'
+            project.save()
+            return redirect('project', project_id)
+        elif user == project.owner and project.status == 'İnaktif':
+            project.status = 'Aktif'
+            project.save()
+            return redirect('project', project_id)
+        return redirect('home')
+
+
+def delete_announcement(request, message_id: int):
+    announcement = Message.objects.get(id=message_id)
+    project_id = announcement.project.id
+    announcement.delete()
     return redirect('project', project_id)

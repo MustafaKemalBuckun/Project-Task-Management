@@ -5,7 +5,7 @@ from ckeditor.fields import RichTextField
 
 class Company(models.Model):
     name = models.CharField(max_length=30)
-    description = RichTextField(max_length=200, default=None)
+    description = RichTextField(max_length=1000, default=None)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name='owner')
     employees = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='employees')
     logo = models.ImageField(default=None, blank=True, null=True, upload_to='media/')
@@ -107,9 +107,10 @@ class Label(models.Model):
 
 class Message(models.Model):
     title = models.CharField(max_length=30)
-    content = RichTextField(max_length=200)
+    content = RichTextField(max_length=500)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    date_created = models.DateTimeField(auto_now_add=True)
     # recipients = models.ManyToManyField(settings.AUTH_USER_MODEL)  //??
 
 

@@ -8,16 +8,11 @@
                 <div class="row my-4">
                     <div class="col-12">
                         <div class="card">
-                            {% if messages %}
-                                {% for message in messages %}
-                                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                                {% endfor %}
-                            {% endif %}
                             <div class="card-body">
                                 <div class="row mx-3">
                                     <div class="col-6 mt-1">
                                         <h1 class="display-3 mt-4 mb-4">{{ project.name }}</h1>
-                                        {% if user == project.owner %}
+                                        {% if current_user == project.owner %}
                                             <div class="row mx-3">
                                                 <div class="col-3 mx-1 mt-5">
                                                     <a onclick="toggleMenu()" class="btn btn-block" style="position: absolute;
@@ -47,7 +42,7 @@
                                                     </a>
                                                 </div>
                                             </div>
-                                        {% else %}
+                                        {% elif current_user in project_members %}
                                             <a class="btn btn-block" data-toggle="modal" data-target="#ayrıl" style="position: absolute; bottom: -10%; left: -33%">
                                             <i class="bi bi-box-arrow-left pr-1 text-danger"></i>
                                             <strong class="text-danger">Projeden Ayrıl</strong>
@@ -85,11 +80,13 @@
                                                 </div>
                                             </div>
                                             <div class="col-2 px-1 text-center" style="min-height: 20px; border-radius: 10%">
-                                                <div class="align-items-center justify-content-center">
-                                                    <i class="bi bi-people-fill" style="font-size: 1.5rem"></i>
-                                                    <p><strong>{{ project.users.count }} </strong></p>
-                                                    <p><strong>Üye</strong></p>
-                                                </div>
+                                                <a href="/üyeleri-görüntüle" data-toggle="modal" data-target="#users">
+                                                    <div class="align-items-center justify-content-center">
+                                                        <i class="bi bi-people-fill" style="font-size: 1.5rem"></i>
+                                                        <p><strong>{{ project.users.count }} </strong></p>
+                                                        <p><strong>Üye</strong></p>
+                                                    </div>
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
@@ -110,34 +107,50 @@
                                 <div id="hidden-menu" style="display: none">
                                     <div class="row mx-3 my-3">
                                         <div class="col-6">
-                                            <li style="list-style: none; font-size: large" class="mt-2">
-                                                <a href="/düzenle" data-toggle="modal" data-target="#project-form" data-project-id="{{ project.id }}">
-                                                    <i class="bi bi-pencil-fill" style="color: #266438; font-style: normal; font-size: 2rem"> Düzenle</i>
-                                                </a>
-                                            </li>
+                                            {% if current_user == project.owner %}
+                                                <li style="list-style: none; font-size: large" class="mt-2">
+                                                    <a href="/düzenle" data-toggle="modal" data-target="#project-form">
+                                                        <i class="bi bi-pencil-fill" style="color: #266438; font-style: normal; font-size: 2rem"> Düzenle</i>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
                                             <li style="list-style: none; font-size: large" class="mt-4">
                                                 <a href="/üye-ekle" data-toggle="modal" data-target="#add-member">
                                                     <i class="bi bi-person-fill-add" style="color: #007bff; font-style: normal; font-size: 2rem"> Üye Ekle</i>
                                                 </a>
                                             </li>
                                             <li style="list-style: none; font-size: large" class="mt-4">
-                                                <a href="">
+                                                <a href="" data-toggle="modal" data-target="#announcement-form">
                                                     <i class="bi bi-megaphone-fill" style="color: #8c00ff; font-style: normal; font-size: 2rem"> Duyuru Oluştur</i>
                                                 </a>
                                             </li>
                                         </div>
-                                        <div class="col-6">
-                                            <li style="list-style: none; font-size: large" class="mt-2">
-                                                <a href="/görevli-ekle" data-toggle="modal" data-target="#add-staff">
-                                                    <i class="bi bi-person-fill-add" style="color: #ff8c00; font-style: normal; font-size: 2rem"> Görevli Ekle</i>
-                                                </a>
-                                            </li>
-                                            <li style="list-style: none; font-size: large" class="mt-4">
-                                                <a href="/üyeleri-yönet" data-toggle="modal" data-target="#users">
-                                                    <i class="bi bi-people-fill" style="color: #707072; font-style: normal; font-size: 2rem;"> Üyeleri Yönet</i>
-                                                </a>
-                                            </li>
-                                        </div>
+                                        {% if current_user == project.owner %}
+                                            <div class="col-6">
+                                                <li style="list-style: none; font-size: large" class="mt-2">
+                                                    <a href="/görevli-ekle" data-toggle="modal" data-target="#add-staff">
+                                                        <i class="bi bi-person-fill-add" style="color: #ff8c00; font-style: normal; font-size: 2rem"> Görevli Ekle</i>
+                                                    </a>
+                                                </li>
+                                                <li style="list-style: none; font-size: large" class="mt-4">
+                                                    <a href="/üyeleri-yönet" data-toggle="modal" data-target="#users">
+                                                        <i class="bi bi-people-fill" style="color: #707072; font-style: normal; font-size: 2rem;"> Üyeleri Yönet</i>
+                                                    </a>
+                                                </li>
+                                                <li style="list-style: none; font-size: large" class="mt-4">
+                                                    <div class="row align-items-right justify-content-right w-100">
+                                                        <div class="col-10 align-items-right justify-content-right w-100">
+                                                            <i class="bi bi-graph-up" style="color: #000000; font-style: normal; font-size: 2rem;"> Durum: </i>
+                                                        </div>
+                                                        <div class="col-2" style="position: absolute; right: 57%; bottom: 1%">
+                                                            <input id="toggleActivity" data-project-id="{{ project.id }}" type="checkbox" {% if project.status == 'Aktif' %} checked {% endif %}  data-toggle="toggle" data-size="lg"
+                                                                   data-on="Aktif" data-off="İnaktif" data-onstyle="success"
+                                                                   data-offstyle="danger" style="border-radius: 20rem">
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </div>
+                                        {% endif %}
                                     </div>
                                 <hr class="my-4">
                                 </div>
@@ -153,22 +166,114 @@
             </div>
         </div>
     </div>
-{#    {% for board in boards %}#}
-{#        <div class="card col-3 project-card p-3 pb-3 h-100 ml-2" style="min-height: 300px">#}
-{#            <div class="row d-flex justify-content-between px-3 py-2">#}
-{#                <div class="col-12 d-flex flex-row align-items-center pt-3" style="height: 40px">#}
-{#                    <div class="ms-2 c-details ml-1">#}
-{#                        <h5>{{ board.title }}</h5>#}
-{#                    </div>#}
-{#                </div>#}
-{#            </div>#}
-{#            <div class="row">#}
-{#                {% for task in tasks %}#}
-{#                    <p>{{ task.title }}</p>#}
-{#                {% endfor %}#}
-{#            </div>#}
-{#        </div>#}
-{#    {% endfor %}#}
+    {% if current_user in all_users %}
+    <div class="container-fluid">
+        <div id="ui-view" style="opacity: 1;">
+            <div class="animated fadeIn">
+                <div class="row my-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header mx-4 mb-4">
+                                <h2 class="my-4" style="color: #d97171">Duyurular<i class="ml-2 fa fa-scroll"></i></h2>
+                            </div>
+                            {% if announcements %}
+                                {% for announcement in announcements %}
+                                    <div class="card card-white post mx-4 mb-3" style="background-color: #f1f2f3">
+                                        <div class="post-heading mx-3 mt-3">
+                                            <div class="float-left image mb-4">
+                                                <img {% if announcement.owner.photo %}
+                                                    src="{{ announcement.owner.photo.url }}"
+                                                {% else %} src="{% static 'main/img/avatar/blank_profile.png' %}"
+                                                {% endif %} class="img-avatar" alt="user profile image" style="width: 64px; height: 64px;">
+                                            </div>
+                                            <div class="float-left meta">
+                                                <div class="title h3">
+                                                    <a href="#"><b>{{ announcement.owner.first_name }} {{ announcement.owner.last_name }}</b></a>
+                                                    bir duyuru yaptı.
+                                                </div>
+                                                <h6 class="text-muted time">{{ announcement.date_created|timesince }} önce</h6>
+                                            </div>
+                                        </div>
+                                        <div class="post-description mx-3 ml-4">
+                                            <p>{{ announcement.content|safe }}</p>
+                                        </div>
+                                        {% if current_user == announcement.owner %}
+                                            <a href="/sil" style="position: absolute; right: 2%; bottom: 5%; font-size: 2rem; color: red" data-toggle="modal" data-target="#a_sil"><i class="bi bi-trash-fill"></i></a>
+                                        {% endif %}
+                                    </div>
+                                    <div class="modal fade" id="a_sil" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="a_sil">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-body">
+                                                    Bu duyuruyu silmek istediğinizden emin misiniz?
+                                                </div>
+                                                <div class="modal-footer align-content-center justify-content-center">
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+                                                    <a href="{% url 'delete_announcement' announcement.id %}" class="btn btn-danger delete-button" style="width: 50px">Sil</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="card-body">
+                                    <div class="row mx-3 mb-2">
+                                        <div class="col-12">
+                                            <h5>Hiç duyuru yok.</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div id="ui-view" style="opacity: 1;">
+            <div class="animated fadeIn">
+                <div class="row my-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header mx-4 mb-4">
+                                <h2 class="my-4" style="color: #d97171">Duyurular<i class="ml-2 fa fa-scroll"></i></h2>
+                            </div>
+                            {% if boards %}
+                                {% for board in boards %}
+                                    <div class="col-3 my-3">
+                                        <div class="card project-card p-3 pb-3 h-100 ml-2" style="min-height: 300px">
+                                            <div class="row d-flex justify-content-between px-3 py-2">
+                                                <div class="col-9 d-flex flex-row align-items-center pt-3" style="height: 40px">
+                                                    <div class="ms-2 c-details ml-1">
+                                                        <h5>{{ board.title }}</h5>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                {% for task in tasks %}
+                                                    <p>{{ task.title }}</p>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="card-body">
+                                    <div class="row mx-3 mb-2">
+                                        <div class="col-12">
+                                            <h5>Hiç pano açılmamış.</h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 {#  <-----Modals----->  #}
     <div class="modal fade" id="ayrıl" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="ayrıl">
         <div class="modal-dialog" role="document">
@@ -293,8 +398,12 @@
     </div>
     <div class="modal fade" id="users" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="users">
         <div class="modal-dialog" role="document">
+
             <div class="modal-content" style="min-width: 150%; position: absolute; left: -25%;">
-                <div class="container w-100 my-5">
+                <div class="modal-header align-content-center justify-content-center">
+                    <strong>Üyeler</strong>
+                </div>
+                <div class="container w-100 my-3">
                     <table class="table" id="users_table">
                         <thead>
                             <tr>
@@ -303,47 +412,50 @@
                                 <th>Kullanıcı Adı</th>
                                 <th>Yetki</th>
                                 <th>Etiketler</th>
-                                <th>İşlemler</th>
+                                {% if current_user == project.owner %}<th>İşlemler</th>{% endif %}
                             </tr>
                         </thead>
                         <tbody>
-                            {% for user in project.users.all %}
-                            <tr>
-                                <td class="text-center">{% if user.photo %} <img class="img-avatar" src="{{ user.photo.url }}" alt=""> {% else %} <img class="img-avatar" src="{% static 'main/img/avatar/blank_profile.png' %}" alt=""> {% endif %}</td>
-                                <td class="text-center">{{ user.first_name }} {{ user.last_name }}</td>
-                                <td class="text-center">{{ user.username }}</td>
-                                <td class="text-center">{% if user == project.owner %} <strong style="color: #5b0cdd">Yönetici</strong> {% elif user in project_staff %} <strong>Görevli</strong> {% else %} Üye {% endif %}</td>
-                                <td class="text-center">TODO</td>
-                                <td class="text-center">
-                                    {% if user not in project_staff %}
-                                        <a id="btn-remove-member-{{ user.id }}"
-                                           class="btn btn-remove-member"
-                                           data-project-id="{{ project.id }}"
-                                           data-user-id="{{ user.id }}"
-                                           data-confirm-message="{{ user.username }} kullanıcısını projeden çıkarmak istediğinize emin misiniz?"
-                                           href="{% url 'remove_member' project_id=project.id user_id=user.id %}">
-                                            <i class="bi bi-x-circle-fill text-danger" style="font-size: 1.5rem"></i>
-                                        </a>
-                                    {% elif user in project_staff and user != project.owner %}
-                                        <a id="btn-remove-member-{{ user.id }}"
-                                           class="btn-remove-member"
-                                           data-project-id="{{ project.id }}"
-                                           data-user-id="{{ user.id }}"
-                                           data-confirm-message="{{ user.username }} kullanıcısını projeden çıkarmak istediğinize emin misiniz?"
-                                           href="{% url 'remove_member' project_id=project.id user_id=user.id %}">
-                                            <i class="bi bi-x-circle-fill text-danger" style="font-size: 1.5rem"></i>
-                                        </a>
-                                        <a id="btn-remove-staff-{{ user.id }}"
-                                           class="btn-remove-staff ml-1"
-                                           data-project-id="{{ project.id }}"
-                                           data-user-id="{{ user.id }}"
-                                           data-confirm-message="{{ user.username }} kullanıcısının yetkisini almak istediğinize emin misiniz?"
-                                           href="{% url 'remove_staff' project_id=project.id user_id=user.id %}">
-                                            <i class="bi bi-arrow-down-circle-fill text-warning" style="font-size: 1.5rem"></i>
-                                        </a>
+                            {% for user in all_users %}
+
+                                <tr {% if user == current_user %} style="background-color: #ecf2ff" {% endif %}>
+                                    <td class="text-center" style="vertical-align: middle">{% if user.photo %} <img class="img-avatar" src="{{ user.photo.url }}" alt=""> {% else %} <img class="img-avatar" src="{% static 'main/img/avatar/blank_profile.png' %}" alt=""> {% endif %}</td>
+                                    <td class="text-center" style="vertical-align: middle">{{ user.first_name }} {{ user.last_name }}</td>
+                                    <td class="text-center" style="vertical-align: middle">{{ user.username }}</td>
+                                    <td class="text-center" style="vertical-align: middle">{% if user == project.owner %} <strong style="color: #5b0cdd">Yönetici</strong> {% elif user in project_staff %} <strong>Görevli</strong> {% else %} Üye {% endif %}</td>
+                                    <td class="text-center" style="vertical-align: middle">TODO</td>
+                                    {% if current_user == project.owner %}
+                                        <td class="text-center" style="vertical-align: middle">
+                                            {% if user not in project_staff %}
+                                                <a id="btn-remove-member-{{ user.id }}"
+                                                   class="btn btn-remove-member"
+                                                   data-project-id="{{ project.id }}"
+                                                   data-user-id="{{ user.id }}"
+                                                   data-confirm-message="{{ user.username }} kullanıcısını projeden çıkarmak istediğinize emin misiniz?"
+                                                   href="{% url 'remove_member' project_id=project.id user_id=user.id %}">
+                                                    <i class="bi bi-x-circle-fill text-danger" style="font-size: 1.5rem"></i>
+                                                </a>
+                                            {% elif user in project_staff and user != project.owner %}
+                                                <a id="btn-remove-member-{{ user.id }}"
+                                                   class="btn-remove-member"
+                                                   data-project-id="{{ project.id }}"
+                                                   data-user-id="{{ user.id }}"
+                                                   data-confirm-message="{{ user.username }} kullanıcısını projeden çıkarmak istediğinize emin misiniz?"
+                                                   href="{% url 'remove_member' project_id=project.id user_id=user.id %}">
+                                                    <i class="bi bi-x-circle-fill text-danger" style="font-size: 1.5rem"></i>
+                                                </a>
+                                                <a id="btn-remove-staff-{{ user.id }}"
+                                                   class="btn-remove-staff ml-1"
+                                                   data-project-id="{{ project.id }}"
+                                                   data-user-id="{{ user.id }}"
+                                                   data-confirm-message="{{ user.username }} kullanıcısının yetkisini almak istediğinize emin misiniz?"
+                                                   href="{% url 'remove_staff' project_id=project.id user_id=user.id %}">
+                                                    <i class="bi bi-arrow-down-circle-fill text-warning" style="font-size: 1.5rem"></i>
+                                                </a>
+                                            {% endif %}
+                                        </td>
                                     {% endif %}
-                                </td>
-                            </tr>
+                                </tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -351,6 +463,47 @@
                 <div class="modal-footer align-content-center justify-content-center">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="announcement-form" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="announcement-form" style="min-width: 1000px">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="min-width: 1200px; position: absolute; left: -70%">
+                <form method="post" enctype="multipart/form-data" action="{% url 'create_announcement' project.id %}">
+                    {% csrf_token %}
+                    {{ announcement_form.media }}
+                    <div class="row px-4">
+                        <div class="col-md-6">
+                            <div class="card-body">
+                                <div class="row align-items-center pt-4 pb-3">
+                                    <div class="col-md-3 ps-5">
+                                        <h6 class="mb-0">Duyuru Başlığı:</h6>
+                                    </div>
+                                    <div class="col-md-9 pe-5">
+                                        {% render_field announcement_form.title class+="form-control" placeholder="Başlık" %}
+                                    </div>
+                                </div>
+                                <hr class="mx-n3">
+                                <div class="row py-3">
+                                    <div class="col-md-3 ps-5">
+                                        <h6 class="mb-0">İçerik: </h6>
+                                    </div>
+                                    <div class="col-md-9 pl-5">
+                                        {% render_field announcement_form.content class+="form-control" %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer align-content-center justify-content-center">
+                        <div class="row justify-content-center">
+                            <div class="px-5 pb-4 text-lg-center">
+                                <button type="submit" class="btn btn-primary btn-lg" style="width: 200px;">Yayınla</button>
+                                <button class="btn btn-secondary btn-lg" data-dismiss="modal" style="width: 200px;">İptal</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -382,7 +535,6 @@
                         url: '/remove/' + projectId + '/' + userId + '/',
                         type: 'GET',
                         success: function() {
-                            // Redirect to project page after successful removal
                             window.location.href = '/project/' + projectId + '/';
                         },
                         error: function(xhr, textStatus, errorThrown) {
@@ -402,7 +554,6 @@
                         url: '/remove_staff/' + projectId + '/' + userId + '/',
                         type: 'GET',
                         success: function() {
-                            // Redirect to project page after successful removal
                             window.location.href = '/project/' + projectId + '/';
                         },
                         error: function(xhr, textStatus, errorThrown) {
@@ -412,6 +563,26 @@
                     });
                 }
                 return false;
+            });
+            $('#toggleActivity').on('change', function() {
+                let projectId = $(this).data('project-id');
+                const csrftoken = getCookie('csrftoken');
+                $.ajax({
+                    type: 'POST',
+                    url: '/update_status/' + projectId + '/',
+                    data: {
+                        'project_id': projectId,
+                    },
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                    },
+                    success: function(response) {
+                        console.log('Project status updated successfully!');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Failed to update project status:', error);
+                    }
+                });
             });
         });
         function toggleMenu() {
@@ -430,7 +601,7 @@
                 url: '/add_member/' + {{ project.id }} + '/',
                 data: { 'username': username },
                 beforeSend: function(xhr) {
-                    xhr.setRequestHeader('X-CSRFToken', csrftoken);  // Include CSRF token in headers
+                    xhr.setRequestHeader('X-CSRFToken', csrftoken);
                 },
                 success: function(response) {
                     if (response.status === 'success') {
