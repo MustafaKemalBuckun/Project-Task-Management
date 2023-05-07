@@ -2,7 +2,7 @@ from django.contrib.messages import get_messages
 from django.db.models import Q, Count, Case, When, Value, IntegerField
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
-from django.template.loader import render_to_string
+from notifications.models import Notification
 
 from accounts.models import User
 from .forms import UserRegisterForm, ProjectForm, CompanyForm, ProjectUpdateForm, AddStaff, CreateAnnouncement, \
@@ -19,6 +19,8 @@ from .models import Project, Company, PinnedProjects, Board, Task, ProjectStaff,
 def index(request):
     user = request.user
     if not user.is_anonymous:
+        # notification = Notification.objects.create(actor=user, recipient=user, description='Welcome!', verb='welcome')
+        # notification.save()
         projects = Project.objects.filter(Q(users=user) | Q(owner=user)).annotate(task_count=Count('task'))
         pinned_projects = PinnedProjects.objects.filter(user=user).order_by('pinned_at')
         print(pinned_projects.values_list('project_id'))
@@ -85,14 +87,19 @@ def logout_view(request):
 
 
 def base_context(request):   # used for base.html
-    user = request.user
-    user_projects = Project.objects.filter(users=user)
-    user_invitations = Invitation.objects.filter(invited=user)
-    context = {
-        'user': user,
-        'user_projects': user_projects,
-        'user_invitations': user_invitations,
-    }
+    context = {}
+    if not request.user.is_anonymous:
+        user_projects = Project.objects.filter(users=request.user)
+        user_invitations = Invitation.objects.filter(invited=request.user)
+        unread_count = Notification.objects.filter(recipient=request.user, unread=True).count()
+        notifications = Notification.objects.filter(recipient=request.user)
+        context = {
+            'user': request.user,
+            'user_projects': user_projects,
+            'user_invitations': user_invitations,
+            'unread_count': unread_count,
+            'notifications': notifications,
+        }
     return context
 
 
@@ -225,6 +232,8 @@ def add_project_member(request, project_id: int):
         if invitation:
             return JsonResponse({'status': 'warning', 'message': 'Bu kullanıcıya zaten davet gönderilmiş.'})
         invite = Invitation.objects.create(inviter=project.owner, invited=user, project=project)
+        notification = Notification.objects.create(actor=project.owner, recipient=user, verb='Yeni bir davetiniz var.', description='davet')
+        notification.save()
         invite.save()
         return JsonResponse({'status': 'success', 'message': 'Kullanıcıya davet gönderildi!'})
     else:
@@ -252,6 +261,8 @@ def accept_invitation(request, project_id: int):
     project.users.add(user)
     project.save()
     invitation = Invitation.objects.get(inviter=project.owner, invited=user, project=project)
+    notification = Notification.objects.create(actor=user, recipient=project.owner, verb=', davetinizi kabul etti!', description='accepted')
+    notification.save()
     invitation.delete()
     return redirect('project', project_id)
 
@@ -314,3 +325,4 @@ def delete_announcement(request, message_id: int):
     project_id = announcement.project.id
     announcement.delete()
     return redirect('project', project_id)
+

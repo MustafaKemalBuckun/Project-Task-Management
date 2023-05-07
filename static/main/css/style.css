@@ -1042,6 +1042,10 @@ progress {
 .dropdown-header .btn.pull-right {
   margin-right: -20px; }
 
+.notification-item:hover {
+  background-color: #0b0e0f;
+}
+
 .dropdown-item {
   display: block;
   width: 100%;
@@ -1056,7 +1060,7 @@ progress {
 .dropdown-item:hover, .dropdown-item:focus {
   color: #0b0e0f;
   text-decoration: none;
-  background-color: #f0f3f5; }
+  background-color: #d6e7fa; }
 .dropdown-item.active, .dropdown-item:active {
   color: #fff;
   text-decoration: none;
@@ -1064,6 +1068,10 @@ progress {
 .dropdown-item.disabled, .dropdown-item:disabled {
   color: #536c79;
   background-color: transparent; }
+
+.dropdown-item.unread {
+  background-color: #d6e7fa;
+}
 
 .dropdown-header {
   display: block;

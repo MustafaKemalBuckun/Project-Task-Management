@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'ckeditor',
     'widget_tweaks',
     'celery',
+    'notifications',
+    'rest_framework',
 ]
 
 
@@ -72,6 +74,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'main.views.base_context'
             ],
         },
     },

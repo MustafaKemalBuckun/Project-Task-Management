@@ -1,4 +1,5 @@
 {% load static %}
+{% load notifications_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,8 +40,26 @@
         </li>
     </ul>
     <ul class="nav navbar-nav ml-auto">
-        <li class="nav-item d-md-down-none">
-            <a class="nav-link" href="#"><i class="fa fa-bell"></i><span class="badge badge-pill badge-danger">{{ logged_user.received_invites.count }}</span></a>
+        <li class="nav-item dropdown">
+            <a id="notification-icon" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-bell"></i>
+                <span class="badge badge-pill badge-danger" style="position: absolute; right: 20%; top: 70%" id="unread-badge">
+                    {{ unread_count }}
+                </span>
+            </a>
+
+            <div class="dropdown-menu dropdown-menu-right notification-menu" aria-labelledby="notification-icon" id="notification-dropdown">
+                {% if notifications %}
+                    <a class="dropdown-item" href="#" id="delete-all-notifications" data-delete-all-url="{% url 'delete_all_notifications' %}">
+                        Hepsini Temizle
+                    </a>
+                    {% for notification in notifications %}
+                         <a class="dropdown-item notification-item{% if notification.unread %} unread{% endif %}" href="" data-notification-id="{{ notification.id }}"> {% if notification.description == 'accepted' %} <strong>{{ notification.actor }}</strong>{% endif %}{{ notification.verb }} <span class="text-muted" style="font-size: 0.75rem"> {{ notification.timesince }} önce.</span></a>
+                    {% endfor %}
+                {% else %}
+                    <div class="dropdown-item">Henüz bildirim yok.</div>
+                {% endif %}
+            </div>
         </li>
         <li class="nav-item d-md-down-none">
             <a class="nav-link" href="#"><i class="fa fa-list"></i></a>
@@ -189,4 +208,112 @@
     </div>
 </div>
 </body>
+<script>
+    $(document).ready(function() {
+        showNotifications();
+        setInterval(showNotifications, 5000);
+        $('#notification-dropdown').on('mouseenter', '.notification-item',function(e) {
+            let notification_id = $(this).data('notification-id');
+            const csrftoken = getCookie('csrftoken');
+            $.ajax({
+                url: '/mark-notification-read/' + notification_id + '/',
+                type: 'POST',
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                },
+                success: function(data) {
+                    if (data.success) {
+                        $(this).removeClass('unread');
+                        $(this).css('background-color', 'white');
+                    }
+                    let unread_count = data.unread_count;
+                    $('#unread-badge').text(unread_count);
+                    $('.notification-item[data-notification-id="' + notification_id + '"]').css('background-color', '#ffffff');
+                }
+            });
+        });
+    });
+    $(document).ready(function() {
+        setInterval(updateNotificationCount, 5000);
+        $('.notification-item').hover(function() {
+            $(this).addClass('hovered');
+        }, function() {
+            $(this).removeClass('hovered');
+        });
+    });
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    function updateNotificationCount() {
+        const csrftoken = getCookie('csrftoken');
+        $.ajax({
+            url: '/get-unread-count/',
+            type: 'GET',
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('X-CSRFToken', csrftoken);
+            },
+            success: function (data) {
+                const count = data.count;
+                $('.badge-danger').text(count);
+            }
+        });
+    }
+    function showNotifications() {
+        $.getJSON("/api/notifications/", function (data) {
+            var dropdownMenu = $("#notification-dropdown");
+            dropdownMenu.empty();
+            if (data.length === 0) {
+                dropdownMenu.append(`<div class="dropdown-item">Henüz bildirim yok.</div>`);
+            } else {
+                dropdownMenu.append(
+                    `<a class="dropdown-item" href="#" id="delete-all-notifications" data-delete-all-url="{% url 'delete_all_notifications' %}">
+                    Hepsini Temizle
+                </a>`
+                );
+            }
+            data.forEach(function (notification) {
+                var item = `<a class="dropdown-item notification-item${notification.unread ? ' unread' : ''}" data-notification-id="${notification.id}">`;
+                if (notification.description === 'accepted') {
+                    item += `<strong>${notification.actor}</strong>`;
+                }
+                item += `${notification.verb}<span class="text-muted" style="font-size: 0.75rem"> ${notification.timesince} önce.</span></a>`;
+                dropdownMenu.append(item);
+            });
+
+        });
+    }
+    $(document).on('click', '#delete-all-notifications', function(event) {
+        event.preventDefault();
+        const deleteUrl = $(this).data('delete-all-url');
+        var notifications;
+        if (deleteUrl) {
+            const csrftoken = getCookie('csrftoken');
+            $.ajax({
+                url: deleteUrl,
+                type: 'POST',
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                },
+                success: function () {
+                    $('#notification-dropdown').html('<div class="dropdown-item">Henüz bildirim yok.</div>');
+                    notifications = [];
+                }
+            });
+        } else {
+            $('#notification-dropdown').html('<div class="dropdown-item">Henüz bildirim yok.</div>');
+            notifications = [];
+        }
+    });
+</script>
 </html>
