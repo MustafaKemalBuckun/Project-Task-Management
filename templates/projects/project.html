@@ -198,11 +198,11 @@
                                         <div class="post-description mx-3 ml-4">
                                             <p>{{ announcement.content|safe }}</p>
                                         </div>
-                                        {% if current_user == announcement.owner %}
-                                            <a href="/sil" style="position: absolute; right: 2%; bottom: 5%; font-size: 2rem; color: red" data-toggle="modal" data-target="#a_sil"><i class="bi bi-trash-fill"></i></a>
+                                        {% if current_user == announcement.owner or current_user == project.owner %}
+                                            <a href="/sil" style="position: absolute; right: 2%; bottom: 5%; font-size: 2rem; color: red" data-toggle="modal" data-target="#a_sil" data-announcement-id="{{ announcement.id }}"><i class="bi bi-trash-fill"></i></a>
                                         {% endif %}
                                     </div>
-                                    <div class="modal fade" id="a_sil" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="a_sil">
+                                    <div class="modal fade" id="a_sil{{ announcement.id }}" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="a_sil">
                                         <div class="modal-dialog" role="document">
                                             <div class="modal-content">
                                                 <div class="modal-body">
@@ -584,6 +584,10 @@
                         console.error('Failed to update project status:', error);
                     }
                 });
+            });
+            $('a[data-target="#a_sil"]').click(function() {
+                let announcementId = $(this).data('announcement-id');
+                $('#a_sil' + announcementId).modal('show');
             });
         });
         function toggleMenu() {

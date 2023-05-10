@@ -20,7 +20,7 @@ from django.conf.urls.static import static
 from main import views as main_views
 from accounts import views as user_views
 import notifications.urls
-from accounts.views import NotificationList
+from accounts.views import NotificationList, InvitationList
 
 urlpatterns = [
     # path('logout/', main_views.logout.as_view(template_name='accounts/logout.html'), name='logout'),
@@ -50,8 +50,9 @@ urlpatterns = [
     path('mark-notification-read/<int:notification_id>/', user_views.mark_notification_read, name='mark_notification_read'),
     path('delete-all-notifications/', user_views.delete_all_notifications, name='delete_all_notifications'),
     path('get-unread-count/', user_views.get_unread_count, name='get_unread_count'),
-    path('get-notifications/', user_views.get_notifications, name='get_notifications'),
+    path('get-invitation-count/', user_views.get_invitation_count, name='get_invitation_count'),
     path('api/notifications/', NotificationList.as_view(), name='notification-list'),
+    path('api/invitations/', InvitationList.as_view(), name='invitation_list'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

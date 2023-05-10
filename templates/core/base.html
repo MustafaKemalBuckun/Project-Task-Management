@@ -87,7 +87,7 @@
                     <strong>Hesap</strong>
                 </div>
                 {% if user.is_authenticated %}
-                    <a class="dropdown-item" href="" data-toggle="modal" data-target="#davetler"><i class="bi bi-envelope-fill"></i> Davetler{% if user_invitations %}<span class="badge badge-success">{{ user_invitations.count }}</span>{% endif %}</a>
+                    <a class="dropdown-item" id="davetler-dropdown" href="" onclick="showInvitations()" data-toggle="modal" ><i class="bi bi-envelope-fill"></i> Davetler{% if user_invitations %}<span class="badge badge-success">{{ user_invitations.count }}</span>{% endif %}</a>
                     <a class="dropdown-item" href="#"><i class="bi bi-list-task"></i> Görevler {% if user.task_set.values.count > 0 %}<span class="badge badge-danger">{{ user.task_set.values.count }}</span>{% endif %}</a>
                     <div class="dropdown-header text-center">
                         <strong>Ayarlar</strong>
@@ -184,22 +184,30 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-body">
-                {% if user_invitations %}
-                    {% for invitation in user_invitations %}
-                        <hr class="mb-4">
-                        <div class="row justify-content-center">
-                            <p class="text-center" style="font-size: 1.5rem">{{ invitation.inviter }} sizi  {{ invitation.project.name }} {% if invitation.project.company %}(<a href="/company/{{ invitation.project.company.id }}" style="color: #1b8eb7">{{ invitation.project.company.name }}</a>){% endif %} projesine davet etti.</p>
-                        </div>
-                        <div class="row justify-content-center">
-                            <a href="{% url 'accept_invitation' invitation.project.id %}" class="btn btn-success mx-3" style="width: 100px">Kabul Et</a>
-                            <a href="{% url 'decline_invitation' invitation.project.id %}" class="btn btn-danger mx-3" style="width: 100px">Reddet</a>
-                        </div>
-                    {% endfor %}
-                {% else %}
+                {% for invitation in user_invitations %}
+                    <hr class="mb-4">
                     <div class="row justify-content-center">
-                        <p class="text-center" style="font-size: 2rem">Hiçbir yeni davetiniz yok.</p>
+                        <p class="text-center" style="font-size: 1.5rem">{{ invitation.inviter }} sizi  {{ invitation.project.name }} {% if invitation.project.company %}(<a href="/company/{{ invitation.project.company.id }}" style="color: #1b8eb7">{{ invitation.project.company.name }}</a>){% endif %} projesine davet etti.</p>
                     </div>
-                {% endif %}
+                    <div class="row justify-content-center">
+                        <a href="{% url 'accept_invitation' invitation.project.id %}" class="btn btn-success mx-3" style="width: 100px">Kabul Et</a>
+                        <a href="{% url 'decline_invitation' invitation.project.id %}" class="btn btn-danger mx-3" style="width: 100px">Reddet</a>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="modal-footer align-content-center justify-content-center">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="davet-yok" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="davet-yok">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row justify-content-center">
+                    <p class="text-center" style="font-size: 2rem">Hiçbir yeni davetiniz yok.</p>
+                </div>
             </div>
             <div class="modal-footer align-content-center justify-content-center">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
@@ -212,6 +220,13 @@
     $(document).ready(function() {
         showNotifications();
         setInterval(showNotifications, 5000);
+        setInterval(updateNotificationCount, 5000);
+        setInterval(updateInvitationCount, 5000);
+        $('.notification-item').hover(function() {
+            $(this).addClass('hovered');
+        }, function() {
+            $(this).removeClass('hovered');
+        });
         $('#notification-dropdown').on('mouseenter', '.notification-item',function(e) {
             let notification_id = $(this).data('notification-id');
             const csrftoken = getCookie('csrftoken');
@@ -233,14 +248,36 @@
             });
         });
     });
-    $(document).ready(function() {
-        setInterval(updateNotificationCount, 5000);
-        $('.notification-item').hover(function() {
-            $(this).addClass('hovered');
-        }, function() {
-            $(this).removeClass('hovered');
+    function showInvitations() {
+        $.getJSON("/api/invitations/", function (data) {
+            var modalBody = $('#davetler .modal-body');
+            modalBody.empty();
+
+            if (data.length > 0) {
+                data.forEach(function (invitation) {
+                    var row = $('<div class="row justify-content-center my-2">');
+
+                    var text = invitation.inviter + ' sizi ' + invitation.project;
+                    text += ' projesine davet etti.';
+
+                    var p = $('<p class="text-center" style="font-size: 1.5rem"></p>').html(text);
+                    row.append(p);
+
+                    var acceptLink = $('<a href="/accept_invitation/' + invitation.project + '" class="btn btn-success mx-3" style="width: 100px">Kabul Et</a>');
+                    var declineLink = $('<a href="/decline_invitation/' + invitation.project + '" class="btn btn-danger mx-3" style="width: 100px">Reddet</a>');
+                    var buttonRow = $('<div class="row justify-content-center"></div>');
+                    var hr = $('<hr class="my-2">');
+                    buttonRow.append(acceptLink);
+                    buttonRow.append(declineLink);
+                    row.append(buttonRow);
+
+                    modalBody.append(row);
+                    modalBody.append(hr);
+                });
+                $('#davetler').modal('show');
+            }
         });
-    });
+    }
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -260,12 +297,24 @@
         $.ajax({
             url: '/get-unread-count/',
             type: 'GET',
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader('X-CSRFToken', csrftoken);
-            },
             success: function (data) {
                 const count = data.count;
                 $('.badge-danger').text(count);
+            }
+        });
+    }
+    function updateInvitationCount() {
+        const csrftoken = getCookie('csrftoken');
+        $.ajax({
+            url: '/get-invitation-count/',
+            type: 'GET',
+            success: function (data) {
+                var count = data.count;
+                var html = '<i class="bi bi-envelope-fill"></i> Davetler';
+                if (count > 0) {
+                    html += '<span class="badge badge-success">' + count + '</span>';
+                }
+                $('#davetler-dropdown').html(html);
             }
         });
     }
@@ -277,7 +326,7 @@
                 dropdownMenu.append(`<div class="dropdown-item">Henüz bildirim yok.</div>`);
             } else {
                 dropdownMenu.append(
-                    `<a class="dropdown-item" href="#" id="delete-all-notifications" data-delete-all-url="{% url 'delete_all_notifications' %}">
+                    `<a class="dropdown-item" href="#" id="delete-all-notifications" data-delete-all-url="{% url 'delete_all_notifications' %}" style="background-color: #F3E2F6">
                     Hepsini Temizle
                 </a>`
                 );
@@ -285,6 +334,9 @@
             data.forEach(function (notification) {
                 var item = `<a class="dropdown-item notification-item${notification.unread ? ' unread' : ''}" data-notification-id="${notification.id}">`;
                 if (notification.description === 'accepted') {
+                    item += `<strong>${notification.actor}</strong>`;
+                }
+                if (notification.description === 'duyuru') {
                     item += `<strong>${notification.actor}</strong>`;
                 }
                 item += `${notification.verb}<span class="text-muted" style="font-size: 0.75rem"> ${notification.timesince} önce.</span></a>`;

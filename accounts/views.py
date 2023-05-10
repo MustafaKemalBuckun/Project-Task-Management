@@ -1,7 +1,9 @@
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from notifications.models import Notification
-from .serializers import NotificationSerializer
+from django.core import serializers
+from main.models import Invitation
+from .serializers import NotificationSerializer, InvitationSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -25,16 +27,6 @@ def delete_all_notifications(request):
         return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
 
 
-def get_notifications(request):
-    notifications = Notification.objects.filter(recipient=request.user)
-    notification_list = []
-    for notification in notifications:
-        notification_list.append({
-            'message': notification.verb,
-        })
-    return JsonResponse(notification_list, safe=False)
-
-
 def get_unread_count(request):
     count = Notification.objects.filter(recipient=request.user, unread=True).count()
     return JsonResponse({'count': count})
@@ -46,3 +38,16 @@ class NotificationList(APIView):
         notifications = Notification.objects.filter(recipient=request.user)
         serializer = NotificationSerializer(notifications, many=True)
         return Response(serializer.data)
+
+
+class InvitationList(APIView):
+
+    def get(self, request, format=None):
+        invitations = Invitation.objects.filter(invited=request.user)
+        serializer = InvitationSerializer(invitations, many=True)
+        return Response(serializer.data)
+
+
+def get_invitation_count(request):
+    invitation_count = Invitation.objects.filter(invited=request.user).count()
+    return JsonResponse({'count': invitation_count})

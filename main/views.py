@@ -249,6 +249,10 @@ def add_project_staff(request, project_id: int):
             s = staff_form.save(commit=False)
             s.project = project
             s.save()
+            notification = Notification.objects.create(actor=project.owner, recipient=s.user,
+                                                       verb=project.name + ' projesinde yetkilendirildiniz.',
+                                                       description='yetki')
+            notification.save()
             print('not fail.')
         else:
             print('failed.')
@@ -278,7 +282,10 @@ def decline_invitation(request, project_id: int):
 def remove_member(request, project_id: int, user_id: int):
     user = User.objects.get(id=user_id)
     project = Project.objects.get(id=project_id)
+    if ProjectStaff.objects.get(user=user) is not None:
+        ProjectStaff.objects.get(user=user).delete()
     project.users.remove(user)
+
     print('we here')
     return redirect('project', project_id)
 
@@ -302,6 +309,13 @@ def create_announcement(request, project_id: int):
             announcement.owner = user
             announcement.project = project
             announcement.save()
+            for user in project.users.exclude(id=announcement.owner.id):
+                notification = Notification.objects.create(actor=project.owner,
+                                                           recipient=user,
+                                                           verb=', ' + project.name
+                                                                + ' projesinde bir duyuru yayınladı.',
+                                                           description='duyuru')
+                notification.save()
             return redirect('project', project_id)
 
 
@@ -325,4 +339,3 @@ def delete_announcement(request, message_id: int):
     project_id = announcement.project.id
     announcement.delete()
     return redirect('project', project_id)
-
