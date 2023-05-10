@@ -238,27 +238,38 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header mx-4 mb-4">
-                                <h2 class="my-4" style="color: #d97171">Duyurular<i class="ml-2 fa fa-scroll"></i></h2>
+                                <h2 class="my-4" style="color: #412cff">Panolar<i class="ml-2 fa-solid fa-clipboard"></i></h2>
                             </div>
                             {% if boards %}
-                                {% for board in boards %}
-                                    <div class="col-3 my-3">
-                                        <div class="card project-card p-3 pb-3 h-100 ml-2" style="min-height: 300px">
-                                            <div class="row d-flex justify-content-between px-3 py-2">
-                                                <div class="col-9 d-flex flex-row align-items-center pt-3" style="height: 40px">
-                                                    <div class="ms-2 c-details ml-1">
-                                                        <h5>{{ board.title }}</h5>
+                                <div class="card-body row pr-4">
+                                    {% for board in boards %}
+                                        <div class="col-3 my-3">
+                                            <div class="card mb-2 h-100 ml-2" style="min-height: 300px; background-color: lightskyblue">
+                                                <div class="row justify-content-center mx-3 my-3">
+                                                    <div class="col-12 pt-3 text-center">
+                                                        <h4>{{ board.title }}</h4>
+                                                    </div>
+                                                </div>
+                                                <div class="row justify-content-center mx-3 my-3">
+                                                    <div class="col-6 card-badge mt-4" style="color: #000000;
+                                                                background-color: #8bffb1; width: fit-content; height: 30px;
+                                                                padding-bottom: 3px; border-radius: 5px; display: flex;
+                                                                justify-content: center; align-items: center;">
+                                                        <span><strong>Aktif Görevler</strong></span>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="row">
-                                                {% for task in tasks %}
-                                                    <p>{{ task.title }}</p>
-                                                {% endfor %}
+                                        </div>
+                                    {% endfor %}
+                                    <div class="col-3 text-center my-3">
+                                        <div class="card h-100 ml-2 mr-2" style="border-color: #2A97D0; border-radius: 2%; min-height: 300px; min-width: 275px">
+                                            <div class="card-body d-flex align-items-center justify-content-center">
+                                                <a href="/crate_board"  style="color: #2A97D0; font-size: 5rem" data-toggle="modal" data-target="#create_board"><i class="bi bi-plus-square-fill"></i></a>
                                             </div>
                                         </div>
                                     </div>
-                                {% endfor %}
+                                    <div class="col-3 h-100"></div>
+                                </div>
                             {% else %}
                                 <div class="card-body">
                                     <div class="row mx-3 mb-2">

@@ -230,22 +230,24 @@
         $('#notification-dropdown').on('mouseenter', '.notification-item',function(e) {
             let notification_id = $(this).data('notification-id');
             const csrftoken = getCookie('csrftoken');
-            $.ajax({
-                url: '/mark-notification-read/' + notification_id + '/',
-                type: 'POST',
-                beforeSend: function(xhr) {
-                    xhr.setRequestHeader('X-CSRFToken', csrftoken);
-                },
-                success: function(data) {
-                    if (data.success) {
-                        $(this).removeClass('unread');
-                        $(this).css('background-color', 'white');
+            if ($(this).hasClass('unread')) {
+                $.ajax({
+                    url: '/mark-notification-read/' + notification_id + '/',
+                    type: 'POST',
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                    },
+                    success: function (data) {
+                        if (data.success) {
+                            $(this).removeClass('unread');
+                            $(this).css('background-color', 'white');
+                        }
+                        let unread_count = data.unread_count;
+                        $('#unread-badge').text(unread_count);
+                        $('.notification-item[data-notification-id="' + notification_id + '"]').css('background-color', '#ffffff');
                     }
-                    let unread_count = data.unread_count;
-                    $('#unread-badge').text(unread_count);
-                    $('.notification-item[data-notification-id="' + notification_id + '"]').css('background-color', '#ffffff');
-                }
-            });
+                });
+            }
         });
     });
     function showInvitations() {
@@ -256,23 +258,22 @@
             if (data.length > 0) {
                 data.forEach(function (invitation) {
                     var row = $('<div class="row justify-content-center my-2">');
-
-                    var text = invitation.inviter + ' sizi ' + invitation.project;
+                    var hr = $('<hr class="my-2">');
+                    modalBody.append(hr);
+                    var text = invitation.inviter + ' sizi ' + invitation.project.name;
+                    if (invitation.project.company) {
+                        text += ' (<a href="/company/' + invitation.project.company.id + '" style="color: #1b8eb7">' + invitation.project.company.name + '</a>)';
+                    }
                     text += ' projesine davet etti.';
-
                     var p = $('<p class="text-center" style="font-size: 1.5rem"></p>').html(text);
                     row.append(p);
-
-                    var acceptLink = $('<a href="/accept_invitation/' + invitation.project + '" class="btn btn-success mx-3" style="width: 100px">Kabul Et</a>');
-                    var declineLink = $('<a href="/decline_invitation/' + invitation.project + '" class="btn btn-danger mx-3" style="width: 100px">Reddet</a>');
+                    var acceptLink = $('<a href="/accept_invitation/' + invitation.project.id + '" class="btn btn-success mx-3" style="width: 100px">Kabul Et</a>');
+                    var declineLink = $('<a href="/decline_invitation/' + invitation.project.id + '" class="btn btn-danger mx-3" style="width: 100px">Reddet</a>');
                     var buttonRow = $('<div class="row justify-content-center"></div>');
-                    var hr = $('<hr class="my-2">');
                     buttonRow.append(acceptLink);
                     buttonRow.append(declineLink);
                     row.append(buttonRow);
-
                     modalBody.append(row);
-                    modalBody.append(hr);
                 });
                 $('#davetler').modal('show');
             }
