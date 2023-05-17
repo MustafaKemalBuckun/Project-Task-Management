@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
 from django.forms import ModelChoiceField
-from main.models import Project, Company, ProjectStaff, Message
+from main.models import Project, Company, ProjectStaff, Message, Board
 
 User = get_user_model()
 
@@ -96,4 +96,14 @@ class UpdateAnnouncement(forms.ModelForm):
         exclude = {
             'owner',
             'project',
+        }
+
+
+class CreateBoard(forms.ModelForm):
+    class Meta:
+        model = Board
+        exclude = {
+            'project',
+            'is_pinned',
+            'users',
         }

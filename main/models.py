@@ -49,6 +49,7 @@ class Board(models.Model):
     title = models.CharField(null=True, max_length=30)
     description = models.TextField(null=True, max_length=200)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    users = models.ManyToManyField(settings.AUTH_USER_MODEL)
     is_pinned = models.BooleanField(default=False, blank=True)
 
 

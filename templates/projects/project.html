@@ -55,28 +55,28 @@
                                             <div class="col-2 px-1 text-center" style="min-height: 20px; border-radius: 10%">
                                                 <div class="align-items-center justify-content-center">
                                                     <i class="bi bi-clipboard2" style="font-size: 1.5rem"></i>
-                                                    <p><strong>{{ project.board_set.count }} </strong></p>
+                                                    <p id="project-boards"><strong>{{ project.board_set.count }} </strong></p>
                                                     <p><strong>Pano</strong></p>
                                                 </div>
                                             </div>
                                             <div class="col-2 px-1 text-center" style="min-height: 20px;">
                                                 <div class="align-items-center justify-content-center">
                                                     <i class="bi bi-list-stars" style="font-size: 1.5rem"></i>
-                                                    <p><strong>{{ project.task_set.count }}</strong></p>
+                                                    <p id="project-tasks"><strong>{{ project.task_set.count }}</strong></p>
                                                     <p class="mt-0"><strong>Görev</strong></p>
                                                 </div>
                                             </div>
                                             <div class="col-2 px-1 text-center" style="min-height: 20px; border-radius: 10%">
                                                 <div class="align-items-center justify-content-center">
                                                     <i class="bi bi-file-earmark-text" style="font-size: 1.5rem"></i>
-                                                    <p><strong>{{ project.post_set.count }} </strong></p>
+                                                    <p id="project-posts"><strong>{{ project.post_set.count }} </strong></p>
                                                     <p><strong>Gönderi</strong></p>
                                                 </div>
                                             </div>
                                             <div class="col-2 px-1 text-center" style="min-height: 20px; border-radius: 10%">
                                                 <div class="align-items-center justify-content-center">
                                                     <i class="bi bi-person-fill-gear" style="font-size: 1.5rem"></i>
-                                                    <p><strong>{{ project.projectstaff_set.count }} </strong></p>
+                                                    <p id="project-staff"><strong>{{ project.projectstaff_set.count }} </strong></p>
                                                     <p><strong>Görevli</strong></p>
                                                 </div>
                                             </div>
@@ -84,7 +84,7 @@
                                                 <a href="/üyeleri-görüntüle" data-toggle="modal" data-target="#users">
                                                     <div class="align-items-center justify-content-center">
                                                         <i class="bi bi-people-fill" style="font-size: 1.5rem"></i>
-                                                        <p><strong>{{ project.users.count }} </strong></p>
+                                                        <p id="project-users"><strong>{{ project.users.count }} </strong></p>
                                                         <p><strong>Üye</strong></p>
                                                     </div>
                                                 </a>
@@ -237,34 +237,77 @@
                 <div class="row my-4">
                     <div class="col-12">
                         <div class="card">
-                            <div class="card-header mx-4 mb-4">
-                                <h2 class="my-4" style="color: #412cff">Panolar<i class="ml-2 fa-solid fa-clipboard"></i></h2>
+                            <div class="card-header mx-4 mb-2">
+                                <h2 class="my-4" style="color: #412cff">Panolar<i class="ml-2 fa-solid fa-clipboard"></i>{% if not boards %}<a class="ml-3 bi bi-plus-square-fill" data-toggle="modal" data-target="#board-form" style="color: #bebebe"></a>{% endif %}</h2>
                             </div>
                             {% if boards %}
                                 <div class="card-body row pr-4">
                                     {% for board in boards %}
-                                        <div class="col-3 my-3">
-                                            <div class="card mb-2 h-100 ml-2" style="min-height: 300px; background-color: lightskyblue">
-                                                <div class="row justify-content-center mx-3 my-3">
-                                                    <div class="col-12 pt-3 text-center">
-                                                        <h4>{{ board.title }}</h4>
+                                        <div class="col-3 my-1 mb-3">
+                                            <div class="card h-100 ml-2" style="min-height: 300px; background-color: #adadad; border-width: thick">
+                                                <div class="card-header row justify-content-center mx-0 mb-2" style="background-color: #536c79">
+                                                    {% if current_user == project.owner or current_user in project_staff %}
+                                                        <div class="col-1 text-left" style="position: absolute; left: 2%">
+                                                            <span class="bi bi-pin-angle" style="font-size: 1.5rem;"></span>
+                                                        </div>
+                                                    {% endif %}
+                                                    <div class="col-10 text-center mt-2 ml-1">
+                                                        <h4 class="text-uppercase" style="color: white; font-size: 1rem">{{ board.title }}</h4>
+                                                    </div>
+                                                    <div class="col-1 text-right" style="position: absolute; right: 10%">
+                                                        <span class="bi bi-star-fill" style="font-size: 1.5rem;
+                                                                        color: #ffcc00;"></span>
                                                     </div>
                                                 </div>
-                                                <div class="row justify-content-center mx-3 my-3">
-                                                    <div class="col-6 card-badge mt-4" style="color: #000000;
-                                                                background-color: #8bffb1; width: fit-content; height: 30px;
+                                                <div id="hidden-task-menu" style="display: none">
+                                                    <div class="row justify-content-center my-2">
+                                                        <div class="col-9 card-badge" style="color: #000000;
+                                                                background-color: #8bffb1; width: 600px; height: 30px;
                                                                 padding-bottom: 3px; border-radius: 5px; display: flex;
                                                                 justify-content: center; align-items: center;">
-                                                        <span><strong>Aktif Görevler</strong></span>
+                                                            <span class="mt-1" style="position: absolute; left: 5%"><i class="bi bi-bar-chart-fill"><strong> Aktif Görevler: </strong></i></span>
+                                                            <span class="mt-1" style="position: absolute; right: 5%"><strong>{{ active_tasks }}</strong></span>
+                                                        </div>
                                                     </div>
+                                                    <div class="row justify-content-center my-2">
+                                                        <div class="col-9 card-badge" style="color: #000000;
+                                                                background-color: #f1b567; width: 600px; height: 30px;
+                                                                padding-bottom: 3px; border-radius: 5px; display: flex;
+                                                                justify-content: center; align-items: center;">
+                                                            <span class="mt-1" style="position: absolute; left: 5%"><i class="bi bi-hourglass-split"><strong> Bekleyen Görevler: </strong></i></span>
+                                                            <span class="mt-1" style="position: absolute; right: 5%"><strong>{{ pending_tasks }}</strong></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row justify-content-center my-2">
+                                                        <div class="col-9 card-badge" style="color: #000000;
+                                                                background-color: #F66E6E; width: 600px; height: 30px;
+                                                                padding-bottom: 3px; border-radius: 5px; display: flex;
+                                                                justify-content: center; align-items: center;">
+                                                            <span class="mt-1" style="position: absolute; left: 5%"><i class="bi bi-dash-circle-fill"><strong> İnaktif Görevler: </strong></i></span>
+                                                            <span class="mt-1" style="position: absolute; right: 5%"><strong>{{ inactive_tasks }}</strong></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row justify-content-center my-2">
+                                                        <div class="col-9 card-badge" style="color: #000000;
+                                                                background-color: #30fce0; width: 600px; height: 30px;
+                                                                padding-bottom: 3px; border-radius: 5px; display: flex;
+                                                                justify-content: center; align-items: center;">
+                                                            <span class="mt-1" style="position: absolute; left: 5%"><i class="bi bi-check-circle-fill"><strong> Tamamlanmış Görevler: </strong></i></span>
+                                                            <span class="mt-1" style="position: absolute; right: 5%"><strong>{{ completed_tasks }}</strong></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row justify-content-center my-2 pt-2">
+                                                    <i class="bi bi-people-fill" style="font-size: 1.5rem; color: white"></i>
+                                                    <p id="board-users-{{ board.id }}" data-id="{{ board.id }}" style="color: white"><strong>{{ board.users.count }} </strong></p>
                                                 </div>
                                             </div>
                                         </div>
                                     {% endfor %}
-                                    <div class="col-3 text-center my-3">
+                                    <div class="col-3 text-center my-1">
                                         <div class="card h-100 ml-2 mr-2" style="border-color: #2A97D0; border-radius: 2%; min-height: 300px; min-width: 275px">
                                             <div class="card-body d-flex align-items-center justify-content-center">
-                                                <a href="/crate_board"  style="color: #2A97D0; font-size: 5rem" data-toggle="modal" data-target="#create_board"><i class="bi bi-plus-square-fill"></i></a>
+                                                <a href="/create_board"  style="color: #2A97D0; font-size: 5rem" data-toggle="modal" data-target="#board-form"><i class="bi bi-plus-square-fill"></i></a>
                                             </div>
                                         </div>
                                     </div>
@@ -300,6 +343,7 @@
             </div>
         </div>
     </div>
+{#    #}
     <div class="modal fade" id="sil" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="sil">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -313,6 +357,7 @@
             </div>
         </div>
     </div>
+{#    #}
     <div class="modal fade" id="project-form" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="project-form" style="min-width: 1000px">
         <div class="modal-dialog" role="document">
             <div class="modal-content" style="min-width: 1200px; position: absolute; left: -70%">
@@ -354,6 +399,7 @@
             </div>
         </div>
     </div>
+{#    #}
     <div class="modal fade" id="add-member" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="add-member">
         <div class="modal-dialog" role="document">
             <div class="modal-content justify-content-center align-items-center">
@@ -389,6 +435,7 @@
             </div>
         </div>
     </div>
+{#    #}
     <div class="modal fade" id="add-staff" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="add-staff">
         <div class="modal-dialog" role="document">
             <div class="modal-content justify-content-center align-items-center">
@@ -408,6 +455,7 @@
             </div>
         </div>
     </div>
+{#    #}
     <div class="modal fade" id="users" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="users">
         <div class="modal-dialog" role="document">
 
@@ -478,6 +526,7 @@
             </div>
         </div>
     </div>
+{#    #}
     <div class="modal fade" id="announcement-form" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="announcement-form" style="min-width: 1000px">
         <div class="modal-dialog" role="document">
             <div class="modal-content" style="min-width: 1200px; position: absolute; left: -70%">
@@ -519,9 +568,52 @@
             </div>
         </div>
     </div>
+{#    #}
+    <div class="modal fade" id="board-form" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="board-form" style="min-width: 500px">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="min-width: 750px; position: absolute; left: -30%">
+                <form method="post" enctype="multipart/form-data" action="{% url 'create_board' project.id %}">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card-body">
+                                <div class="row align-items-center justify-content-center pt-4 pb-3 px-3">
+                                    <div class="col-md-3">
+                                        <h6 class="mb-0">Pano Başlığı:</h6>
+                                    </div>
+                                    <div class="col-md-9">
+                                        {% render_field board_form.title class+="form-control" placeholder="Başlık" %}
+                                    </div>
+                                </div>
+                                <hr class="mx-n3">
+                                <div class="row py-3 px-3">
+                                    <div class="col-md-3">
+                                        <h6 class="mb-0">Açıklama: </h6>
+                                    </div>
+                                    <div class="col-md-9">
+                                        {% render_field board_form.description class+="form-control" %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer align-content-center justify-content-center">
+                        <div class="row justify-content-center">
+                            <div class="px-5 pb-4 text-lg-center">
+                                <button type="submit" class="btn btn-success btn-lg" style="width: 200px;">Oluştur</button>
+                                <button class="btn btn-secondary btn-lg" data-dismiss="modal" style="width: 200px;">İptal</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 {#  <---------------->#}
     <script>
         $(document).ready(function() {
+            setInterval(updateBoardUserCount, 10000);
+            setInterval(updateProjectStats, 5000);
             $('#users_table').DataTable({
                 "autoWidth": false,
                 dom: 'Bfrtip',
@@ -631,6 +723,34 @@
                 },
                 error: function(xhr, status, error) {
                     alert('Error: ' + error);
+                }
+            });
+        }
+        function updateBoardUserCount() {
+            const boardUserElements = document.querySelectorAll('[id^="board-users-"]');
+            boardUserElements.forEach(function (boardUserElement) {
+                const boardId = boardUserElement.getAttribute('data-id');
+                $.ajax({
+                    url: '/get-board-users-count/' + boardId + '/',
+                    type: 'GET',
+                    success: function (data) {
+                        var count = data.count;
+                        var html = '<p id="board-users" style="color: white"><strong>' + count + '</strong></p>';
+                        boardUserElement.innerHTML = html;
+                    }
+                });
+            });
+        }
+        function updateProjectStats() {
+            $.ajax({
+                url: '/get-project-stats/' + {{ project.id }} + '/',
+                type: 'GET',
+                success: function (data) {
+                    $('#project-boards').html('<strong>' + data.board_count + '</strong>');
+                    $('#project-tasks').html('<strong>' + data.task_count + '</strong>');
+                    $('#project-posts').html('<strong>' + data.post_count + '</strong>');
+                    $('#project-staff').html('<strong>' + data.staff_count + '</strong>');
+                    $('#project-users').html('<strong>' + data.user_count + '</strong>');
                 }
             });
         }

@@ -53,6 +53,15 @@ urlpatterns = [
     path('get-invitation-count/', user_views.get_invitation_count, name='get_invitation_count'),
     path('api/notifications/', NotificationList.as_view(), name='notification-list'),
     path('api/invitations/', InvitationList.as_view(), name='invitation_list'),
+    path('create_board/<int:project_id>/', main_views.create_board, name='create_board'),
+    path('get-board-users-count/<int:board_id>/', main_views.get_board_users_count, name='get_board_users_count'),
+    path('get-project-stats/<int:project_id>/', main_views.get_project_stats, name='get_project_stats'),
+
+    # path('get-project-users-count/<int:project_id>/', main_views.get_project_users_count, name='get_project_users_count'),
+    # path('get-project-staff-count/<int:project_id>/', main_views.get_project_staff_count, name='get_project_staff_count'),
+    # path('get-project-post-count/<int:project_id>/', main_views.get_project_post_count, name='get_project_post_count'),
+    # path('get-project-task-count/<int:project_id>/', main_views.get_project_task_count, name='get_project_task_count'),
+    # path('get-project-task-count/<int:project_id>/', main_views.get_project_task_count, name='get_project_task_count'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

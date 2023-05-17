@@ -6,11 +6,11 @@ from notifications.models import Notification
 
 from accounts.models import User
 from .forms import UserRegisterForm, ProjectForm, CompanyForm, ProjectUpdateForm, AddStaff, CreateAnnouncement, \
-    UpdateAnnouncement
+    UpdateAnnouncement, CreateBoard
 from .forms import LoginForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from .models import Project, Company, PinnedProjects, Board, Task, ProjectStaff, Invitation, Message
+from .models import Project, Company, PinnedProjects, Board, Task, ProjectStaff, Invitation, Message, Post
 
 
 # Create your views here.
@@ -165,6 +165,10 @@ def project_view(request, project_id: int):
     project_users = project.users.exclude(Q(id=project.owner.id) | Q(projectstaff__project=project))
     boards = Board.objects.filter(project=project)
     tasks = Task.objects.filter(project=project, board__in=boards)
+    active_tasks = Task.objects.filter(project=project, board__in=boards, status='Aktif').count()
+    pending_tasks = Task.objects.filter(project=project, board__in=boards, status='Beklemede').count()
+    inactive_tasks = Task.objects.filter(project=project, board__in=boards, status='İnaktif').count()
+    completed_tasks = Task.objects.filter(project=project, board__in=boards, status='Tamamlandı').count()
     projectform = ProjectUpdateForm(instance=project)
     staff_form = AddStaff(project_users)
     announcement_form = CreateAnnouncement()
@@ -177,15 +181,21 @@ def project_view(request, project_id: int):
         output_field=IntegerField()
     )
     all_users = project.users.order_by(sort_algorithm)
+    board_form = CreateBoard()
     context = {
         'project_members': project_users,
         'messages': message,
         'project': project,
         'boards': boards,
         'tasks': tasks,
+        'active_tasks': active_tasks,
+        'pending_tasks': pending_tasks,
+        'inactive_tasks': inactive_tasks,
+        'completed_tasks': completed_tasks,
         'current_user': user,
         'projectform': projectform,
         'staff_form': staff_form,
+        'board_form': board_form,
         'project_staff': project_staff,
         'all_users': all_users,
         'announcement_form': announcement_form,
@@ -198,6 +208,8 @@ def project_view(request, project_id: int):
 def leave_project(request, project_id: int):
     user = request.user
     project = Project.objects.get(id=project_id)
+    if ProjectStaff.objects.get(user=user) is not None:
+        ProjectStaff.objects.get(user=user).delete()
     project.users.remove(user)
     return redirect('home')
 
@@ -339,3 +351,32 @@ def delete_announcement(request, message_id: int):
     project_id = announcement.project.id
     announcement.delete()
     return redirect('project', project_id)
+
+
+def create_board(request, project_id: int):
+    # user = request.user
+    project = Project.objects.get(id=project_id)
+    if request.method == 'POST':
+        board_form = CreateBoard(request.POST)
+        if board_form.is_valid():
+            board = board_form.save(commit=False)
+            board.project = project
+            board_form.save()
+            return redirect('project', project_id)
+
+
+def get_board_users_count(request, board_id):
+    board = Board.objects.get(id=board_id)
+    count = board.users.count()
+    return JsonResponse({'count': count})
+
+
+def get_project_stats(request, project_id):
+    project = Project.objects.get(id=project_id)
+    board_count = Board.objects.filter(project=project).count()
+    task_count = Task.objects.filter(project=project).count()
+    post_count = Post.objects.filter(project=project).count()
+    staff_count = ProjectStaff.objects.filter(project=project).count()
+    user_count = project.users.count()
+    return JsonResponse({'board_count': board_count, 'task_count': task_count, 'post_count': post_count,
+                         'staff_count': staff_count, 'user_count': user_count})
