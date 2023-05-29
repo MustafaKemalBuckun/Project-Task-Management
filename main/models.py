@@ -53,6 +53,12 @@ class Board(models.Model):
     is_pinned = models.BooleanField(default=False, blank=True)
 
 
+class PinnedBoards(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=False)
+    board = models.ForeignKey(Board, on_delete=models.CASCADE, blank=False, default=None)
+    pinned_at = models.DateTimeField(auto_now_add=True, blank=True)
+
+
 class Task(models.Model):
 
     LOW = "Düşük"

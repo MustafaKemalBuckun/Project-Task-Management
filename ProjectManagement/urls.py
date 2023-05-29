@@ -33,6 +33,7 @@ urlpatterns = [
     path('create_company/', main_views.create_company, name='create_company'),
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path('pin/<int:project_id>/', main_views.pin_project),
+    path('pin_board/<int:board_id>/', main_views.pin_board),
     path('delete_project/<int:project_id>/', main_views.delete_project, name='delete_project'),
     path('project/<int:project_id>/', main_views.project_view, name='project'),
     path('leave_project/<int:project_id>/', main_views.leave_project, name='leave_project'),

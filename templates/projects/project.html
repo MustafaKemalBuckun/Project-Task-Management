@@ -247,13 +247,22 @@
                                             <div class="card h-100 ml-2" style="min-height: 300px; background-color: #adadad; border-width: thick">
                                                 <div class="card-header row justify-content-center mx-0 mb-2" style="background-color: #536c79">
                                                     {% if current_user == project.owner or current_user in project_staff %}
-                                                        <div class="col-1 text-left" style="position: absolute; left: 2%">
-                                                            <span class="bi bi-pin-angle" style="font-size: 1.5rem;"></span>
-                                                        </div>
+                                                        <a onclick="pin({{ board.id }})">
+                                                            {% if board in pinned_boards %}
+                                                                <div class="col-1 text-left" style="position: absolute; left: 2%">
+                                                                    <span class="bi bi-pin-angle-fill" style="font-size: 1.5rem; color: #fa7d3b"></span>
+                                                                </div>
+                                                            {% else %}
+                                                                <div class="col-1 text-left" style="position: absolute; left: 2%">
+                                                                    <span class="bi bi-pin-angle" style="font-size: 1.5rem;"></span>
+                                                                </div>
+                                                            {% endif %}
+                                                        </a>
                                                     {% endif %}
                                                     <div class="col-10 text-center mt-2 ml-1">
                                                         <h4 class="text-uppercase" style="color: white; font-size: 1rem">{{ board.title }}</h4>
                                                     </div>
+
                                                     <div class="col-1 text-right" style="position: absolute; right: 10%">
                                                         <span class="bi bi-star-fill" style="font-size: 1.5rem;
                                                                         color: #ffcc00;"></span>
@@ -767,6 +776,16 @@
                 }
             }
             return cookieValue;
+        }
+        const pin = (board_id) => {
+            fetch(`/pin_board/${board_id}/`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(rest => {
+                window.location.reload();
+            })
         }
     </script>
 {% endblock %}

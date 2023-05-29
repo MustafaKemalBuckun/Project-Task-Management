@@ -10,7 +10,7 @@ from .forms import UserRegisterForm, ProjectForm, CompanyForm, ProjectUpdateForm
 from .forms import LoginForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from .models import Project, Company, PinnedProjects, Board, Task, ProjectStaff, Invitation, Message, Post
+from .models import Project, Company, PinnedProjects, Board, Task, ProjectStaff, Invitation, Message, Post, PinnedBoards
 
 
 # Create your views here.
@@ -152,6 +152,18 @@ def pin_project(request, project_id: int):
     return index(request)
 
 
+def pin_board(request, board_id):
+    board = Board.objects.get(id=board_id)
+    project = board.project.id
+    pinned = PinnedBoards.objects.filter(board=board, user=request.user)
+    if pinned:
+        PinnedBoards.objects.get(board=board, user=request.user).delete()
+    else:
+        board.pinnedboards_set.create(board=board, user=request.user)
+
+    return project_view(request, project)
+
+
 def delete_project(request, project_id: int):
     project = Project.objects.get(id=project_id)
     project.delete()
@@ -182,6 +194,7 @@ def project_view(request, project_id: int):
     )
     all_users = project.users.order_by(sort_algorithm)
     board_form = CreateBoard()
+    pinned_boards = PinnedBoards.objects.filter(user=user).order_by('pinned_at')
     context = {
         'project_members': project_users,
         'messages': message,
@@ -200,6 +213,7 @@ def project_view(request, project_id: int):
         'all_users': all_users,
         'announcement_form': announcement_form,
         'announcements': announcements,
+        'pinned_boards': pinned_boards,
     }
 
     return render(request, 'projects/project.html', context)
