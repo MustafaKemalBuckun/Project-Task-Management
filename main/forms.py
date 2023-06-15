@@ -58,6 +58,15 @@ class CompanyForm(forms.ModelForm):
         }
 
 
+class CompanyUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Company
+        exclude = {
+            'owner',
+            'employees'
+        }
+
+
 class ProjectUpdateForm(forms.ModelForm):
     class Meta:
         model = Project
