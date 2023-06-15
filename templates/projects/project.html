@@ -94,7 +94,7 @@
                                     <div class="col-1">
                                         <span class="text-muted" style="position: absolute; right: 1%; top: 1%">{{ project.date_created }}</span>
                                         {% if project.company %}
-                                            <a href="/company/{{ project.company.id }}" style="position: absolute; right: 1%; bottom: 1%">
+                                            <a href="/companies/{{ project.company.id }}" style="position: absolute; right: 1%; bottom: 1%">
                                                 <h5 class="text-right text-primary">{{ project.company }}</h5>
                                             </a>
                                         {% else %}
@@ -531,7 +531,7 @@
                                 <td class="text-center" style="vertical-align: middle">{{ user.username }}</td>
                                 <td class="text-center" style="vertical-align: middle">{% if user == project.owner %} <strong style="color: #5b0cdd">Yönetici</strong> {% elif user in project_staff %} <strong>Görevli</strong> {% else %} Üye {% endif %}</td>
                                 <td class="text-center" style="vertical-align: middle">TODO</td>
-                                {% if current_user == project.owner %}
+                                {% if current_user == project.owner or current_user in project_staff %}
                                     <td class="text-center" style="vertical-align: middle">
                                         {% if user not in project_staff %}
                                             <a id="btn-remove-member-{{ user.id }}"

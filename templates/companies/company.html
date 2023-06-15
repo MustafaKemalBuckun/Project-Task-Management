@@ -1,0 +1,476 @@
+{% extends 'core/base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% load notifications_tags %}
+{% block content %}
+    <div class="container-fluid">
+        <div id="ui-view" style="opacity: 1;">
+            <div class="animated fadeIn">
+                <div class="row my-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row mx-3">
+                                    <div class="col-6 mt-1">
+                                        <div style="">
+                                            <h1 class="display-3 mt-4 mb-4">
+                                                {% if company.logo %}
+                                                    <img style="height: 50px; width: 50px; border-radius: 50%"
+                                                        src="{{ company.logo.url }}" class="display-3 mt-4 mb-4" alt="{{ company }} logo">
+                                                {% else %}
+                                                    <img style="height: 50px; width: 50px; border-radius: 50%"
+                                                     src="{% static 'main/img/logos/default_company_logo.png' %}" alt="">
+                                                {% endif %}  {{ company.name }}
+                                            </h1>
+                                        </div>
+                                        {% if current_user == company.owner %}
+                                            <div class="row mx-3">
+                                                <div class="col-3 mx-1 mt-5">
+                                                    <a onclick="toggleMenu()" class="btn btn-block" style="position: absolute;
+                                                        bottom: -10%; left: -40%"><i class="bi bi-gear-fill pr-1"></i>
+                                                        <strong>Yönet</strong>
+                                                    </a>
+                                                </div>
+                                                <div class="col-3 ml-5 mt-5">
+                                                    <a class="btn btn-block" data-toggle="modal" data-target="#sil" style="position: absolute; bottom: -10%; left: -80%">
+                                                        <i class="bi bi-box-arrow-left pr-1 text-danger"></i>
+                                                        <strong class="text-danger">Şirketi Sil</strong>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        {% elif current_user in company_employees %}
+                                            <a class="btn btn-block" data-toggle="modal" data-target="#ayrıl" style="position: absolute; bottom: -10%; left: -33%">
+                                            <i class="bi bi-box-arrow-left pr-1 text-danger"></i>
+                                            <strong class="text-danger">Şirketten Ayrıl</strong>
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-5 pl-5 mt-5">
+                                        <div class="row flex-row mt-4">
+                                            <div class="col-2 px-1 text-center" style="min-height: 20px; border-radius: 10%">
+                                                <div class="align-items-center justify-content-center">
+                                                    <i class="bi bi-person-workspace" style="font-size: 1.5rem"></i>
+                                                    <p><strong>{{ company.project_set.count }} </strong></p>
+                                                    <p><strong>Proje</strong></p>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-2 px-1 text-center" style="min-height: 20px; border-radius: 10%">
+                                                <a href="/çalışanları-görüntüle" data-toggle="modal" data-target="#users">
+                                                    <div class="align-items-center justify-content-center">
+                                                        <i class="bi bi-people-fill" style="font-size: 1.5rem"></i>
+                                                        <p><strong>{{ company.employees.count }} </strong></p>
+                                                        <p><strong>Çalışan</strong></p>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr class="my-4">
+                                <div id="hidden-menu" style="display: none">
+                                    <div class="row mx-3 my-3">
+                                        <div class="col-6">
+                                            {% if current_user == company.owner %}
+                                                <li style="list-style: none; font-size: large" class="mt-2">
+                                                    <a href="/düzenle" data-toggle="modal" data-target="#company-form">
+                                                        <i class="bi bi-pencil-fill" style="color: #266438; font-style: normal; font-size: 2rem"> Düzenle</i>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                            <li style="list-style: none; font-size: large" class="mt-4">
+                                                <a href="/çalışan-ekle" data-toggle="modal" data-target="#add-employees">
+                                                    <i class="bi bi-person-fill-add" style="color: #007bff; font-style: normal; font-size: 2rem"> Çalışan Ekle</i>
+                                                </a>
+                                            </li>
+                                        </div>
+                                        {% if current_user == company.owner %}
+                                            <div class="col-6">
+                                                <li style="list-style: none; font-size: large" class="mt-4">
+                                                    <a href="/çalışanları-yönet" data-toggle="modal" data-target="#users">
+                                                        <i class="bi bi-people-fill" style="color: #707072; font-style: normal; font-size: 2rem;"> Çalışanları Yönet</i>
+                                                    </a>
+                                                </li>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                <hr class="my-4">
+                                </div>
+                                <div class="row">
+                                    <div class="col-6 mx-4 h-100">
+                                        <p>{{ company.description|safe }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{#  <-----Modals----->  #}
+    <div class="modal fade" id="ayrıl" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="ayrıl">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <strong>{{ company.name }}</strong> şirketinden ayrılmak istediğinize emin misiniz?
+                </div>
+                <div class="modal-footer align-content-center justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+                    <a href="{% url 'leave_company' company.id %}" class="btn btn-danger delete-button" style="width: 50px">Ayrıl</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="sil" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="sil">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    Bu şirketi silmek istediğinize emin misiniz? Bunu yaparsanız tüm veriler kaybolur.
+                </div>
+                <div class="modal-footer align-content-center justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+                    <a href="{% url 'delete_company' company.id %}" class="btn btn-danger delete-button" style="width: 50px">Sil</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="company-form" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="company-form" style="min-width: 1000px">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="min-width: 1200px; position: absolute; left: -70%">
+                <form method="post" enctype="multipart/form-data" action="{% url 'update_company' company.id %}">
+                    {% csrf_token %}
+                    {{ companyform.media }}
+                    <div class="row px-4">
+                        <div class="col-md-6">
+                            <div class="card-body">
+                                <div class="row align-items-center pt-4 pb-3">
+                                    <div class="col-md-3 ps-5">
+                                        <h6 class="mb-0">Şirket Adı:</h6>
+                                    </div>
+                                    <div class="col-md-9 pe-5">
+                                        {% render_field companyform.name class+="form-control" placeholder="Şirket Adı" %}
+                                    </div>
+                                </div>
+                                <hr class="mx-n3">
+                                <br>
+                                <br>
+                                <br>
+                                <div class="row py-3">
+                                    <div class="col-md-3 ps-5">
+                                        <h6 class="mb-0">Şirket Açıklaması: </h6>
+                                    </div>
+                                    <div class="col-md-9 pl-5">
+                                        {% render_field companyform.description class+="form-control" %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card-body">
+
+                                <div class="row align-items-center pt-4 pb-3">
+                                    <div class="col-md-3 ps-5">
+
+                                        <h6 class="mb-0">Logo:</h6>
+
+                                    </div>
+                                    <div class="col-md-9 pe-5">
+                                        {% render_field companyform.logo class+="form-control" %}
+                                    </div>
+                                </div>
+                                <hr class="mx-n3">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer align-content-center justify-content-center">
+                        <div class="row justify-content-center">
+                            <div class="px-5 pb-4 text-lg-center">
+                                <button type="submit" class="btn btn-success btn-lg" style="width: 240px;">Güncelle</button>
+                                <button class="btn btn-secondary btn-lg" data-dismiss="modal" style="width: 240px;">İptal</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="add-employees" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="add-employees">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content justify-content-center align-items-center">
+            <form>
+                <div class="row" style="display: flex">
+                        <h6 class="py-4 pl-5">Eklemek istediğiniz kullanıcı adını giriniz:</h6>
+                        <div class="col-12 mx-4">
+                            <label style="display: flex; max-width: 450px">
+                                <input type="text" class="form-control w-100" style="width: 100%" placeholder="Kullanıcı Adı" id="username-input">
+                            </label>
+                        </div>
+                </div>
+                <div class="modal-footer align-content-center justify-content-center">
+                    <button type="button" class="btn btn-primary btn-lg" style="width: 100px;" onclick="addEmployees()">Ekle</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+                </div>
+            </form>
+            {% if messages %}
+                <script>
+                    {% for message in messages %}
+                        let level = "{{ message.tags }}";
+                        let message = "{{ message }}";
+                        if (level === 'success') {
+                            alert(message);
+                        } else if (level === 'warning') {
+                            alert(message);
+                        } else if (level === 'error') {
+                            alert(message);
+                        }
+                    {% endfor %}
+                </script>
+            {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="users" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="users">
+        <div class="modal-dialog" role="document">
+
+            <div class="modal-content" style="min-width: 150%; position: absolute; left: -25%;">
+                <div class="modal-header align-content-center justify-content-center">
+                    <strong>Çalışanlar</strong>
+                </div>
+                <div class="container w-100 my-3">
+                    <table class="table" id="users_table">
+                        <thead>
+                            <tr>
+                                <th>Fotoğraf</th>
+                                <th class="text-center">İsim</th>
+                                <th>Kullanıcı Adı</th>
+                                <th>Etiketler</th>
+                                {% if current_user == company.owner %}<th>İşlemler</th>{% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in company_employees %}
+                                <tr {% if user == current_user %} style="background-color: #ecf2ff" {% endif %}>
+                                    <td class="text-center" style="vertical-align: middle">{% if user.photo %} <img class="img-avatar" src="{{ user.photo.url }}" alt=""> {% else %} <img class="img-avatar" src="{% static 'main/img/avatar/blank_profile.png' %}" alt=""> {% endif %}</td>
+                                    <td class="text-center" style="vertical-align: middle">{{ user.first_name }} {{ user.last_name }}</td>
+                                    <td class="text-center" style="vertical-align: middle">{{ user.username }}</td>
+                                    <td class="text-center" style="vertical-align: middle">{% if user == company.owner %} <strong style="color: #5b0cdd">Şirket Sahibi</strong> {% else %} Çalışan {% endif %}</td>
+                                    <td class="text-center" style="vertical-align: middle">TODO</td>
+                                    {% if current_user == company.owner %}
+                                        <td class="text-center" style="vertical-align: middle">
+                                                <a id="btn-remove-employees-{{ user.id }}"
+                                                   class="btn btn-remove-employees"
+                                                   data-company-id="{{ company.id }}"
+                                                   data-user-id="{{ user.id }}"
+                                                   data-confirm-message="{{ user.username }} kullanıcısını şirketten çıkarmak istediğinize emin misiniz?"
+                                                   href="{% url 'remove_employee' company_id=company.id user_id=user.id %}">
+                                                    <i class="bi bi-x-circle-fill text-danger" style="font-size: 1.5rem"></i>
+                                                </a>
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer align-content-center justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if company.project_set.count != 0 %}
+        <div class="card-body row pr-4">
+            {% for project, percentage in projects_data %}
+            <div class="col-3 my-3">
+                <div class="card project-card p-3 pb-3 h-100 ml-2" style="min-height: 300px">
+                    <div class="row d-flex justify-content-between px-3 py-2">
+                        <div class="col-9 d-flex flex-row align-items-center pt-3" style="height: 40px">
+                            <div class="ms-2 c-details ml-1">
+                                <a href="/project/{{ project.id }}">
+                                    <h5 class="mb-0 mr-3">{{ project.name }}</h5>
+                                </a>
+                            </div>
+                        </div>
+                        {% if project.status == 'Aktif' %}
+                            <div class="col-3 card-badge mt-4" style="color: #000000;
+                                background-color: #8bffb1; width: 60px; height: 25px;
+                                padding-bottom: 3px; border-radius: 5px; display: flex;
+                                justify-content: center; align-items: center; position: absolute; top: 40px; right: 20px;">
+                                <span><strong>Aktif</strong></span>
+                            </div>
+                        {% elif project.status == 'İnaktif' %}
+                            <div class="col-3 card-badge mt-4" style="color: #000000;
+                                background-color: #f66e6e; width: 60px; height: 25px;
+                                padding-bottom: 3px; border-radius: 5px; display: flex;
+                                justify-content: center; align-items: center ;position: absolute; top: 40px; right: 20px;">
+                                <span><strong>İnaktif</strong></span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="mt-5">
+                        <div class="row flex-row">
+                            <div class="col-6 text-center" style="min-height: 40px;">
+                                <div class="align-items-center justify-content-center">
+                                    <i class="bi bi-list-stars" style="font-size: 2rem"></i>
+                                    <p><strong>{{ project.task_set.count }}</strong></p>
+                                    <p class="mt-0"><strong>Görev</strong></p>
+                                </div>
+                            </div>
+                            <div class="col-6 text-center" style="min-height: 40px; border-radius: 10%">
+                                <div class="align-items-center justify-content-center">
+                                    <i class="bi bi-people-fill" style="font-size: 2rem"></i>
+                                    <p><strong>{{ project.users.count }} </strong></p>
+                                    <p><strong>Katılımcı</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-row mt-3 mb-5 px-3 py-4" style="position: absolute; top: 60%; left: 5%; right: 5%">
+                            <div class="">
+                                <span style="font-size: 14px; font-weight: 600">%{{ percentage }}
+                                    <span style="color: #a5aec0"> Proje İlerlemesi </span>
+                                </span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar justify-content" role="progressbar"
+                                 style="width: {{ percentage }}%;" aria-valuenow=" {{ percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-5 pt-5">
+                        {% if project.owner == user %}
+                            <a class="btn btn-block" style="position: absolute;
+                            bottom: 4%; left: -30%" href="/project/{{ project.id }}"><i class="bi bi-gear-fill pr-1"></i><strong>Yönet</strong></a>
+                            <a class="btn btn-block" style="position: absolute;
+                            bottom: 4%; left: 30%" data-toggle="modal" data-target="#confirm" data-project-id="{{ user_project.id }}"><i class="bi bi-trash-fill pr-1 text-danger"></i><strong class="text-danger">Sil</strong></a>
+                        {% else %}
+                            <a class="btn btn-block" style="position: absolute;
+                            bottom: 4%; left: 0"><i class="bi bi-box-arrow-left pr-1 text-danger"></i><strong class="text-danger">Ayrıl</strong></a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+                <div class="col-3 text-center my-3">
+                    <div class="card h-100 ml-2 mr-2" style="border-color: #2A97D0; border-radius: 2%; min-height: 300px; min-width: 275px">
+                        <div class="card-body d-flex align-items-center justify-content-center">
+                            <a href="/create_project"><i class="bi bi-plus-square-fill" style="color: #2A97D0; font-size: 5rem"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3 h-100"></div>
+        </div>
+    {% else %}
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header" style="background-color: #f0f3f5">
+                                <i class="fa fa-align-justify"></i> {{ company.name }} Şirketinin Projeleri
+                            </div>
+                            <div class="mt-5">
+                                <div class="card-body">
+                                    <div class="jumbotron bg-white">
+                                        <h1 class="display-3">Bu şirketin henüz bir projesi yok.</h1>
+                                        <p>Proje oluşturarak uygulamayı kullanmaya başlayabilirsiniz.</p>
+                                        <hr class="my-4">
+                                        <a class="btn btn-primary btn-lg" href="/create_project" role="button">Proje oluştur</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+{#  <---------------->  #}
+    <script>
+        $(document).ready(function() {
+            $('#users_table').DataTable({
+                "autoWidth": false,
+                dom: 'Bfrtip',
+                buttons: [],
+                "language": {
+                    sInfo: "Toplam bulunan kayıt: _TOTAL_",
+                    sZeroRecords: "Hiç kayıt yok.",
+                    sInfoFiltered: " ",
+                    sInfoEmpty: " ",
+                    sSearch: "Ara: ",
+                    "oPaginate": {
+                        sNext: "Sonraki",
+                        sPrevious: "Önceki",
+                    }
+                },
+            });
+            $('.btn-remove-employees').on('click', function() {
+                let companyId = $(this).data('company-id');
+                let userId = $(this).data('user-id');
+                let confirmMessage = $(this).data('confirm-message');
+                if (confirm(confirmMessage)) {
+                    $.ajax({
+                        url: '/remove_employee/' + companyId + '/' + userId + '/',
+                        type: 'GET',
+                        success: function() {
+                            window.location.href = '/company/' + companyId + '/';
+                        },
+                        error: function(xhr, textStatus, errorThrown) {
+                            // Handle error if needed
+                            console.error(errorThrown);
+                        }
+                    });
+                }
+                return false;
+            });
+        });
+        function toggleMenu() {
+            let menu = document.getElementById("hidden-menu");
+            if (menu.style.display === "none") {
+                menu.style.display = "block";
+            } else {
+                menu.style.display = "none";
+            }
+        }
+        function addEmployees() {
+            const username = $('#username-input').val();
+            const csrftoken = getCookie('csrftoken');
+            $.ajax({
+                type: 'POST',
+                url: '/add_employees/' + {{company.id}} + '/',
+                data: { 'username': username },
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader('X-CSRFToken', csrftoken);
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        alert(response.message);
+                        window.location.reload();
+                    } else if (response.status === 'warning') {
+                        alert(response.message);
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Error: ' + error);
+                }
+            });
+        }
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+{% endblock %}

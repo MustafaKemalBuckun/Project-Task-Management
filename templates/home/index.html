@@ -287,19 +287,19 @@
                                     {% for user_company in user_companies %}
                                     <div class="col-2">
                                         <a href="/companies/{{ user_company.id }}">
-                                            <div class="card company-card h-100">
+                                            <div class="card project-card h-100">
                                                 <div class="card-body">
                                                     <div style="padding: 0 0; text-align: center;">
-                                                    {% if user_company.logo %}
-                                                        <a target="#" href="/companies/{{ user_company.id }}">
-                                                            <img style="height: 50px; width: 50px; border-radius: 50%;"
-                                                                 src="{{ user_company.logo.url }}" class="" alt="{{ company }}">
-                                                        </a>
+                                                        {% if user_company.logo %}
+                                                            <a href="/companies/{{ user_company.id }}">
+                                                                <img style="height: 50px; width: 50px; border-radius: 50%;"
+                                                                     src="{{ user_company.logo.url }}" class="" alt="{{ company }}">
+                                                            </a>
                                                         {% else %}
-                                                        <a target="#" href="/companies/{{ user_company.id }}">
-                                                            <img style="height: 50px; width: 50px; border-radius: 50%;"
-                                                                 src="media/media/default_company_logo.png" class="" alt="{{ company }}">
-                                                        </a>
+                                                            <a href="/companies/{{ user_company.id }}">
+                                                                <img style="height: 50px; width: 50px; border-radius: 50%;"
+                                                                     src="{% static 'main/img/logos/default_company_logo.png' %}" class="" alt="{{ company }}">
+                                                            </a>
                                                         {% endif %}
                                                     </div>
                                                     <div class="card-header text-center" style="height: 30px; padding: 5px 5px;

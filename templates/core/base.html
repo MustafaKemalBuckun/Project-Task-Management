@@ -145,14 +145,25 @@
         <div class="modal-content">
             <div class="modal-body">
                 {% for invitation in user_invitations %}
-                    <hr class="mb-4">
-                    <div class="row justify-content-center">
-                        <p class="text-center" style="font-size: 1.5rem">{{ invitation.inviter }} sizi  {{ invitation.project.name }} {% if invitation.project.company %}(<a href="/company/{{ invitation.project.company.id }}" style="color: #1b8eb7">{{ invitation.project.company.name }}</a>){% endif %} projesine davet etti.</p>
-                    </div>
-                    <div class="row justify-content-center">
-                        <a href="{% url 'accept_invitation' invitation.project.id %}" class="btn btn-success mx-3" style="width: 100px">Kabul Et</a>
-                        <a href="{% url 'decline_invitation' invitation.project.id %}" class="btn btn-danger mx-3" style="width: 100px">Reddet</a>
-                    </div>
+                    {% if invitation.project %}
+                        <hr class="mb-4">
+                        <div class="row justify-content-center">
+                            <p class="text-center" style="font-size: 1.5rem">{{ invitation.inviter }} sizi  {{ invitation.project.name }} {% if invitation.project.company %}(<a href="/company/{{ invitation.project.company.id }}" style="color: #1b8eb7">{{ invitation.project.company.name }}</a>){% endif %} projesine davet etti.</p>
+                        </div>
+                        <div class="row justify-content-center">
+                            <a href="{% url 'accept_invitation' invitation.project.id %}" class="btn btn-success mx-3" style="width: 100px">Kabul Et</a>
+                            <a href="{% url 'decline_invitation' invitation.project.id %}" class="btn btn-danger mx-3" style="width: 100px">Reddet</a>
+                        </div>
+                    {% else %}
+                        <hr class="mb-4">
+                        <div class="row justify-content-center">
+                            <p class="text-center" style="font-size: 1.5rem">{{ invitation.inviter }} sizi  {{ invitation.comapny.name }} şirketine davet etti.</p>
+                        </div>
+                        <div class="row justify-content-center">
+                            <a href="{% url 'join_company' invitation.company.id %}" class="btn btn-success mx-3" style="width: 100px">Kabul Et</a>
+                            <a href="{% url 'reject_company' invitation.company.id %}" class="btn btn-danger mx-3" style="width: 100px">Reddet</a>
+                        </div>
+                    {% endif %}
                 {% endfor %}
             </div>
             <div class="modal-footer align-content-center justify-content-center">
@@ -217,23 +228,41 @@
 
             if (data.length > 0) {
                 data.forEach(function (invitation) {
-                    var row = $('<div class="row justify-content-center my-2">');
-                    var hr = $('<hr class="my-2">');
-                    modalBody.append(hr);
-                    var text = invitation.inviter + ' sizi ' + invitation.project.name;
-                    if (invitation.project.company) {
-                        text += ' (<a href="/company/' + invitation.project.company.id + '" style="color: #1b8eb7">' + invitation.project.company.name + '</a>)';
+                    if (invitation.project && !invitation.company) {
+                        var row = $('<div class="row justify-content-center my-2">');
+                        var hr = $('<hr class="my-2">');
+                        modalBody.append(hr);
+                        var text = invitation.inviter + ' sizi ' + invitation.project.name;
+                        if (invitation.project.company) {
+                            text += ' (<a href="/company/' + invitation.project.company.id + '" style="color: #1b8eb7">' + invitation.project.company.name + '</a>)';
+                        }
+                        text += ' projesine davet etti.';
+                        var p = $('<p class="text-center" style="font-size: 1.5rem"></p>').html(text);
+                        row.append(p);
+                        var acceptLink = $('<a href="/accept_invitation/' + invitation.project.id + '" class="btn btn-success mx-3" style="width: 100px">Kabul Et</a>');
+                        var declineLink = $('<a href="/decline_invitation/' + invitation.project.id + '" class="btn btn-danger mx-3" style="width: 100px">Reddet</a>');
+                        var buttonRow = $('<div class="row justify-content-center"></div>');
+                        buttonRow.append(acceptLink);
+                        buttonRow.append(declineLink);
+                        row.append(buttonRow);
+                        modalBody.append(row);
+                    } else {
+                        var row = $('<div class="row justify-content-center my-2">');
+                        var hr = $('<hr class="my-2">');
+                        modalBody.append(hr);
+                        var text = invitation.inviter + ' sizi ' + invitation.company.name + ' ' + invitation.company.id;
+                        text += ' şirketine davet etti.';
+                        var p = $('<p class="text-center" style="font-size: 1.5rem"></p>').html(text);
+                        row.append(p);
+                        var acceptLink = $('<a href="/join_company/' + invitation.company.id + '" class="btn btn-success mx-3" style="width: 100px">Kabul Et</a>');
+                        var declineLink = $('<a href="/reject_company/' + invitation.company.id + '" class="btn btn-danger mx-3" style="width: 100px">Reddet</a>');
+                        var buttonRow = $('<div class="row justify-content-center"></div>');
+                        buttonRow.append(acceptLink);
+                        buttonRow.append(declineLink);
+                        row.append(buttonRow);
+                        modalBody.append(row);
                     }
-                    text += ' projesine davet etti.';
-                    var p = $('<p class="text-center" style="font-size: 1.5rem"></p>').html(text);
-                    row.append(p);
-                    var acceptLink = $('<a href="/accept_invitation/' + invitation.project.id + '" class="btn btn-success mx-3" style="width: 100px">Kabul Et</a>');
-                    var declineLink = $('<a href="/decline_invitation/' + invitation.project.id + '" class="btn btn-danger mx-3" style="width: 100px">Reddet</a>');
-                    var buttonRow = $('<div class="row justify-content-center"></div>');
-                    buttonRow.append(acceptLink);
-                    buttonRow.append(declineLink);
-                    row.append(buttonRow);
-                    modalBody.append(row);
+
                 });
                 $('#davetler').modal('show');
             }
