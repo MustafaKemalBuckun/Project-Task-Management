@@ -1,0 +1,85 @@
+{% extends 'core/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block content %}
+
+    <div class="container-fluid">
+        <div id="ui-view" style="opacity: 1;">
+            <div class="animated fadeIn">
+                <div class="row my-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header mx-4 mb-2">
+                                <h2 class="my-2 text-uppercase" style="color: #000000">Profilini Düzenle</h2>
+                            </div>
+                            <div class="card-body row ml-4">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        {% if messages %}
+                                            {% for message in messages %}
+                                                <div class="alert alert-{{ message.tags }}">
+                                                    {{ message }}
+                                                </div>
+                                            {% endfor %}
+                                        {% endif %}
+                                        <div class="col-md-6 mb-4 pb-2">
+                                            <div>
+                                                <h6 class="mb-0">Adınız:</h6>
+                                                {% render_field user_form.first_name class+="form-control" placeholder="Ad" %}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-4 pb-2">
+                                            <div>
+                                                <h6 class="mb-0">Soyadınız:</h6>
+                                                {% render_field user_form.last_name class+="form-control" placeholder="Soyad" %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-4">
+                                            <div>
+                                                <h6 class="mb-0">Kullanıcı Adınız:</h6>
+                                                {% render_field user_form.username class+="form-control" placeholder="Kullanıcı Adı" %}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-4">
+                                            <div>
+                                                <h6 class="mb-0">E-Mail Adresiniz:</h6>
+                                                {% render_field user_form.email class+="form-control" placeholder="örnek@mail.com" %}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-4 d-flex align-items-center">
+
+                                            <div class="w-100">
+                                                <h6 class="mb-0">Parola:</h6>
+                                                {% render_field user_form.password1 class+="form-control" placeholder="Parola" %}
+                                            </div>
+
+                                        </div>
+                                        <div class="col-md-6 mb-4 d-flex align-items-center">
+
+                                            <div class="w-100">
+                                                <h6 class="mb-0">Parola Tekrar:</h6>
+                                                {% render_field user_form.password2 class+="form-control" placeholder="Parola Tekrar" %}
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 pt-2 text-center">
+                                        <input class="btn btn-primary btn-lg btn-block mb-4" type="submit" value="Güncelle" />
+                                    </div>
+
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

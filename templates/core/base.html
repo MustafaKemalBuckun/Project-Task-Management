@@ -35,9 +35,6 @@
         <li class="nav-item px-3">
             <a class="nav-link" href="/" style="color: #536c79;">Ana Sayfa</a>
         </li>
-        <li class="nav-item px-3">
-            <a class="nav-link" href=" " style="color: #536c79;">Panolar</a>
-        </li>
     </ul>
     <ul class="nav navbar-nav ml-auto">
         <li class="nav-item dropdown">
@@ -60,12 +57,6 @@
                     <div class="dropdown-item">Henüz bildirim yok.</div>
                 {% endif %}
             </div>
-        </li>
-        <li class="nav-item d-md-down-none">
-            <a class="nav-link" href="#"><i class="fa fa-list"></i></a>
-        </li>
-        <li class="nav-item d-md-down-none">
-            <a class="nav-link" href="#"><i class="fa fa-map-marker"></i></a>
         </li>
         {% if user.is_authenticated %}
             <li class="text-muted">Hoş geldiniz, {{ user.first_name }}</li>
@@ -108,70 +99,39 @@
         <nav class="sidebar-nav">
             <ul class="nav">
                 <li class="nav-item">
-                    <a class="nav-link" href=" "><i class="bi bi-house"></i> Ana Sayfa</a>
+                    <a class="nav-link" href="/"><i class="bi bi-house-fill"></i> Ana Sayfa</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href=" "><i class="fa fa-tachometer-alt"></i> Panolar</a>
-                </li>
-                <li class="nav-item nav-dropdown">
-                    <a class="nav-link nav-dropdown-toggle" href="#"><i class="fa fa-tachometer-alt"></i> Görev</a>
-                    <ul class="nav-dropdown-items">
-                        <li class="nav-item">
-                            <a class="nav-link" href=" "><i class="fa fa-paper-plane ml-2"></i> Projeler</a>
+
+                <a class="nav-link nav-link" href="/my_tasks"><i class="bi bi-list-task"></i> Görevler</a>
+                <ul class="nav-dropdown-items">
+                    <li class="nav-item">
+                        <a class="nav-link" href=" "><i class="fa fa-paper-plane ml-2"></i> Projeler</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href=" "><i class="fa fa-user ml-2"></i> Profiller</a>
+                    </li>
+                </ul>
+                {% if user_companies %}
+                    <li class="nav-title mt-3"><i class="bi bi-building"></i>
+                        Şİrketler
+                    </li>
+                    {% for company in user_companies %}
+                        <li class="nav-item nav-link mb-4">
+                            <a class="ml-4" href="/company/{{ company.id }}" style="position: absolute; top: 1%"><i class="fa fa-industry"></i>{{ company.name }}</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href=" "><i class="fa fa-user ml-2"></i> Profiller</a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="nav-title">
-                    Başlık
-                </li>
-                <li class="nav-item nav-dropdown">
-                    <a class="nav-link nav-dropdown-toggle" href="#"><i class="fa fa-industry"></i> Şirket</a>
-                    <ul class="nav-dropdown-items">
-                        <li class="nav-item">
-                            <a class="nav-link" href=""><i class="fa fa-plus ml-2"></i> Yeni Şirket</a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="nav-item nav-dropdown">
-                    <a class="nav-link nav-dropdown-toggle" href="#"><i class="fa fa-puzzle-piece"></i> Projeler</a>
-                    <ul class="nav-dropdown-items">
-                        <li class="nav-item">
-                            <a class="nav-link" href=""><i class="fa fa-plus ml-2"></i> Yeni Proje</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href=""><i class="fa fa-plus ml-2"></i> Yeni Görev</a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="nav-item nav-dropdown">
-                    <a class="nav-link nav-dropdown-toggle" href="#"><i class="fa fa-user"></i> Kullanıcılar</a>
-                    <ul class="nav-dropdown-items">
-                        <li class="nav-item">
-                            <a class="nav-link" href=""><i class="fa fa-user-plus ml-2"></i> Profili Düzenle</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href=""><i class="fa fa-users ml-2"></i> Takım Arkadaşları</a>
-                        </li>
-                    </ul>
-                </li>
+                    {% endfor %}
+                {% endif %}
                 <li class="divider"></li>
-                <li class="nav-title">
-                    Başlık
-                </li>
-                <li class="nav-item nav-dropdown">
-                    <a class="nav-link nav-dropdown-toggle" href="#"><i class="fa fa-star"></i> Sayfalar</a>
-                    <ul class="nav-dropdown-items">
-                        <li class="nav-item">
-                            <a class="nav-link" href=" " target="_top"><i class="fa fa-sign-in"></i> Giriş</a>
+                {% if user_projects %}
+                    <li class="nav-title"><i class="fa fa-diagram-project"></i>
+                        Projeler
+                    </li>
+                    {% for project in user_projects %}
+                        <li class="nav-item nav-link">
+                            <a class="ml-4" href="/project/{{ project.id }}" style="position: absolute; top: 1%"><i class="fa fa-briefcase"></i>{{ project.name }}</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href=" " target="_top"><i class="fa fa-sign-out"></i> Çıkış</a>
-                        </li>
-                    </ul>
-                </li>
+                    {% endfor %}
+                {% endif %}
             </ul>
         </nav>
     </div>

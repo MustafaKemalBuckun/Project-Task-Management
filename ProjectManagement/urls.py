@@ -73,6 +73,7 @@ urlpatterns = [
     path('delete_post/<int:post_id>/', main_views.delete_post, name='delete_post'),
     path('delete_task/<int:task_id>/', main_views.delete_task, name='delete_task'),
     path('my_tasks/', main_views.my_tasks, name='my_tasks'),
+    path('profile/', user_views.profile, name='profile'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

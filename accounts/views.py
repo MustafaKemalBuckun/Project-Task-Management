@@ -1,13 +1,27 @@
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from notifications.models import Notification
 from django.core import serializers
+
+from main.forms import UserUpdateForm
 from main.models import Invitation
 from .serializers import NotificationSerializer, InvitationSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
 # Create your views here.
+
+
+def profile(request):
+    current_user = request.user
+    if request.method == 'POST':
+        user_form = UserUpdateForm(request.POST, instance=current_user)
+        if user_form.is_valid():
+            user_form.save()
+            return redirect('profile')
+    else:
+        user_form = UserUpdateForm(instance=current_user)
+    return render(request, 'accounts/profile.html', {'user_form': user_form,})
 
 
 def mark_notification_read(request, notification_id):

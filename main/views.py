@@ -91,16 +91,18 @@ def logout_view(request):
 def base_context(request):   # used for base.html
     context = {}
     if not request.user.is_anonymous:
-        user_projects = Project.objects.filter(users=request.user)
+        user_projects = Project.objects.filter(Q(users=request.user) | Q(owner=request.user)).distinct()
         user_invitations = Invitation.objects.filter(invited=request.user)
         unread_count = Notification.objects.filter(recipient=request.user, unread=True).count()
         notifications = Notification.objects.filter(recipient=request.user)
+        user_companies = Company.objects.filter(Q(owner=request.user) | Q(employees=request.user)).distinct()
         context = {
             'user': request.user,
             'user_projects': user_projects,
             'user_invitations': user_invitations,
             'unread_count': unread_count,
             'notifications': notifications,
+            'user_companies': user_companies,
         }
     return context
 
