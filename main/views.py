@@ -30,7 +30,7 @@ def index(request):
             task_count=Count('task')).exclude(pinnedprojects__in=pinned_projects)
         print(unpinned_projects)
         percentages = []
-        user_companies = Company.objects.filter(Q(owner=user) | Q(employees=user))
+        user_companies = Company.objects.filter(Q(owner=user) | Q(employees=user)).distinct()
 
         user_invitations = Invitation.objects.filter(invited=user)
         for project in projects:
@@ -92,7 +92,7 @@ def base_context(request):   # used for base.html
     context = {}
     if not request.user.is_anonymous:
         user_projects = Project.objects.filter(users=request.user)
-        user_invitations = Invitation.objects.filter(invited=request.user)
+        user_invitations = Invitation.objects.filter(invited__id=request.user.id)
         unread_count = Notification.objects.filter(recipient=request.user, unread=True).count()
         notifications = Notification.objects.filter(recipient=request.user)
         context = {
@@ -155,7 +155,7 @@ def company_view(request, company_id: int):
     user = request.user
     company = Company.objects.get(id=company_id)
     company_employees = company.employees.exclude(Q(id=company.owner.id))
-    projects = Project.objects.filter(company=company)
+    projects = Project.objects.filter(company=company).annotate(task_count=Count('task'))
     companyform = CompanyUpdateForm(instance=company)
     sort_algorithm = Case(
         When(id=company.owner.id, then=Value(0)),
@@ -163,12 +163,24 @@ def company_view(request, company_id: int):
         default=Value(2),
         output_field=IntegerField()
     )
+    percentages = []
+    for project in projects:
+        total_tasks = project.task_set.count()
+        print(total_tasks)
+        completed_tasks = project.task_set.filter(status='Tamamlandı').count()
+        if total_tasks > 0:
+            progress = int((completed_tasks / total_tasks) * 100)
+        else:
+            progress = 0
+        percentages.append(progress)
     context = {
         'company_employees': company_employees,
         'company': company,
         'current_user': user,
         'projects': projects,
+        'projects_data': zip(projects, percentages),
         'companyform': companyform,
+        'percentages': percentages,
     }
     return render(request, 'companies/company.html', context)
 
@@ -403,6 +415,25 @@ def decline_invitation(request, project_id: int):
     return redirect('home')
 
 
+def join_company(request, company_id):
+    company = Company.objects.get(id=company_id)
+    company.employees.add(request.user)
+    company.save()
+    inv = Invitation.objects.get(inviter=company.owner, invited=request.user, company=company)
+    notification = Notification.objects.create(actor=request.user, recipient=company.owner, verb=', davetinizi kabul etti!',
+                                               description='accepted')
+    notification.save()
+    inv.delete()
+    return redirect('companies', company_id)
+
+
+def reject_company(request, company_id):
+    company = Company.objects.get(id=company_id)
+    inv = Invitation.objects.get(inviter=company.owner, invited=request.user, company=company)
+    inv.delete()
+    return redirect('home')
+
+
 def remove_member(request, project_id: int, user_id: int):
     user = User.objects.get(id=user_id)
     project = Project.objects.get(id=project_id)
@@ -412,6 +443,13 @@ def remove_member(request, project_id: int, user_id: int):
 
     print('we here')
     return redirect('project', project_id)
+
+
+def remove_employee(request, company_id, user_id):
+    user = User.objects.get(id=user_id)
+    company = Company.objects.get(id=company_id)
+    company.employees.remove(user)
+    return redirect('companies', company_id)
 
 
 def remove_staff(request, project_id: int, user_id: int):

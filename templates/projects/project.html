@@ -531,7 +531,7 @@
                                 <td class="text-center" style="vertical-align: middle">{{ user.username }}</td>
                                 <td class="text-center" style="vertical-align: middle">{% if user == project.owner %} <strong style="color: #5b0cdd">Yönetici</strong> {% elif user in project_staff %} <strong>Görevli</strong> {% else %} Üye {% endif %}</td>
                                 <td class="text-center" style="vertical-align: middle">TODO</td>
-                                {% if current_user == project.owner %}
+                                {% if current_user == project.owner or current_user in project_staff %}
                                     <td class="text-center" style="vertical-align: middle">
                                         {% if user not in project_staff %}
                                             <a id="btn-remove-member-{{ user.id }}"
