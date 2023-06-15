@@ -87,8 +87,8 @@
                     <strong>Hesap</strong>
                 </div>
                 {% if user.is_authenticated %}
-                    <a class="dropdown-item" id="davetler-dropdown" href="" onclick="showInvitations()" data-toggle="modal" ><i class="bi bi-envelope-fill"></i> Davetler{% if user_invitations %}<span class="badge badge-success">{{ user_invitations.count }}</span>{% endif %}</a>
-                    <a class="dropdown-item" href="#"><i class="bi bi-list-task"></i> Görevler {% if user.task_set.values.count > 0 %}<span class="badge badge-danger">{{ user.task_set.values.count }}</span>{% endif %}</a>
+                    <a class="dropdown-item invitation-item" id="davetler-dropdown" href="" onclick="showInvitations()" data-toggle="modal" ><i class="bi bi-envelope-fill"></i> Davetler{% if user_invitations %}<span class="badge badge-success">{{ user_invitations.count }}</span>{% endif %}</a>
+                    <a class="dropdown-item" href="/my_tasks"><i class="bi bi-list-task"></i> Görevler {% if user.task_set.values.count > 0 %}<span class="badge" style="background-color: #f86c6b; color: white">{{ user.task_set.values.count }}</span>{% endif %}</a>
                     <div class="dropdown-header text-center">
                         <strong>Ayarlar</strong>
                     </div>

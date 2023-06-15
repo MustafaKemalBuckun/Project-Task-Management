@@ -1,12 +1,14 @@
+from datetime import timezone, datetime
+
 from django.contrib.messages import get_messages
-from django.db.models import Q, Count, Case, When, Value, IntegerField
+from django.db.models import Q, Count, Case, When, Value, IntegerField, F
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from notifications.models import Notification
 
 from accounts.models import User
 from .forms import UserRegisterForm, ProjectForm, CompanyForm, ProjectUpdateForm, AddStaff, CreateAnnouncement, \
-    UpdateAnnouncement, CreateBoard
+    UpdateAnnouncement, CreateBoard, CreateTask, UpdateBoard
 from .forms import LoginForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -155,6 +157,22 @@ def pin_project(request, project_id: int):
 def pin_board(request, board_id):
     board = Board.objects.get(id=board_id)
     project = board.project.id
+    pinned = Board.objects.filter(id=board.id, is_pinned=True)
+    print(pinned)
+    if pinned:
+        board.is_pinned = False
+        board.save()
+    else:
+        board.is_pinned = True
+        board.save()
+        print(board.is_pinned)
+
+    return project_view(request, project)
+
+
+def star_board(request, board_id):
+    board = Board.objects.get(id=board_id)
+    project = board.project.id
     pinned = PinnedBoards.objects.filter(board=board, user=request.user)
     if pinned:
         PinnedBoards.objects.get(board=board, user=request.user).delete()
@@ -175,7 +193,7 @@ def project_view(request, project_id: int):
     project = Project.objects.get(id=project_id)
     project_staff = User.objects.filter(projectstaff__project=project)
     project_users = project.users.exclude(Q(id=project.owner.id) | Q(projectstaff__project=project))
-    boards = Board.objects.filter(project=project)
+    boards = Board.objects.filter(project=project).order_by('pinnedboards__pinned_at', F('is_pinned').desc()).distinct()
     tasks = Task.objects.filter(project=project, board__in=boards)
     active_tasks = Task.objects.filter(project=project, board__in=boards, status='Aktif').count()
     pending_tasks = Task.objects.filter(project=project, board__in=boards, status='Beklemede').count()
@@ -193,8 +211,9 @@ def project_view(request, project_id: int):
         output_field=IntegerField()
     )
     all_users = project.users.order_by(sort_algorithm)
-    board_form = CreateBoard()
-    pinned_boards = PinnedBoards.objects.filter(user=user).order_by('pinned_at')
+    board_form = CreateBoard(all_users)
+    pinned_boards = PinnedBoards.objects.filter(user=user).values_list('board_id', flat=True)
+
     context = {
         'project_members': project_users,
         'messages': message,
@@ -222,8 +241,14 @@ def project_view(request, project_id: int):
 def leave_project(request, project_id: int):
     user = request.user
     project = Project.objects.get(id=project_id)
-    if ProjectStaff.objects.get(user=user) is not None:
+    if user in ProjectStaff.objects.filter(user=user):
         ProjectStaff.objects.get(user=user).delete()
+    boards = project.board_set.all()
+    tasks = Task.objects.filter(board__in=boards)
+    for board in boards:
+        board.users.remove(user)
+    for task in tasks:
+        task.assigned_to.remove(user)
     project.users.remove(user)
     return redirect('home')
 
@@ -370,8 +395,9 @@ def delete_announcement(request, message_id: int):
 def create_board(request, project_id: int):
     # user = request.user
     project = Project.objects.get(id=project_id)
+    all_users = project.users
     if request.method == 'POST':
-        board_form = CreateBoard(request.POST)
+        board_form = CreateBoard(all_users, request.POST)
         if board_form.is_valid():
             board = board_form.save(commit=False)
             board.project = project
@@ -394,3 +420,273 @@ def get_project_stats(request, project_id):
     user_count = project.users.count()
     return JsonResponse({'board_count': board_count, 'task_count': task_count, 'post_count': post_count,
                          'staff_count': staff_count, 'user_count': user_count})
+
+
+def board_view(request, board_id):
+    board = Board.objects.get(id=board_id)
+    project = board.project
+    project_users = project.users
+    tasks = Task.objects.filter(board=board)
+    task_form = CreateTask(project_users)
+    waiting_tasks = Task.objects.filter(project=project, board=board, status='Beklemede')
+    done_tasks = Task.objects.filter(project=project, board=board, status='Tamamlandı')
+    inactive_tasks = Task.objects.filter(project=project, board=board, status='İnaktif')
+    active_tasks = Task.objects.filter(project=project, board=board, status='Aktif')
+    board_form = UpdateBoard(project_users, instance=board)
+    time = datetime.now(timezone.utc)
+    project_staff = User.objects.filter(projectstaff__project=project)
+    all_status = [status[0] for status in Task.STATUS_CHOICES]
+    priorities = [priority[0] for priority in Task.PRIORITY_CHOICES]
+    context = {
+        'time': time,
+        'board': board,
+        'board_form': board_form,
+        'tasks': tasks,
+        'task_form': task_form,
+        'waiting_tasks': waiting_tasks,
+        'done_tasks': done_tasks,
+        'inactive_tasks': inactive_tasks,
+        'active_tasks': active_tasks,
+        'current_user': request.user,
+        'project_staff': project_staff,
+        'all_status': all_status,
+        'priorities': priorities,
+    }
+    return render(request, 'projects/board.html', context)
+
+
+def update_board(request, board_id):
+    board = Board.objects.get(id=board_id)
+    already_users = list(board.users.all())
+    users = board.project.users.all()
+    if request.method == 'POST':
+        board_form = UpdateBoard(users, request.POST, instance=board)
+        if board_form.is_valid():
+            b = board_form.save(commit=False)
+            b.users.set(board_form.cleaned_data['users'])
+            b.save()
+            new_users = b.users.exclude(id__in=[user.id for user in already_users])
+            print(new_users)
+            for user in board.users.all():
+                notification = Notification.objects.create(
+                    actor=request.user,
+                    recipient=user,
+                    verb=request.user.username + ', "' + board.project.name + '" projesindeki "'
+                         + board.title + '" panosunu güncelledi.',
+                    description='pano güncelleme'
+                )
+                notification.save()
+            if new_users is not None:
+                for user in new_users:
+                    print(user.username)
+                    notification = Notification.objects.create(
+                        actor=board.project.owner,
+                        recipient=user,
+                        verb=board.project.name + ' projesinde '
+                        + board.title + ' panosuna eklendiniz.',
+                        description='panoya kullanıcı ekleme'
+                    )
+                    notification.save()
+            else:
+                print('hmmm')
+        else:
+            print(board_form.errors)
+        return redirect('board', board.id)
+
+
+def delete_board(request, board_id):
+    board = Board.objects.get(id=board_id)
+    board.delete()
+    return redirect('project', board.project.id)
+
+
+def create_task(request, board_id):
+    board = Board.objects.get(id=board_id)
+    project = board.project
+    user = request.user
+    project_users = project.users
+    if request.method == 'POST':
+        task_form = CreateTask(project_users, request.POST)
+        if task_form.is_valid():
+            task = task_form.save(commit=False)
+            task.project = project
+            task.board = board
+            task.save()
+            task_form.save_m2m()
+            if task.assigned_to.all() is not None:
+                for assignee in task.assigned_to.all():
+                    print(assignee.username)
+                    notify = Notification.objects.create(
+                        actor=request.user,
+                        recipient=assignee,
+                        verb='"' + board.title + '" panosunda, ' + '(' + task.project.name + ') ' +
+                             user.username + ' tarafından "' + task.title + '" görevine eklendiniz.'
+                    )
+                    notify.save()
+            return redirect('board', board_id)
+        else:
+            print(task_form.errors)
+
+
+def add_task_user(request, task_id):
+    task = Task.objects.get(id=task_id)
+    if request.method == 'POST':
+        user_id = request.POST.get('user')
+        user = User.objects.get(id=user_id)
+        task.assigned_to.add(user)
+        task.save()
+        notify = Notification.objects.create(
+            actor=request.user,
+            recipient=user,
+            verb='"' + task.board.title + '" panosunda, ' + '(' + task.project.name + ') ' +
+            request.user.username + ' tarafından "' + task.title + '" görevine eklendiniz.'
+        )
+        notify.save()
+        return redirect('board', task.board.id)
+
+
+def add_task_follower(request, task_id):
+    task = Task.objects.get(id=task_id)
+    if request.method == 'POST':
+        user_id = request.POST.get('user')
+        user = User.objects.get(id=user_id)
+        task.followers.add(user)
+        task.save()
+        notify = Notification.objects.create(
+            actor=request.user,
+            recipient=user,
+            verb='"' + task.board.title + '" panosunda, ' + '(' + task.project.name + ') ' +
+            request.user.username + ' tarafından "' + task.title + '" görevine takipçi olarak eklendiniz.'
+        )
+        notify.save()
+        return redirect('board', task.board.id)
+
+
+def remove_task_user(request, task_id, user_id):
+    task = Task.objects.get(id=task_id)
+    user = User.objects.get(id=user_id)
+    task.assigned_to.remove(user)
+    task.save()
+    return redirect('board', task.board.id)
+
+
+def remove_task_staff(request, task_id, user_id):
+    task = Task.objects.get(id=task_id)
+    user = User.objects.get(id=user_id)
+    task.followers.remove(user)
+    task.save()
+    return redirect('board', task.board.id)
+
+
+def update_task_status(request):
+    task_id = request.POST.get('task_id')
+    new_status = request.POST.get('status')
+
+    task = Task.objects.get(id=task_id)
+    task.status = new_status
+    task.save()
+
+    response_data = {
+        'success': True,
+        'message': 'Task status updated successfully.',
+    }
+    return JsonResponse(response_data)
+
+
+def update_task_priority(request):
+    task_id = request.POST.get('task_id')
+    new_priority = request.POST.get('priority')
+
+    task = Task.objects.get(id=task_id)
+    task.priority = new_priority
+    task.save()
+
+    response_data = {
+        'success': True,
+        'message': 'Task priority updated successfully.',
+    }
+    return JsonResponse(response_data)
+
+
+def send_message(request, task_id):
+    task = Task.objects.get(id=task_id)
+    if request.method == 'POST':
+        message = request.POST.get('message')
+        file = request.FILES.get('file')
+
+        post = Post.objects.create(content=message, author=request.user, project=task.project, files=file, board=task.board, task=task)
+        post.save()
+        assignees = User.objects.filter(id__in=task.assigned_to.values_list('id', flat=True)).exclude(
+            id=request.user.id)
+        for assignee in assignees:
+            notify = Notification.objects.create(
+                actor=request.user,
+                recipient=assignee,
+                verb='"' + request.user.username + '", ' + '"' + task.title + '"' +
+                     'görevinde yeni bir gönderi oluşturdu.'
+            )
+            notify.save()
+        response_data = {
+            'success': True
+        }
+        return JsonResponse(response_data)
+
+    else:
+        response_data = {
+            'success': False,
+            'error': 'Invalid request method.'
+        }
+        return JsonResponse(response_data)
+
+
+def check_new_messages(request, task_id):
+    task = Task.objects.get(id=task_id)
+    messages = Post.objects.filter(task=task).order_by('-date_created')
+    data = {
+        'messages': []
+    }
+    user = User.objects.get(id=request.user.id)
+
+    for message in messages:
+
+        is_current_user = message.author == request.user
+        current_user_photo = user.photo.url if is_current_user and user.photo else None
+        author_photo = message.author.photo.url if not is_current_user and message.author.photo else None
+        message_data = {
+            'is_current_user': is_current_user,
+            'content': message.content,
+            'date_created': message.date_created,
+            'current_user_photo': current_user_photo,
+            'author_id': message.author.id,
+            'author_photo': author_photo,
+            'author_username': message.author.username,
+            'id': message.id
+        }
+        data['messages'].append(message_data)
+
+    return JsonResponse(data)
+
+
+def delete_post(request, post_id):
+    post = Post.objects.get(id=post_id)
+    post.delete()
+    return redirect('board', post.board.id)
+
+
+def delete_task(request, task_id):
+    task = Task.objects.get(id=task_id)
+    task.delete()
+    return redirect('board', task.board.id)
+
+
+def my_tasks(request):
+    projects = Project.objects.filter(Q(users=request.user) | Q(owner=request.user)).distinct()
+    tasks = Task.objects.filter(Q(assigned_to=request.user) | Q(followers=request.user)).distinct()
+    time = datetime.now(timezone.utc)
+    context = {
+        'projects': projects,
+        'tasks': tasks,
+        'current_user': request.user,
+        'time': time,
+    }
+    return render(request, 'home/tasks.html', context)

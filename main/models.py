@@ -59,6 +59,11 @@ class PinnedBoards(models.Model):
     pinned_at = models.DateTimeField(auto_now_add=True, blank=True)
 
 
+class ProjectStaff(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=False)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=False, default=None)
+
+
 class Task(models.Model):
 
     LOW = "Düşük"
@@ -90,17 +95,20 @@ class Task(models.Model):
     board = models.ForeignKey(Board, on_delete=models.CASCADE, blank=True)
     priority = models.CharField(max_length=6, choices=PRIORITY_CHOICES, default=MID)
     status = models.CharField(max_length=11, choices=STATUS_CHOICES, default=WAITING)
+    time_created = models.DateTimeField(auto_now_add=True, blank=True)
+    due_date = models.DateTimeField(null=False, blank=False)
+    followers = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='followers')
 
 
 class Post(models.Model):
-    title = models.CharField(max_length=30)
+    title = models.CharField(max_length=30, blank=True, null=True)
     content = RichTextField(max_length=500)
     files = models.FileField(upload_to='uploads/', null=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     board = models.ForeignKey(Board, null=True, on_delete=models.CASCADE)
     task = models.ForeignKey(Task, null=True, on_delete=models.CASCADE)
-    date_created = models.DateField(auto_now_add=True)
+    date_created = models.DateTimeField(auto_now_add=True)
 
 
 class Label(models.Model):
@@ -119,11 +127,6 @@ class Message(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True)
     # recipients = models.ManyToManyField(settings.AUTH_USER_MODEL)  //??
-
-
-class ProjectStaff(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=False)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=False, default=None)
 
 
 class Invitation(models.Model):

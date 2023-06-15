@@ -1319,6 +1319,23 @@ article, aside, dialog, figcaption, figure, footer, header, hgroup, main, nav, s
   margin-right: 0;
   margin-left: 0; }
 
+#chat3 .form-control {
+border-color: transparent;
+}
+
+#chat3 .form-control:focus {
+border-color: transparent;
+box-shadow: inset 0px 0px 0px 1px transparent;
+}
+
+.badge-dot {
+border-radius: 50%;
+height: 10px;
+width: 10px;
+margin-left: 2.9rem;
+margin-top: -.75rem;
+}
+
 .card-body, .card-block {
   -ms-flex: 1 1 auto;
   flex: 1 1 auto;

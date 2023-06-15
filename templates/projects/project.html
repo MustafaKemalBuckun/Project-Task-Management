@@ -45,9 +45,9 @@
                                             </div>
                                         {% elif current_user in project_members %}
                                             <a class="btn btn-block" data-toggle="modal" data-target="#ayrıl" style="position: absolute; bottom: -10%; left: -33%">
-                                            <i class="bi bi-box-arrow-left pr-1 text-danger"></i>
-                                            <strong class="text-danger">Projeden Ayrıl</strong>
-                                        </a>
+                                                <i class="bi bi-box-arrow-left pr-1 text-danger"></i>
+                                                <strong class="text-danger">Projeden Ayrıl</strong>
+                                            </a>
                                         {% endif %}
                                     </div>
                                     <div class="col-5 pl-5 mt-5">
@@ -153,7 +153,7 @@
                                             </div>
                                         {% endif %}
                                     </div>
-                                <hr class="my-4">
+                                    <hr class="my-4">
                                 </div>
                                 <div class="row">
                                     <div class="col-6 mx-4 h-100">
@@ -168,177 +168,215 @@
         </div>
     </div>
     {% if current_user in all_users %}
-    <div class="container-fluid">
-        <div id="ui-view" style="opacity: 1;">
-            <div class="animated fadeIn">
-                <div class="row my-4">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header mx-4 mb-4">
-                                <h2 class="my-4" style="color: #d97171">Duyurular<i class="ml-2 fa fa-scroll"></i></h2>
-                            </div>
-                            {% if announcements %}
-                                {% for announcement in announcements %}
-                                    <div class="card card-white post mx-4 mb-3" style="background-color: #f1f2f3">
-                                        <div class="post-heading mx-3 mt-3">
-                                            <div class="float-left image mb-4">
-                                                <img {% if announcement.owner.photo %}
-                                                    src="{{ announcement.owner.photo.url }}"
-                                                {% else %} src="{% static 'main/img/avatar/blank_profile.png' %}"
-                                                {% endif %} class="img-avatar" alt="user profile image" style="width: 64px; height: 64px;">
-                                            </div>
-                                            <div class="float-left meta">
-                                                <div class="title h3">
-                                                    <a href="#"><b>{{ announcement.owner.first_name }} {{ announcement.owner.last_name }}</b></a>
-                                                    bir duyuru yaptı.
-                                                </div>
-                                                <h6 class="text-muted time">{{ announcement.date_created|timesince }} önce</h6>
-                                            </div>
-                                        </div>
-                                        <div class="post-description mx-3 ml-4">
-                                            <p>{{ announcement.content|safe }}</p>
-                                        </div>
-                                        {% if current_user == announcement.owner or current_user == project.owner %}
-                                            <a href="/sil" style="position: absolute; right: 2%; bottom: 5%; font-size: 2rem; color: red" data-toggle="modal" data-target="#a_sil" data-announcement-id="{{ announcement.id }}"><i class="bi bi-trash-fill"></i></a>
-                                        {% endif %}
-                                    </div>
-                                    <div class="modal fade" id="a_sil{{ announcement.id }}" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="a_sil">
-                                        <div class="modal-dialog" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-body">
-                                                    Bu duyuruyu silmek istediğinizden emin misiniz?
-                                                </div>
-                                                <div class="modal-footer align-content-center justify-content-center">
-                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
-                                                    <a href="{% url 'delete_announcement' announcement.id %}" class="btn btn-danger delete-button" style="width: 50px">Sil</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            {% else %}
-                                <div class="card-body">
-                                    <div class="row mx-3 mb-2">
-                                        <div class="col-12">
-                                            <h5>Hiç duyuru yok.</h5>
-                                        </div>
-                                    </div>
+        <div class="container-fluid">
+            <div id="ui-view" style="opacity: 1;">
+                <div class="animated fadeIn">
+                    <div class="row my-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header mx-4 mb-4">
+                                    <h2 class="my-4" style="color: #d97171">Duyurular<i class="ml-2 fa fa-scroll"></i></h2>
                                 </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="container-fluid">
-        <div id="ui-view" style="opacity: 1;">
-            <div class="animated fadeIn">
-                <div class="row my-4">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header mx-4 mb-2">
-                                <h2 class="my-4" style="color: #412cff">Panolar<i class="ml-2 fa-solid fa-clipboard"></i>{% if not boards %}<a class="ml-3 bi bi-plus-square-fill" data-toggle="modal" data-target="#board-form" style="color: #bebebe"></a>{% endif %}</h2>
-                            </div>
-                            {% if boards %}
-                                <div class="card-body row pr-4">
-                                    {% for board in boards %}
-                                        <div class="col-3 my-1 mb-3">
-                                            <div class="card h-100 ml-2" style="min-height: 300px; background-color: #adadad; border-width: thick">
-                                                <div class="card-header row justify-content-center mx-0 mb-2" style="background-color: #536c79">
-                                                    {% if current_user == project.owner or current_user in project_staff %}
-                                                        <a onclick="pin({{ board.id }})">
-                                                            {% if board in pinned_boards %}
-                                                                <div class="col-1 text-left" style="position: absolute; left: 2%">
-                                                                    <span class="bi bi-pin-angle-fill" style="font-size: 1.5rem; color: #fa7d3b"></span>
-                                                                </div>
-                                                            {% else %}
-                                                                <div class="col-1 text-left" style="position: absolute; left: 2%">
-                                                                    <span class="bi bi-pin-angle" style="font-size: 1.5rem;"></span>
-                                                                </div>
-                                                            {% endif %}
-                                                        </a>
-                                                    {% endif %}
-                                                    <div class="col-10 text-center mt-2 ml-1">
-                                                        <h4 class="text-uppercase" style="color: white; font-size: 1rem">{{ board.title }}</h4>
-                                                    </div>
-
-                                                    <div class="col-1 text-right" style="position: absolute; right: 10%">
-                                                        <span class="bi bi-star-fill" style="font-size: 1.5rem;
-                                                                        color: #ffcc00;"></span>
-                                                    </div>
+                                {% if announcements %}
+                                    {% for announcement in announcements %}
+                                        <div class="card card-white post mx-4 mb-3" style="background-color: #f1f2f3">
+                                            <div class="post-heading mx-3 mt-3">
+                                                <div class="float-left image mb-4">
+                                                    <img {% if announcement.owner.photo %}
+                                                        src="{{ announcement.owner.photo.url }}"
+                                                    {% else %} src="{% static 'main/img/avatar/blank_profile.png' %}"
+                                                    {% endif %} class="img-avatar" alt="user profile image" style="width: 64px; height: 64px;">
                                                 </div>
-                                                <div id="hidden-task-menu" style="display: none">
-                                                    <div class="row justify-content-center my-2">
-                                                        <div class="col-9 card-badge" style="color: #000000;
-                                                                background-color: #8bffb1; width: 600px; height: 30px;
-                                                                padding-bottom: 3px; border-radius: 5px; display: flex;
-                                                                justify-content: center; align-items: center;">
-                                                            <span class="mt-1" style="position: absolute; left: 5%"><i class="bi bi-bar-chart-fill"><strong> Aktif Görevler: </strong></i></span>
-                                                            <span class="mt-1" style="position: absolute; right: 5%"><strong>{{ active_tasks }}</strong></span>
-                                                        </div>
+                                                <div class="float-left meta">
+                                                    <div class="title h3">
+                                                        <a href="#"><b>{{ announcement.owner.first_name }} {{ announcement.owner.last_name }}</b></a>
+                                                        bir duyuru yaptı.
                                                     </div>
-                                                    <div class="row justify-content-center my-2">
-                                                        <div class="col-9 card-badge" style="color: #000000;
-                                                                background-color: #f1b567; width: 600px; height: 30px;
-                                                                padding-bottom: 3px; border-radius: 5px; display: flex;
-                                                                justify-content: center; align-items: center;">
-                                                            <span class="mt-1" style="position: absolute; left: 5%"><i class="bi bi-hourglass-split"><strong> Bekleyen Görevler: </strong></i></span>
-                                                            <span class="mt-1" style="position: absolute; right: 5%"><strong>{{ pending_tasks }}</strong></span>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row justify-content-center my-2">
-                                                        <div class="col-9 card-badge" style="color: #000000;
-                                                                background-color: #F66E6E; width: 600px; height: 30px;
-                                                                padding-bottom: 3px; border-radius: 5px; display: flex;
-                                                                justify-content: center; align-items: center;">
-                                                            <span class="mt-1" style="position: absolute; left: 5%"><i class="bi bi-dash-circle-fill"><strong> İnaktif Görevler: </strong></i></span>
-                                                            <span class="mt-1" style="position: absolute; right: 5%"><strong>{{ inactive_tasks }}</strong></span>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row justify-content-center my-2">
-                                                        <div class="col-9 card-badge" style="color: #000000;
-                                                                background-color: #30fce0; width: 600px; height: 30px;
-                                                                padding-bottom: 3px; border-radius: 5px; display: flex;
-                                                                justify-content: center; align-items: center;">
-                                                            <span class="mt-1" style="position: absolute; left: 5%"><i class="bi bi-check-circle-fill"><strong> Tamamlanmış Görevler: </strong></i></span>
-                                                            <span class="mt-1" style="position: absolute; right: 5%"><strong>{{ completed_tasks }}</strong></span>
-                                                        </div>
-                                                    </div>
+                                                    <h6 class="text-muted time">{{ announcement.date_created|timesince }} önce</h6>
                                                 </div>
-                                                <div class="row justify-content-center my-2 pt-2">
-                                                    <i class="bi bi-people-fill" style="font-size: 1.5rem; color: white"></i>
-                                                    <p id="board-users-{{ board.id }}" data-id="{{ board.id }}" style="color: white"><strong>{{ board.users.count }} </strong></p>
+                                            </div>
+                                            <div class="post-description mx-3 ml-4">
+                                                <p>{{ announcement.content|safe }}</p>
+                                            </div>
+                                            {% if current_user == announcement.owner or current_user == project.owner %}
+                                                <a href="/sil" style="position: absolute; right: 2%; bottom: 5%; font-size: 2rem; color: red" data-toggle="modal" data-target="#a_sil" data-announcement-id="{{ announcement.id }}"><i class="bi bi-trash-fill"></i></a>
+                                            {% endif %}
+                                        </div>
+                                        <div class="modal fade" id="a_sil{{ announcement.id }}" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="a_sil">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-body">
+                                                        Bu duyuruyu silmek istediğinizden emin misiniz?
+                                                    </div>
+                                                    <div class="modal-footer align-content-center justify-content-center">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+                                                        <a href="{% url 'delete_announcement' announcement.id %}" class="btn btn-danger delete-button" style="width: 50px">Sil</a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     {% endfor %}
-                                    <div class="col-3 text-center my-1">
-                                        <div class="card h-100 ml-2 mr-2" style="border-color: #2A97D0; border-radius: 2%; min-height: 300px; min-width: 275px">
-                                            <div class="card-body d-flex align-items-center justify-content-center">
-                                                <a href="/create_board"  style="color: #2A97D0; font-size: 5rem" data-toggle="modal" data-target="#board-form"><i class="bi bi-plus-square-fill"></i></a>
+                                {% else %}
+                                    <div class="card-body">
+                                        <div class="row mx-3 mb-2">
+                                            <div class="col-12">
+                                                <h5>Hiç duyuru yok.</h5>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-3 h-100"></div>
-                                </div>
-                            {% else %}
-                                <div class="card-body">
-                                    <div class="row mx-3 mb-2">
-                                        <div class="col-12">
-                                            <h5>Hiç pano açılmamış.</h5>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endif %}
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+        <div class="container-fluid">
+            <div id="ui-view" style="opacity: 1;">
+                <div class="animated fadeIn">
+                    <div class="row my-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header mx-4 mb-2">
+                                    <h2 class="my-4" style="color: #412cff">Panolar<i class="ml-2 fa-solid fa-clipboard"></i>{% if not boards %}<a class="ml-3 bi bi-plus-square-fill" data-toggle="modal" data-target="#board-form" style="color: #bebebe"></a>{% endif %}</h2>
+                                </div>
+                                {% if boards %}
+                                    <div class="card-body row pr-4">
+                                        {% for board in boards %}
+                                        {% if current_user in board.users.all or current_user == project.owner or current_user in project_staff %}
+                                            <div class="col-3 my-1 mb-3">
+                                                <div class="board-card card h-100 ml-2" data-board-id="{{ board.id }}" style="min-height: 300px; background-color: #adadad; border-width: thick">
+                                                    <div class="card-header row justify-content-center mx-0 mb-2" style="background-color: #536c79">
+                                                        {% if current_user == project.owner or current_user in project_staff %}
+                                                            <a onclick="pin({{ board.id }})">
+                                                                {% if board.is_pinned %}
+                                                                    <div class="col-1 text-left" style="position: absolute; left: 2%">
+                                                                        <span class="bi bi-pin-angle-fill" style="font-size: 1.5rem; color: #d90000"></span>
+                                                                    </div>
+                                                                {% else %}
+                                                                    <div class="col-1 text-left" style="position: absolute; left: 2%">
+                                                                        <span class="bi bi-pin-angle" style="font-size: 1.5rem;"></span>
+                                                                    </div>
+                                                                {% endif %}
+                                                            </a>
+                                                        {% else %}
+                                                            {% if board.is_pinned %}
+                                                                <div class="col-1 text-left" style="position: absolute; left: 2%">
+                                                                    <span class="bi bi-pin-angle-fill" style="font-size: 1.5rem; color: #d90000"></span>
+                                                                </div>
+                                                            {% endif %}
+                                                        {% endif %}
+                                                        <div class="col-10 text-center mt-2 ml-1">
+                                                            <a href="/board/{{ board.id }}">
+                                                                <h4 class="text-uppercase" style="color: white; font-size: 1rem">{{ board.title }}</h4>
+                                                            </a>
+                                                        </div>
+                                                        <a onclick="star({{ board.id }})">
+                                                            {% if board.id in pinned_boards %}
+                                                                <div class="col-1 text-right" style="position: absolute; right: 10%">
+                                                                <span class="bi bi-star-fill" style="font-size: 1.5rem;
+                                                                                color: #ffa806;"></span>
+                                                                </div>
+                                                            {% else %}
+                                                                <div class="col-1 text-right" style="position: absolute; right: 10%">
+                                                                <span class="bi bi-star" style="font-size: 1.5rem;
+                                                                                color: #000000;"></span>
+                                                                </div>
+                                                            {% endif %}
+                                                        </a>
+                                                    </div>
+                                                    <div id="hidden-task-menu" style="display: none">
+                                                        <div class="row justify-content-center my-2">
+                                                            <div class="col-9 card-badge" style="color: #000000;
+                                                                background-color: #8bffb1; width: 600px; height: 30px;
+                                                                padding-bottom: 3px; border-radius: 5px; display: flex;
+                                                                justify-content: center; align-items: center;">
+                                                                <span class="mt-1" style="position: absolute; left: 5%"><i class="bi bi-bar-chart-fill"><strong> Aktif Görevler: </strong></i></span>
+                                                                <span class="mt-1" style="position: absolute; right: 5%"><strong>{{ active_tasks }}</strong></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row justify-content-center my-2">
+                                                            <div class="col-9 card-badge" style="color: #000000;
+                                                                background-color: #f1b567; width: 600px; height: 30px;
+                                                                padding-bottom: 3px; border-radius: 5px; display: flex;
+                                                                justify-content: center; align-items: center;">
+                                                                <span class="mt-1" style="position: absolute; left: 5%"><i class="bi bi-hourglass-split"><strong> Bekleyen Görevler: </strong></i></span>
+                                                                <span class="mt-1" style="position: absolute; right: 5%"><strong>{{ pending_tasks }}</strong></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row justify-content-center my-2">
+                                                            <div class="col-9 card-badge" style="color: #000000;
+                                                                background-color: #F66E6E; width: 600px; height: 30px;
+                                                                padding-bottom: 3px; border-radius: 5px; display: flex;
+                                                                justify-content: center; align-items: center;">
+                                                                <span class="mt-1" style="position: absolute; left: 5%"><i class="bi bi-dash-circle-fill"><strong> İnaktif Görevler: </strong></i></span>
+                                                                <span class="mt-1" style="position: absolute; right: 5%"><strong>{{ inactive_tasks }}</strong></span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row justify-content-center my-2">
+                                                            <div class="col-9 card-badge" style="color: #000000;
+                                                                background-color: #30fce0; width: 600px; height: 30px;
+                                                                padding-bottom: 3px; border-radius: 5px; display: flex;
+                                                                justify-content: center; align-items: center;">
+                                                                <span class="mt-1" style="position: absolute; left: 5%"><i class="bi bi-check-circle-fill"><strong> Tamamlanmış Görevler: </strong></i></span>
+                                                                <span class="mt-1" style="position: absolute; right: 5%"><strong>{{ completed_tasks }}</strong></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row justify-content-center my-2 pt-2">
+                                                        <i class="bi bi-people-fill" style="font-size: 1.5rem; color: white"></i>
+                                                        <p id="board-users-{{ board.id }}" data-id="{{ board.id }}" style="color: white"><strong>{{ board.users.count }} </strong></p>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between mt-5 pt-5">
+                                                        {% if current_user == project.owner or current_user in project_staff %}
+                                                            <a class="btn btn-block" style="position: absolute;
+                                                        bottom: 4%; left: 30%" data-toggle="modal" data-target="#confirm" data-board-id="{{ board.id }}"><i class="bi bi-trash-fill pr-1 text-danger"></i><strong class="text-danger">Sil</strong></a>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal fade" id="confirm{{ board.id }}" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="confirm">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-body">
+                                                            <strong>{{ board.title }}</strong> panosunu silmek istediğinize emin misiniz?
+                                                            Bu işlemi yaparsanız tüm alt görevler kaybolur.
+                                                        </div>
+                                                        <div class="modal-footer align-content-center justify-content-center">
+                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+                                                            <a href="{% url 'delete_board' board.id %}" class="btn btn-danger delete-button" style="width: 50px">Sil</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        {% endfor %}
+                                        <div class="col-3 text-center my-1 mb-3">
+                                            <div class="card h-100 ml-2 mr-1" style="border-color: #2A97D0; border-radius: 2%; min-height: 300px;">
+                                                <div class="card-body d-flex align-items-center justify-content-center">
+                                                    <a href="/create_board"  style="color: #2A97D0; font-size: 5rem" data-toggle="modal" data-target="#board-form"><i class="bi bi-plus-square-fill"></i></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 h-100"></div>
+                                    </div>
+                                {% else %}
+                                    <div class="card-body">
+                                        <div class="row mx-3 mb-2">
+                                            <div class="col-12">
+                                                <h5>Hiç pano açılmamış.</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     {% endif %}
-{#  <-----Modals----->  #}
+    {#  <-----Modals----->  #}
     <div class="modal fade" id="ayrıl" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="ayrıl">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -352,7 +390,7 @@
             </div>
         </div>
     </div>
-{#    #}
+    {#    #}
     <div class="modal fade" id="sil" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="sil">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -366,7 +404,7 @@
             </div>
         </div>
     </div>
-{#    #}
+    {#    #}
     <div class="modal fade" id="project-form" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="project-form" style="min-width: 1000px">
         <div class="modal-dialog" role="document">
             <div class="modal-content" style="min-width: 1200px; position: absolute; left: -70%">
@@ -408,63 +446,63 @@
             </div>
         </div>
     </div>
-{#    #}
+    {#    #}
     <div class="modal fade" id="add-member" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="add-member">
         <div class="modal-dialog" role="document">
             <div class="modal-content justify-content-center align-items-center">
-            <form>
-                <div class="row" style="display: flex">
+                <form>
+                    <div class="row" style="display: flex">
                         <h6 class="py-4 pl-5">Eklemek istediğiniz kullanıcı adını giriniz:</h6>
                         <div class="col-12 mx-4">
                             <label style="display: flex; max-width: 450px">
                                 <input type="text" class="form-control w-100" style="width: 100%" placeholder="Kullanıcı Adı" id="username-input">
                             </label>
                         </div>
-                </div>
-                <div class="modal-footer align-content-center justify-content-center">
-                    <button type="button" class="btn btn-primary btn-lg" style="width: 100px;" onclick="addUser()">Ekle</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
-                </div>
-            </form>
-            {% if messages %}
-                <script>
-                    {% for message in messages %}
-                        let level = "{{ message.tags }}";
-                        let message = "{{ message }}";
-                        if (level === 'success') {
-                            alert(message);
-                        } else if (level === 'warning') {
-                            alert(message);
-                        } else if (level === 'error') {
-                            alert(message);
-                        }
-                    {% endfor %}
-                </script>
-            {% endif %}
+                    </div>
+                    <div class="modal-footer align-content-center justify-content-center">
+                        <button type="button" class="btn btn-primary btn-lg" style="width: 100px;" onclick="addUser()">Ekle</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+                    </div>
+                </form>
+                {% if messages %}
+                    <script>
+                        {% for message in messages %}
+                            let level = "{{ message.tags }}";
+                            let message = "{{ message }}";
+                            if (level === 'success') {
+                                alert(message);
+                            } else if (level === 'warning') {
+                                alert(message);
+                            } else if (level === 'error') {
+                                alert(message);
+                            }
+                        {% endfor %}
+                    </script>
+                {% endif %}
             </div>
         </div>
     </div>
-{#    #}
+    {#    #}
     <div class="modal fade" id="add-staff" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="add-staff">
         <div class="modal-dialog" role="document">
             <div class="modal-content justify-content-center align-items-center">
-            <form method="post" action="{% url 'add_project_staff' project.id %}">
-                {% csrf_token %}
-                <div class="row" style="display: flex">
+                <form method="post" action="{% url 'add_project_staff' project.id %}">
+                    {% csrf_token %}
+                    <div class="row" style="display: flex">
                         <h6 class="py-4 pl-5">Yetkilendirmek istediğiniz kullanıcıyı seçiniz:</h6>
                         <div class="col-12">
                             {% render_field staff_form.user class+="form-control" %}
                         </div>
-                </div>
-                <div class="modal-footer align-content-center justify-content-center">
-                    <button type="submit" class="btn btn-primary btn-lg" style="width: 100px;">Yetkilendir</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
-                </div>
-            </form>
+                    </div>
+                    <div class="modal-footer align-content-center justify-content-center">
+                        <button type="submit" class="btn btn-primary btn-lg" style="width: 100px;">Yetkilendir</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-{#    #}
+    {#    #}
     <div class="modal fade" id="users" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="users">
         <div class="modal-dialog" role="document">
 
@@ -475,57 +513,57 @@
                 <div class="container w-100 my-3">
                     <table class="table" id="users_table">
                         <thead>
-                            <tr>
-                                <th>Fotoğraf</th>
-                                <th class="text-center">İsim</th>
-                                <th>Kullanıcı Adı</th>
-                                <th>Yetki</th>
-                                <th>Etiketler</th>
-                                {% if current_user == project.owner %}<th>İşlemler</th>{% endif %}
-                            </tr>
+                        <tr>
+                            <th>Fotoğraf</th>
+                            <th class="text-center">İsim</th>
+                            <th>Kullanıcı Adı</th>
+                            <th>Yetki</th>
+                            <th>Etiketler</th>
+                            {% if current_user == project.owner %}<th>İşlemler</th>{% endif %}
+                        </tr>
                         </thead>
                         <tbody>
-                            {% for user in all_users %}
+                        {% for user in all_users %}
 
-                                <tr {% if user == current_user %} style="background-color: #ecf2ff" {% endif %}>
-                                    <td class="text-center" style="vertical-align: middle">{% if user.photo %} <img class="img-avatar" src="{{ user.photo.url }}" alt=""> {% else %} <img class="img-avatar" src="{% static 'main/img/avatar/blank_profile.png' %}" alt=""> {% endif %}</td>
-                                    <td class="text-center" style="vertical-align: middle">{{ user.first_name }} {{ user.last_name }}</td>
-                                    <td class="text-center" style="vertical-align: middle">{{ user.username }}</td>
-                                    <td class="text-center" style="vertical-align: middle">{% if user == project.owner %} <strong style="color: #5b0cdd">Yönetici</strong> {% elif user in project_staff %} <strong>Görevli</strong> {% else %} Üye {% endif %}</td>
-                                    <td class="text-center" style="vertical-align: middle">TODO</td>
-                                    {% if current_user == project.owner %}
-                                        <td class="text-center" style="vertical-align: middle">
-                                            {% if user not in project_staff %}
-                                                <a id="btn-remove-member-{{ user.id }}"
-                                                   class="btn btn-remove-member"
-                                                   data-project-id="{{ project.id }}"
-                                                   data-user-id="{{ user.id }}"
-                                                   data-confirm-message="{{ user.username }} kullanıcısını projeden çıkarmak istediğinize emin misiniz?"
-                                                   href="{% url 'remove_member' project_id=project.id user_id=user.id %}">
-                                                    <i class="bi bi-x-circle-fill text-danger" style="font-size: 1.5rem"></i>
-                                                </a>
-                                            {% elif user in project_staff and user != project.owner %}
-                                                <a id="btn-remove-member-{{ user.id }}"
-                                                   class="btn-remove-member"
-                                                   data-project-id="{{ project.id }}"
-                                                   data-user-id="{{ user.id }}"
-                                                   data-confirm-message="{{ user.username }} kullanıcısını projeden çıkarmak istediğinize emin misiniz?"
-                                                   href="{% url 'remove_member' project_id=project.id user_id=user.id %}">
-                                                    <i class="bi bi-x-circle-fill text-danger" style="font-size: 1.5rem"></i>
-                                                </a>
-                                                <a id="btn-remove-staff-{{ user.id }}"
-                                                   class="btn-remove-staff ml-1"
-                                                   data-project-id="{{ project.id }}"
-                                                   data-user-id="{{ user.id }}"
-                                                   data-confirm-message="{{ user.username }} kullanıcısının yetkisini almak istediğinize emin misiniz?"
-                                                   href="{% url 'remove_staff' project_id=project.id user_id=user.id %}">
-                                                    <i class="bi bi-arrow-down-circle-fill text-warning" style="font-size: 1.5rem"></i>
-                                                </a>
-                                            {% endif %}
-                                        </td>
-                                    {% endif %}
-                                </tr>
-                            {% endfor %}
+                            <tr {% if user == current_user %} style="background-color: #ecf2ff" {% endif %}>
+                                <td class="text-center" style="vertical-align: middle">{% if user.photo %} <img class="img-avatar" src="{{ user.photo.url }}" alt=""> {% else %} <img class="img-avatar" src="{% static 'main/img/avatar/blank_profile.png' %}" alt=""> {% endif %}</td>
+                                <td class="text-center" style="vertical-align: middle">{{ user.first_name }} {{ user.last_name }}</td>
+                                <td class="text-center" style="vertical-align: middle">{{ user.username }}</td>
+                                <td class="text-center" style="vertical-align: middle">{% if user == project.owner %} <strong style="color: #5b0cdd">Yönetici</strong> {% elif user in project_staff %} <strong>Görevli</strong> {% else %} Üye {% endif %}</td>
+                                <td class="text-center" style="vertical-align: middle">TODO</td>
+                                {% if current_user == project.owner %}
+                                    <td class="text-center" style="vertical-align: middle">
+                                        {% if user not in project_staff %}
+                                            <a id="btn-remove-member-{{ user.id }}"
+                                               class="btn btn-remove-member"
+                                               data-project-id="{{ project.id }}"
+                                               data-user-id="{{ user.id }}"
+                                               data-confirm-message="{{ user.username }} kullanıcısını projeden çıkarmak istediğinize emin misiniz?"
+                                               href="{% url 'remove_member' project_id=project.id user_id=user.id %}">
+                                                <i class="bi bi-x-circle-fill text-danger" style="font-size: 1.5rem"></i>
+                                            </a>
+                                        {% elif user in project_staff and user != project.owner %}
+                                            <a id="btn-remove-member-{{ user.id }}"
+                                               class="btn-remove-member"
+                                               data-project-id="{{ project.id }}"
+                                               data-user-id="{{ user.id }}"
+                                               data-confirm-message="{{ user.username }} kullanıcısını projeden çıkarmak istediğinize emin misiniz?"
+                                               href="{% url 'remove_member' project_id=project.id user_id=user.id %}">
+                                                <i class="bi bi-x-circle-fill text-danger" style="font-size: 1.5rem"></i>
+                                            </a>
+                                            <a id="btn-remove-staff-{{ user.id }}"
+                                               class="btn-remove-staff ml-1"
+                                               data-project-id="{{ project.id }}"
+                                               data-user-id="{{ user.id }}"
+                                               data-confirm-message="{{ user.username }} kullanıcısının yetkisini almak istediğinize emin misiniz?"
+                                               href="{% url 'remove_staff' project_id=project.id user_id=user.id %}">
+                                                <i class="bi bi-arrow-down-circle-fill text-warning" style="font-size: 1.5rem"></i>
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
                         </tbody>
                     </table>
                 </div>
@@ -535,7 +573,7 @@
             </div>
         </div>
     </div>
-{#    #}
+    {#    #}
     <div class="modal fade" id="announcement-form" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="announcement-form" style="min-width: 1000px">
         <div class="modal-dialog" role="document">
             <div class="modal-content" style="min-width: 1200px; position: absolute; left: -70%">
@@ -577,7 +615,7 @@
             </div>
         </div>
     </div>
-{#    #}
+    {#    #}
     <div class="modal fade" id="board-form" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="board-form" style="min-width: 500px">
         <div class="modal-dialog" role="document">
             <div class="modal-content" style="min-width: 750px; position: absolute; left: -30%">
@@ -597,6 +635,15 @@
                                 <hr class="mx-n3">
                                 <div class="row py-3 px-3">
                                     <div class="col-md-3">
+                                        <h6 class="mb-0">Kullanıcı Ekleyin: </h6>
+                                    </div>
+                                    <div class="col-md-9">
+                                        {% render_field board_form.users class+="form-control" %}
+                                    </div>
+                                </div>
+                                <hr class="mx-n3">
+                                <div class="row py-3 px-3">
+                                    <div class="col-md-3">
                                         <h6 class="mb-0">Açıklama: </h6>
                                     </div>
                                     <div class="col-md-9">
@@ -609,7 +656,7 @@
                     <div class="modal-footer align-content-center justify-content-center">
                         <div class="row justify-content-center">
                             <div class="px-5 pb-4 text-lg-center">
-                                <button type="submit" class="btn btn-success btn-lg" style="width: 200px;">Oluştur</button>
+                                <button type="submit" class="btn btn-primary btn-lg" style="width: 200px;">Oluştur</button>
                                 <button class="btn btn-secondary btn-lg" data-dismiss="modal" style="width: 200px;">İptal</button>
                             </div>
                         </div>
@@ -618,7 +665,7 @@
             </div>
         </div>
     </div>
-{#  <---------------->#}
+    {#  <---------------->#}
     <script>
         $(document).ready(function() {
             setInterval(updateBoardUserCount, 10000);
@@ -701,6 +748,10 @@
                 let announcementId = $(this).data('announcement-id');
                 $('#a_sil' + announcementId).modal('show');
             });
+            $('a[data-target="#confirm"]').click(function() {
+                let boardId = $(this).data('board-id');
+                $('#confirm' + boardId).modal('show');
+            });
         });
         function toggleMenu() {
             let menu = document.getElementById("hidden-menu");
@@ -715,12 +766,12 @@
             const csrftoken = getCookie('csrftoken');
             $.ajax({
                 type: 'POST',
-                url: '/add_member/' + {{ project.id }} + '/',
-                data: { 'username': username },
-                beforeSend: function(xhr) {
+                url: '/add_member/' + {{ project.id }} +'/',
+                data: {'username': username},
+                beforeSend: function (xhr) {
                     xhr.setRequestHeader('X-CSRFToken', csrftoken);
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.status === 'success') {
                         alert(response.message);
                         window.location.reload();
@@ -730,11 +781,12 @@
                         alert(response.message);
                     }
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     alert('Error: ' + error);
                 }
             });
         }
+
         function updateBoardUserCount() {
             const boardUserElements = document.querySelectorAll('[id^="board-users-"]');
             boardUserElements.forEach(function (boardUserElement) {
@@ -750,9 +802,10 @@
                 });
             });
         }
+
         function updateProjectStats() {
             $.ajax({
-                url: '/get-project-stats/' + {{ project.id }} + '/',
+                url: '/get-project-stats/' + {{ project.id }} +'/',
                 type: 'GET',
                 success: function (data) {
                     $('#project-boards').html('<strong>' + data.board_count + '</strong>');
@@ -763,6 +816,7 @@
                 }
             });
         }
+
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -777,8 +831,19 @@
             }
             return cookieValue;
         }
+
         const pin = (board_id) => {
             fetch(`/pin_board/${board_id}/`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(rest => {
+                window.location.reload();
+            })
+        }
+        const star = (board_id) => {
+            fetch(`/star_board/${board_id}/`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'

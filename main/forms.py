@@ -3,7 +3,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
 from django.forms import ModelChoiceField
-from main.models import Project, Company, ProjectStaff, Message, Board
+from main.models import Project, Company, ProjectStaff, Message, Board, Task
 
 User = get_user_model()
 
@@ -105,5 +105,45 @@ class CreateBoard(forms.ModelForm):
         exclude = {
             'project',
             'is_pinned',
-            'users',
         }
+
+    def __init__(self, all_users, *args, **kwargs):
+        super(CreateBoard, self).__init__(*args, **kwargs)
+        self.fields['users'] = forms.ModelMultipleChoiceField(queryset=all_users, widget=forms.CheckboxSelectMultiple)
+
+
+class UpdateBoard(forms.ModelForm):
+    class Meta:
+        model = Board
+        exclude = {
+            'project',
+            'is_pinned',
+        }
+
+    def __init__(self, all_users, *args, **kwargs):
+        super(UpdateBoard, self).__init__(*args, **kwargs)
+        self.fields['users'] = forms.ModelMultipleChoiceField(queryset=all_users,
+                                                                widget=forms.CheckboxSelectMultiple)
+
+    def clean_users(self):
+        users = self.cleaned_data['users']
+        return users
+
+
+class CreateTask(forms.ModelForm):
+    due_date = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}))
+
+    class Meta:
+        model = Task
+        exclude = {
+            'status',
+            'project',
+            'board',
+            'time_created',
+            'followers',
+        }
+
+    def __init__(self, project_users, *args, **kwargs):
+        super(CreateTask, self).__init__(*args, **kwargs)
+        self.fields['assigned_to'] = forms.ModelMultipleChoiceField(queryset=project_users,
+                                                                    widget=forms.CheckboxSelectMultiple)

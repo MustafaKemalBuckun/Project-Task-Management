@@ -1,0 +1,72 @@
+{% extends 'core/base.html' %}
+{% load widget_tweaks %}
+{% load static %}
+{% load notifications_tags %}
+{% block content %}
+    <div class="container-fluid">
+        <div id="ui-view" style="opacity: 1;">
+            <div class="animated fadeIn">
+                <div class="row my-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header mx-4 mb-2">
+                                <h2 class="my-2 text-uppercase" style="color: #000000">Görevlerim</h2>
+
+                            </div>
+                            <div class="card-body row ml-4">
+                                <h4>{{ board.description }}</h4>
+                                <table class="table" id="tasks_table" style="width: inherit">
+                                    <thead>
+                                        <tr>
+                                            <th>Proje</th>
+                                            <th>Pano</th>
+                                            <th>Görev</th>
+                                            <th>Durum</th>
+                                            <th>Öncelik</th>
+                                            <th>Rol</th>
+                                            <th>Son Tarih</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for task in tasks %}
+                                        <tr>
+                                            <td class="text-center" style="vertical-align: middle">{{ task.project.name }}</td>
+                                            <td class="text-center" style="vertical-align: middle">{{ task.board.title }}</td>
+                                            <td class="text-center" style="vertical-align: middle">{{ task.title }}</td>
+                                            <td class="text-center" style="vertical-align: middle">{{ task.status }}</td>
+                                            <td class="text-center" style="vertical-align: middle">{{ task.priority }}</td>
+                                            <td class="text-center" style="vertical-align: middle">{% if current_user in task.assigned_to.all and current_user not in task.followers.all %} Çalışan {% elif current_user in task.followers.all and current_user not in task.assigned_to.all %} Takipçi {% else %} Çalışan + Görevli {% endif %}</td>
+                                            <td class="text-center {% if task.due_date > time %} text-danger {% else %} text-primary {% endif %}" style="vertical-align: middle">{{ task.due_date }}{% if task.due_date > time %} <small class="text-small text-danger">(Gecikmiş)</small>{% endif %}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    $(document).ready(function() {
+        $('#tasks_table').DataTable({
+            "autoWidth": false,
+            dom: 'Bfrtip',
+            buttons: [],
+            "language": {
+                sInfo: "Toplam bulunan kayıt: _TOTAL_",
+                sZeroRecords: "Hiç kayıt yok.",
+                sInfoFiltered: " ",
+                sInfoEmpty: " ",
+                sSearch: "Ara: ",
+                "oPaginate": {
+                    sNext: "Sonraki",
+                    sPrevious: "Önceki",
+                }
+            },
+        });
+    });
+    </script>
+{% endblock %}
