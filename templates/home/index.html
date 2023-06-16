@@ -115,9 +115,22 @@
                                                         <a class="btn btn-block" style="position: absolute;
                                                         bottom: 4%; left: 30%" data-toggle="modal" data-target="#confirm" data-project-id="{{ user_project.id }}"><i class="bi bi-trash-fill pr-1 text-danger"></i><strong class="text-danger">Sil</strong></a>
                                                     {% else %}
-                                                        <a class="btn btn-block" style="position: absolute;
+                                                        <a class="btn btn-block" data-toggle="modal" data-target="#ayrıl" style="position: absolute;
                                                         bottom: 4%; left: 0"><i class="bi bi-box-arrow-left pr-1 text-danger"></i><strong class="text-danger">Ayrıl</strong></a>
                                                     {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal fade" id="ayrıl" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="ayrıl">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-body">
+                                                        <strong>{{ user_project.name }}</strong> projesinden ayrılmak istediğinize emin misiniz?
+                                                    </div>
+                                                    <div class="modal-footer align-content-center justify-content-center">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+                                                        <a href="{% url 'leave_project' user_project.id %}" class="btn btn-danger delete-button" style="width: 50px">Ayrıl</a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
