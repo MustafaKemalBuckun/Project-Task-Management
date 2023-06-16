@@ -1,16 +1,16 @@
 from datetime import timezone, datetime
 
 from django.contrib.messages import get_messages
-from django.db.models import Q, Count, Case, When, Value, IntegerField, F
-from django.http import JsonResponse, HttpResponse
+from django.db.models import Q, Count, Case, When, Value, IntegerField, F, BooleanField, ExpressionWrapper
+from django.db.models.functions import NullIf
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from notifications.models import Notification
 
 from accounts.models import User
 from .forms import UserRegisterForm, ProjectForm, CompanyForm, ProjectUpdateForm, AddStaff, CreateAnnouncement, \
-    UpdateAnnouncement, CreateBoard, CreateTask, UpdateBoard, CompanyUpdateForm
+    CreateBoard, CreateTask, UpdateBoard, CompanyUpdateForm
 from .forms import LoginForm
-from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from .models import Project, Company, PinnedProjects, Board, Task, ProjectStaff, Invitation, Message, Post, PinnedBoards
 
@@ -21,33 +21,27 @@ from .models import Project, Company, PinnedProjects, Board, Task, ProjectStaff,
 def index(request):
     user = request.user
     if not user.is_anonymous:
-        # notification = Notification.objects.create(actor=user, recipient=user, description='Welcome!', verb='welcome')
-        # notification.save()
-        projects = Project.objects.filter(Q(users=user) | Q(owner=user)).annotate(task_count=Count('task'))
-        pinned_projects = PinnedProjects.objects.filter(user=user).order_by('pinned_at')
-        print(pinned_projects.values_list('project_id'))
-        unpinned_projects = Project.objects.filter(Q(users=user) | Q(owner=user)).annotate(
-            task_count=Count('task')).exclude(pinnedprojects__in=pinned_projects)
-        print(unpinned_projects)
-        percentages = []
+        pinned_projects = PinnedProjects.objects.filter(user=user).order_by('pinned_at').values_list('project_id',
+                                                                                                     flat=True)
+        projects = Project.objects.filter(Q(users=user) | Q(owner=user)).annotate(
+            task_count=Count('task'),
+            is_pinned=Case(
+                When(id__in=pinned_projects, then=True),
+                default=False,
+                output_field=BooleanField()
+            ),
+            completed_tasks=Count('task', filter=Q(task__status='Tamamlandı')),
+            percentage=ExpressionWrapper(
+                F('completed_tasks') * 100 / NullIf(F('task_count'), 0),
+                output_field=IntegerField(),
+            )
+        ).order_by('-is_pinned')
         user_companies = Company.objects.filter(Q(owner=user) | Q(employees=user)).distinct()
-
         user_invitations = Invitation.objects.filter(invited=user)
-        for project in projects:
-            total_tasks = project.task_set.count()
-            completed_tasks = project.task_set.filter(status='Tamamlandı').count()
-            if total_tasks > 0:
-                progress = int((completed_tasks / total_tasks) * 100)
-            else:
-                progress = 0
-            percentages.append(progress)
-
         context = {
             'user': user,
             'user_projects': projects,
             'user_companies': user_companies,
-            'unpinned_project_data': zip(unpinned_projects, percentages),
-            'pinned_project_data': zip(pinned_projects, percentages),
             'pinned_projects': pinned_projects,
             'user_invitations': user_invitations,
         }
