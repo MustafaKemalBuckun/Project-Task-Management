@@ -161,4 +161,4 @@ class CreateTask(forms.ModelForm):
     def __init__(self, project_users, *args, **kwargs):
         super(CreateTask, self).__init__(*args, **kwargs)
         self.fields['assigned_to'] = forms.ModelMultipleChoiceField(queryset=project_users,
-                                                                    widget=forms.CheckboxSelectMultiple)
+                                                                    widget=forms.CheckboxSelectMultiple, required=False)

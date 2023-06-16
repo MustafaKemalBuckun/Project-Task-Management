@@ -36,7 +36,7 @@
                                         <td class="text-center" style="vertical-align: middle">{{ task.status }}</td>
                                         <td class="text-center" style="vertical-align: middle">{{ task.priority }}</td>
                                         <td class="text-center" style="vertical-align: middle">{% if current_user in task.assigned_to.all and current_user not in task.followers.all %} Çalışan {% elif current_user in task.followers.all and current_user not in task.assigned_to.all %} Takipçi {% else %} Çalışan + Görevli {% endif %}</td>
-                                        <td class="text-center {% if task.due_date > time %} text-danger {% else %} text-primary {% endif %}" style="vertical-align: middle">{{ task.due_date }}{% if task.due_date > time %} <small class="text-small text-danger">(Gecikmiş)</small>{% endif %}</td>
+                                        <td class="text-center {% if task.due_date < time %} text-danger {% else %} text-primary {% endif %}" style="vertical-align: middle">{{ task.due_date }}{% if task.due_date < time %} <small class="text-small text-danger">(Gecikmiş)</small>{% endif %}</td>
                                     </tr>
                                 {% endfor %}
                                 </tbody>
