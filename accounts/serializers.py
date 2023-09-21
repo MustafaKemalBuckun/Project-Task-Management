@@ -22,7 +22,6 @@ class InvitationSerializer(serializers.ModelSerializer):
 
     def get_project(self, invitation):
         if invitation.project is not None:
-            print('a')
             project = {
                 'id': invitation.project.id,
                 'name': invitation.project.name,
@@ -34,7 +33,6 @@ class InvitationSerializer(serializers.ModelSerializer):
                 }
             return project
         else:
-            print('b')
             return None
 
     def get_company(self, invitation):

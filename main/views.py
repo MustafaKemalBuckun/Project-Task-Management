@@ -131,7 +131,7 @@ def update_company(request, company_id: int):
             c.save()
         else:
             print("fail.")
-    return redirect('company', company_id)
+    return redirect('companies', company_id)
 
 
 def delete_company(request, company_id: int):
@@ -544,7 +544,14 @@ def board_view(request, board_id):
     project_staff = User.objects.filter(projectstaff__project=project)
     all_status = [status[0] for status in Task.STATUS_CHOICES]
     priorities = [priority[0] for priority in Task.PRIORITY_CHOICES]
+    task_groups = {
+        'Aktif': active_tasks,
+        'İnaktif': inactive_tasks,
+        'Beklemede': waiting_tasks,
+        'Tamamlandı': done_tasks,
+    }
     context = {
+        'task_groups': task_groups,
         'time': time,
         'board': board,
         'board_form': board_form,

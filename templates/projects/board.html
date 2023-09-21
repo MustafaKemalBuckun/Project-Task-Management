@@ -3,301 +3,303 @@
 {% load static %}
 {% load notifications_tags %}
 {% block content %}
-    <div class="container-fluid">
-        <div id="ui-view" style="opacity: 1;">
-            <div class="animated fadeIn">
-                <div class="row my-4">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header mx-4 mb-2">
-                                <h2 class="my-2 text-uppercase" style="color: #000000">{{ board.title }} (<a href="/project/{{ board.project.id }}/" style="color: #1b8eb7">{{ board.project.name }}</a>)<a class="ml-3 bi bi-pencil-fill" data-toggle="modal" data-target="#board-update-form" style="color: #bebebe"></a></h2>
+	<div class="container-fluid">
+		<div id="ui-view" style="opacity: 1;">
+			<div class="animated fadeIn">
+				<div class="row my-4">
+					<div class="col-12">
+						<div class="card">
+							<div class="card-header mx-4 mb-2">
+								<h2 class="my-2 text-uppercase" style="color: #000000">{{ board.title }} (<a href="/project/{{ board.project.id }}/" style="color: #1b8eb7">{{ board.project.name }}</a>)<a class="ml-3 bi bi-pencil-fill" data-toggle="modal" data-target="#board-update-form" style="color: #bebebe"></a></h2>
 
-                            </div>
-                            <div class="card-body row ml-4">
-                                <h4>{{ board.description }}</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="container-fluid">
-        <div id="ui-view" style="opacity: 1;">
-            <div class="animated fadeIn">
-                <div class="row my-4">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header mx-4 mb-2">
-                                <h2 class="my-4" style="color: #000000">Görevler<i class="ml-2 fa-solid fa-list-check"></i>{% if current_user == board.project.owner or current_user in board.project.projectstaff_set %}<a class="ml-3 bi bi-plus-square-fill" data-toggle="modal" data-target="#task-form" style="color: #bebebe"></a>{% endif %}</h2>
-                            </div>
-                            {% if tasks %}
-                                <div class="card-body row pr-4">
-                                <div class="col-3 mb-3">
-                                    <div class="board-card card ml-2" data-board-id="{{ task.id }}" style="min-height: 300px; background-color: #e8e8e8; border-width: thick">
-                                        <div class="card-header row justify-content-center mx-0 mb-2" style="background-color: #8bffb1">
-                                            <div class="col-10 text-center mt-2 ml-1">
-                                                <h4 class="text-uppercase" style="color: black; font-size: 1rem">AKTİF</h4>
-                                            </div>
-                                        </div>
-                                        {% if active_tasks %}
-                                            {% for task in active_tasks %}
-                                                {% if current_user in task.assigned_to.all or current_user == board.project.owner or current_user in project_staff %}
-                                                    <div class="card mx-3 my-3" style="border-radius: 4%">
-                                                        <div class="card-content">
-                                                            <div class="card-body">
-                                                                <div class="media d-flex">
-                                                                    <div class="col-10 media-body text-left mr-1">
-                                                                        <a id="openModal" href="/görev" data-toggle="modal" data-target="#task-modal{{ task.id }}" data-task-id="{{ task.id }}"><h5 class="primary text-capitalize mb-2 mt-1">{{ task.title|truncatechars:10 }}</h5></a>
-                                                                        <strong><span style="color: {% if task.due_date > time %} blue {% else %} red {% endif %}; font-size: 0.8rem; position: absolute; bottom: -150%; left: 10%">Son tarih: {{ task.due_date }}</span></strong>
-                                                                    </div>
-                                                                    <div class="col-2 align-self-center ml-2">
-                                                                        <i class="bi bi-journal-text primary float-right mb-2" style="font-size: 2rem"></i>
-                                                                        <i class="bi bi-people-fill primary float-right mb-2" style="font-size: 2rem"></i>
-                                                                        <p style="position: absolute; bottom: 7.5%; right: 20%"><strong>{{ task.assigned_to.count }}</strong></p>
-                                                                        {% if current_user == board.project.owner or current_user in project_staff %}
-                                                                            <a href="{% url 'delete_task' task.id %}" onclick="return confirm('Bu görevi silmek istediğinizden emin misiniz? Bunu yaparsanız tüm görev verileri kaybolur!')"><i class="bi bi-trash-fill" style="color: #888888; position: absolute; right: 55%; bottom: -10%"></i></a>
-                                                                        {% endif %}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                {% endif %}
-                                                <div class="modal fade" id="task-modal{{ task.id }}" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="task-modal{{ task.id }}">
-                                                    <div class="modal-dialog" role="document">
-                                                        <div class="modal-content" style="min-width: 1200px; position: absolute; left: -70%">
-                                                            <div class="modal-header justify-content-center">
-                                                                <h2 class="text-capitalize"><a href="/project/{{ board.project.id }}/" style="color: #08b2ec">{{ board.project.name }}</a> > <a href="/board/{{ board.id }}" style="color: #08b2ec">{{ board.title }}</a> > {{ task.title }}</h2>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <div class="row">
-                                                                    <div class="col-9 text-left my-0" style="border-right: 1px solid #e5e6e8;">
-                                                                        <div class="d-flex flex-column">
-                                                                            <span class="ml-2">{{ task.description }}</span>
-                                                                        </div>
-                                                                        <section>
-                                                                            <div class="container py-5">
-                                                                                <div class="row">
-                                                                                    <div class="col-md-12">
-                                                                                        <div class="card" id="messageContainer{{ task.id }}" style="border-radius: 15px; background-color: #e0e0e0">
-                                                                                            <div class="card-body">
-                                                                                                <div class="row">
-                                                                                                    <div class="col-md-12">
-                                                                                                        <div class="pt-3 pe-3" data-mdb-perfect-scrollbar="true"
-                                                                                                             style="position: relative; height: 400px; overflow-y: auto;">
-                                                                                                            {% if task.post_set %}
-                                                                                                                {% for post in task.post_set.all %}
-                                                                                                                    {% if post.author == current_user %}
-                                                                                                                        <div class="d-flex flex-row justify-content-end">
-                                                                                                                            <div>
-                                                                                                                                <p class="p-2 me-3 mb-1 text-white rounded-3 bg-primary">{{ post.content }} <a href="{% url 'delete_post' post.id %}" onclick="return confirm('Emin misiniz?')"><i class="bi bi-trash-fill" style="position: absolute; right: 6.5%"></i></a></p>
-                                                                                                                                <p class="me-3 mb-3 rounded-3 text-muted">
-                                                                                                                                    {{ post.date_created|timesince }} önce</p>
-                                                                                                                            </div>
-                                                                                                                            <img {% if current_user.photo %}
-                                                                                                                                src="{{ current_user.photo.url }}"
-                                                                                                                            {% else %} src="{% static 'main/img/avatar/blank_profile.png' %}"
-                                                                                                                            {% endif %} class="img-avatar" alt="user profile image" style="width: 45px; height: 45px;">
-                                                                                                                        </div>
-                                                                                                                    {% else %}
-                                                                                                                        <div id="author" class="d-flex flex-row justify-content-start" data-author-id="{{ post.author.id }}">
-                                                                                                                            <img {% if post.author.photo %}
-                                                                                                                                src="{{ post.author.photo.url }}"
-                                                                                                                            {% else %} src="{% static 'main/img/avatar/blank_profile.png' %}"
-                                                                                                                            {% endif %} class="img-avatar" alt="user profile image" style="width: 45px; height: 45px;">
-                                                                                                                            <div>
-                                                                                                                                <p class="p-2 ms-3 mb-1 rounded-3" style="background-color: #f5f6f7;"><strong>{{ post.author.username }}: </strong>{{ post.content }}</p>
-                                                                                                                                <p class="ms-3 mb-3 rounded-3 text-muted float-end">{{ post.date_created|timesince }} önce</p>
-                                                                                                                                <input type="hidden" class="message-id" value="{{ post.id }}">
-                                                                                                                            </div>
-                                                                                                                        </div>
-                                                                                                                    {% endif %}
-                                                                                                                {% endfor %}
-                                                                                                            {% endif %}
-                                                                                                        </div>
-                                                                                                        <div class="text-muted d-flex justify-content-start align-items-center pe-3 pt-3 mt-2">
-                                                                                                            <img {% if current_user.photo %}
-                                                                                                                src="{{ current_user.photo.url }}"
-                                                                                                            {% else %} src="{% static 'main/img/avatar/blank_profile.png' %}"
-                                                                                                            {% endif %} class="img-avatar" alt="user profile image" style="width: 45px; height: 45px;">
-                                                                                                            <input type="text" class="form-control form-control-lg" id="exampleFormControlInput2{{ task.id }}" data-task-id="{{ task.id }}"
-                                                                                                                   placeholder="Mesajınız">
-                                                                                                            &nbsp;<label for="fileInput" class="ms-1 mt-2 mx-1 text-muted"><i class="fas fa-paperclip"></i></label>
-                                                                                                            <input type="file" id="fileInput" style="display: none;">
-                                                                                                            <div id="selectedFileContainer" class="d-none">
-                                                                                                                <span id="selectedFileName"></span>
-                                                                                                                <i id="removeFileIcon" class="fas fa-times-circle ms-1"></i>
-                                                                                                            </div>&nbsp;
-                                                                                                            <a class="ms-3 mx-1 text-muted" href="#"><i class="fas fa-smile"></i></a>&nbsp;
-                                                                                                            <a class="ms-3 mx-1" ><i onclick="sendMessage({{ task.id }})" tabindex="0" onkeydown="if (e.keyCode === 13) { sendMessage({{ task.id }}); }" class="fas fa-paper-plane"></i></a>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </section>
-                                                                        <script>
-                                                                            const fileInput = document.getElementById('fileInput');
-                                                                            const selectedFileName = document.getElementById('selectedFileName');
-                                                                            const removeFileIcon = document.getElementById('removeFileIcon');
-                                                                            const selectedFileContainer = document.getElementById('selectedFileContainer');
+							</div>
+							<div class="card-body row ml-4">
+								<h4>{{ board.description }}</h4>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container-fluid">
+		<div id="ui-view" style="opacity: 1;">
+			<div class="animated fadeIn">
+				<div class="row my-4">
+					<div class="col-12">
+						<div class="card">
+							<div class="card-header mx-4 mb-2">
+								<h2 class="my-4" style="color: #000000">Görevler<i class="ml-2 fa-solid fa-list-check"></i>{% if current_user == board.project.owner or current_user in board.project.projectstaff_set %}<a class="ml-3 bi bi-plus-square-fill" data-toggle="modal" data-target="#task-form" style="color: #bebebe"></a>{% endif %}</h2>
+							</div>
+							{% if tasks %}
+								<div class="card-body row">
+								{% for status in task_groups %}
+									<div class="col-3">
+										<div class="board-card card" style="min-height: 300px; background-color: #e8e8e8 ; border-width: thick">
+											<div class="card-header row justify-content-center mx-0 mb-2" style="background-color: {% if status == 'Aktif' %}#8bffb1{% elif status == 'Beklemede' %} #f1b567 {% elif status == 'İnaktif' %} #f66e6e{% else %}#1040a8{% endif %}">
+												<div class="col-10 text-center mt-2 ml-1">
+													<h4 class="text-uppercase" style="color: black; font-size: 1rem">{{ status }}</h4>
+												</div>
+											</div>
+											{% for task in tasks %}
+												{% if task.status == status %}
+													{% if current_user in task.assigned_to.all or current_user == board.project.owner or current_user in project_staff %}
+														<div class="card mx-3 my-3" style="border-radius: 4%">
+															<div class="card-content">
+																<div class="card-body">
+																	<div class="media d-flex">
+																		<div class="col-10 media-body text-left mr-1">
+																			<a id="openModal" href="/görev" data-toggle="modal" data-target="#task-modal{{ task.id }}" data-task-id="{{ task.id }}"><h5 class="primary text-capitalize mb-2 mt-1">{{ task.title|truncatechars:10 }}</h5></a>
+																			<strong><span style="color: {% if task.due_date > time %} blue {% else %} red {% endif %}; font-size: 0.8rem; position: absolute; bottom: -150%; left: 10%">Son tarih: {{ task.due_date }}</span></strong>
+																		</div>
+																		<div class="col-2 align-self-center ml-2">
+																			<i class="bi bi-journal-text primary float-right mb-2" style="font-size: 2rem"></i>
+																			<i class="bi bi-people-fill primary float-right mb-2" style="font-size: 2rem"></i>
+																			<p style="position: absolute; bottom: 7.5%; right: 20%"><strong>{{ task.assigned_to.count }}</strong></p>
+																			{% if current_user == board.project.owner or current_user in project_staff %}
+																				<a href="{% url 'delete_task' task.id %}" onclick="return confirm('Bu görevi silmek istediğinizden emin misiniz? Bunu yaparsanız tüm görev verileri kaybolur!')"><i class="bi bi-trash-fill" style="color: #888888; position: absolute; right: 55%; bottom: -10%"></i></a>
+																			{% endif %}
+																		</div>
+																	</div>
+																</div>
+															</div>
+														</div>
+													{% endif %}
+												{% endif %}
+												<div class="modal fade" id="task-modal{{ task.id }}" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="task-modal{{ task.id }}">
+													<div class="modal-dialog" role="document">
+														<div class="modal-content" style="min-width: 1200px; position: absolute; left: -70%">
+															<div class="modal-header justify-content-center">
+																<h2 class="text-capitalize"><a href="/project/{{ board.project.id }}/" style="color: #08b2ec">{{ board.project.name }}</a> > <a href="/board/{{ board.id }}" style="color: #08b2ec">{{ board.title }}</a> > {{ task.title }}</h2>
+															</div>
+															<div class="modal-body">
+																<div class="row">
+																	<div class="col-9 text-left my-0" style="border-right: 1px solid #e5e6e8;">
+																		<div class="d-flex flex-column">
+																			<span class="ml-2">{{ task.description }}</span>
+																		</div>
+																		<section>
+																			<div class="container py-5">
+																				<div class="row">
+																					<div class="col-md-12">
+																						<div class="card" id="messageContainer{{ task.id }}" style="border-radius: 15px; background-color: #e0e0e0">
+																							<div class="card-body">
+																								<div class="row">
+																									<div class="col-md-12">
+																										<div class="pt-3 pe-3" data-mdb-perfect-scrollbar="true"
+																											 style="position: relative; height: 400px; overflow-y: auto;">
+																											{% if task.post_set %}
+																												{% for post in task.post_set.all %}
+																													{% if post.author == current_user %}
+																														<div class="d-flex flex-row justify-content-end">
+																															<div>
+																																<p class="p-2 me-3 mb-1 text-white rounded-3 bg-primary">{{ post.content }} <a href="{% url 'delete_post' post.id %}" onclick="return confirm('Emin misiniz?')"><i class="bi bi-trash-fill" style="position: absolute; right: 6.5%"></i></a></p>
+																																<p class="me-3 mb-3 rounded-3 text-muted">
+																																	{{ post.date_created|timesince }} önce</p>
+																															</div>
+																															<img {% if current_user.photo %}
+																																src="{{ current_user.photo.url }}"
+																															{% else %} src="{% static 'main/img/avatar/blank_profile.png' %}"
+																															{% endif %} class="img-avatar" alt="user profile image" style="width: 45px; height: 45px;">
+																														</div>
+																													{% else %}
+																														<div id="author" class="d-flex flex-row justify-content-start" data-author-id="{{ post.author.id }}">
+																															<img {% if post.author.photo %}
+																																src="{{ post.author.photo.url }}"
+																															{% else %} src="{% static 'main/img/avatar/blank_profile.png' %}"
+																															{% endif %} class="img-avatar" alt="user profile image" style="width: 45px; height: 45px;">
+																															<div>
+																																<p class="p-2 ms-3 mb-1 rounded-3" style="background-color: #f5f6f7;"><strong>{{ post.author.username }}: </strong>{{ post.content }}</p>
+																																<p class="ms-3 mb-3 rounded-3 text-muted float-end">{{ post.date_created|timesince }} önce</p>
+																																<input type="hidden" class="message-id" value="{{ post.id }}">
+																															</div>
+																														</div>
+																													{% endif %}
+																												{% endfor %}
+																											{% endif %}
+																										</div>
+																										<div class="text-muted d-flex justify-content-start align-items-center pe-3 pt-3 mt-2">
+																											<img {% if current_user.photo %}
+																												src="{{ current_user.photo.url }}"
+																											{% else %} src="{% static 'main/img/avatar/blank_profile.png' %}"
+																											{% endif %} class="img-avatar" alt="user profile image" style="width: 45px; height: 45px;">
+																											<input type="text" class="form-control form-control-lg" id="exampleFormControlInput2{{ task.id }}" data-task-id="{{ task.id }}"
+																												   placeholder="Mesajınız">
+																											&nbsp;<label for="fileInput" class="ms-1 mt-2 mx-1 text-muted"><i class="fas fa-paperclip"></i></label>
+																											<input type="file" id="fileInput" style="display: none;">
+																											<div id="selectedFileContainer" class="d-none">
+																												<span id="selectedFileName"></span>
+																												<i id="removeFileIcon" class="fas fa-times-circle ms-1"></i>
+																											</div>&nbsp;
+																											<a class="ms-3 mx-1 text-muted" href="#"><i class="fas fa-smile"></i></a>&nbsp;
+																											<a class="ms-3 mx-1" ><i onclick="sendMessage({{ task.id }})" tabindex="0" onkeydown="if (e.keyCode === 13) { sendMessage({{ task.id }}); }" class="fas fa-paper-plane"></i></a>
+																										</div>
+																									</div>
+																								</div>
+																							</div>
+																						</div>
+																					</div>
+																				</div>
+																			</div>
+																		</section>
+																		<script>
+																			const fileInput = document.getElementById('fileInput');
+																			const selectedFileName = document.getElementById('selectedFileName');
+																			const removeFileIcon = document.getElementById('removeFileIcon');
+																			const selectedFileContainer = document.getElementById('selectedFileContainer');
 
-                                                                            fileInput.addEventListener('change', function (event) {
-                                                                                const file = event.target.files[0];
-                                                                                if (file) {
-                                                                                    selectedFileName.textContent = file.name;
-                                                                                    selectedFileContainer.classList.remove('d-none');
-                                                                                } else {
-                                                                                    selectedFileName.textContent = '';
-                                                                                    selectedFileContainer.classList.add('d-none');
-                                                                                }
-                                                                            });
+																			fileInput.addEventListener('change', function (event) {
+																				const file = event.target.files[0];
+																				if (file) {
+																					selectedFileName.textContent = file.name;
+																					selectedFileContainer.classList.remove('d-none');
+																				} else {
+																					selectedFileName.textContent = '';
+																					selectedFileContainer.classList.add('d-none');
+																				}
+																			});
 
-                                                                            removeFileIcon.addEventListener('click', function () {
-                                                                                fileInput.value = '';
-                                                                                selectedFileName.textContent = '';
-                                                                                selectedFileContainer.classList.add('d-none');
-                                                                            });
+																			removeFileIcon.addEventListener('click', function () {
+																				fileInput.value = '';
+																				selectedFileName.textContent = '';
+																				selectedFileContainer.classList.add('d-none');
+																			});
 
-                                                                            function sendMessage(taskId) {
-                                                                                const messageInput = document.getElementById('exampleFormControlInput2' + taskId);
-                                                                                const message = messageInput.value;
-                                                                                const file = fileInput.files[0];
-                                                                                const csrftoken = getCookie('csrftoken');
+																			function sendMessage(taskId) {
+																				const messageInput = document.getElementById('exampleFormControlInput2' + taskId);
+																				const message = messageInput.value;
+																				const file = fileInput.files[0];
+																				const csrftoken = getCookie('csrftoken');
 
-                                                                                const formData = new FormData();
-                                                                                formData.append('message', message);
-                                                                                formData.append('file', file);
+																				const formData = new FormData();
+																				formData.append('message', message);
+																				formData.append('file', file);
 
-                                                                                fetch('/send_message/' + taskId + '/', {
-                                                                                    method: 'POST',
-                                                                                    headers: {
-                                                                                        'X-CSRFToken': csrftoken
-                                                                                    },
-                                                                                    body: formData
-                                                                                })
-                                                                                    .then(response => response.json())
-                                                                                    .then(data => {
-                                                                                        if (data.success) {
-                                                                                            messageInput.value = '';
-                                                                                            fileInput.value = '';
-                                                                                            selectedFileName.textContent = '';
-                                                                                            selectedFileContainer.classList.add('d-none');
-                                                                                        } else {
-                                                                                            console.error('Mesaj gönderme hatası:', data.error);
-                                                                                        }
-                                                                                    })
-                                                                                    .catch(error => {
-                                                                                        console.error('Mesaj gönderme hatası:', error);
-                                                                                    });
-                                                                            }
-                                                                        </script>
-                                                                    </div>
-                                                                    <div class="col-3 text-left">
-                                                                        <div class="d-flex flex-column ml-2 my-1">
-                                                                            <h5>Durum</h5>
-                                                                            <select id="statusSelect{{ task.id }}" name="status" class="form-control mt-3" data-task-id="{{ task.id }}">
-                                                                                {% for status in all_status %}
-                                                                                    {% if task.status == status %}
-                                                                                        <option value="{{ status }}" selected>{{ status }}</option>
-                                                                                    {% else %}
-                                                                                        <option value="{{ status }}">{{ status }}</option>
-                                                                                    {% endif %}
-                                                                                {% endfor %}
-                                                                                {#                                                                                <option value="{{ task.status }}">{{ task.status }}</option>#}
-                                                                                {#                                                                                <option value="İnaktif">İnaktif</option>#}
-                                                                            </select>
-                                                                            <script>
-                                                                                document.getElementById('statusSelect{{ task.id }}').addEventListener('change', function() {
-                                                                                    const csrftoken = getCookie('csrftoken');
-                                                                                    var selectedOption = this.value;
-                                                                                    var taskId = this.getAttribute('data-task-id');
-                                                                                    var xhr = new XMLHttpRequest();
-                                                                                    xhr.open('POST', '/update-task-status/', true);
-                                                                                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                                                                                    xhr.setRequestHeader('X-CSRFToken', csrftoken);
-                                                                                    xhr.onreadystatechange = function() {
-                                                                                        if (xhr.readyState === 4 && xhr.status === 200) {
-                                                                                            console.log(xhr.responseText);
-                                                                                        }
-                                                                                    };
-                                                                                    xhr.send('task_id=' + taskId + '&status=' + selectedOption);
-                                                                                });
-                                                                            </script>
-                                                                        </div>
-                                                                        <hr class="mx-n3">
-                                                                        <div class="row ml-4 my-1">
-                                                                            <div class="row">
-                                                                                <span>Başlangıç Tarihi: </span>&nbsp;<strong><span> {{ task.time_created }}</span></strong>
-                                                                            </div>
-                                                                            <div class="row">
-                                                                                <span>Bitiş Tarihi: </span>&nbsp;<strong><span style="color: {% if task.due_date > time %} blue {% else %} red {% endif %}"> {{ task.due_date }}</span></strong>
-                                                                            </div>
-                                                                        </div>
-                                                                        <hr class="mx-n3">
-                                                                        <div class="d-flex flex-column ml-2 my-1">
-                                                                            <h5>Öncelik:</h5>
-                                                                            <select id="prioritySelect{{ task.id }}" name="priority" class="form-control mt-3" data-task-id="{{ task.id }}">
-                                                                                {% for priority in priorities %}
-                                                                                    {% if task.priority == priority %}
-                                                                                        <option value="{{ priority }}" selected>{{ priority }}</option>
-                                                                                    {% else %}
-                                                                                        <option value="{{ priority }}">{{ priority }}</option>
-                                                                                    {% endif %}
-                                                                                {% endfor %}
-                                                                                {#                                                                                <option value="{{ task.status }}">{{ task.status }}</option>#}
-                                                                                {#                                                                                <option value="İnaktif">İnaktif</option>#}
-                                                                            </select>
-                                                                            <script>
-                                                                                document.getElementById('prioritySelect{{ task.id }}').addEventListener('change', function() {
-                                                                                    const csrftoken = getCookie('csrftoken');
-                                                                                    var selectedOption = this.value;
-                                                                                    var taskId = this.getAttribute('data-task-id');
-                                                                                    var xhr = new XMLHttpRequest();
-                                                                                    xhr.open('POST', '/update-task-priority/', true);
-                                                                                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                                                                                    xhr.setRequestHeader('X-CSRFToken', csrftoken);
-                                                                                    xhr.onreadystatechange = function() {
-                                                                                        if (xhr.readyState === 4 && xhr.status === 200) {
-                                                                                            console.log(xhr.responseText);
-                                                                                        }
-                                                                                    };
-                                                                                    xhr.send('task_id=' + taskId + '&priority=' + selectedOption);
-                                                                                });
-                                                                            </script>
-                                                                        </div>
-                                                                        <hr>
-                                                                        <div class="d-flex flex-column ml-2 my-1">
-                                                                            <h5>Görevde Çalışanlar: {% if current_user == board.project.owner or current_user in project_staff %}<i class="bi bi-plus-square-fill" data-toggle="modal" data-target="#add-user-modal{{ task.id }}" style="color: green"></i>{% endif %}</h5>
-                                                                            {% for user in task.assigned_to.all %}
-                                                                                <span>{{ user.username }}&nbsp;{% if current_user == board.project.owner or current_user in project_staff %}<a href="{% url 'remove_task_user' task.id user.id %}" onclick="return confirm('Emin misiniz?')"><i class="bi bi-x-circle-fill" style="color: #d52525"></i></a>{% endif %}</span>
-                                                                            {% endfor %}
-                                                                        </div>
-                                                                        <hr class="mx-n3">
-                                                                        <div class="d-flex flex-column ml-2 my-1">
-                                                                            <h5>Takip Eden Görevliler: <i class="bi bi-plus-square-fill" data-toggle="modal" data-target="#add-staff-modal{{ task.id }}" style="color: green"></i></h5>
-                                                                            {% for user in task.followers.all %}
-                                                                                <strong><span>{{ user.username }}</span>&nbsp;<a href="{% url 'remove_task_staff' task.id user.id %}" onclick="return confirm('Emin misiniz?')"><i class="bi bi-x-circle-fill" style="color: #d52525"></i></a></strong>
-                                                                            {% endfor %}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="modal-footer align-content-center justify-content-center">
-                                                                <div class="row justify-content-center">
-                                                                    <div class="px-5 pb-4 text-lg-center">
-                                                                        <button id="closeModal" class="btn btn-secondary btn-lg" data-dismiss="modal" style="width: 240px;" onclick="location.reload();" data-task-id="{{ task.id }}">Kapat</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {#                                                --- Add User Modal ---      #}
+																				fetch('/send_message/' + taskId + '/', {
+																					method: 'POST',
+																					headers: {
+																						'X-CSRFToken': csrftoken
+																					},
+																					body: formData
+																				})
+																					.then(response => response.json())
+																					.then(data => {
+																						if (data.success) {
+																							messageInput.value = '';
+																							fileInput.value = '';
+																							selectedFileName.textContent = '';
+																							selectedFileContainer.classList.add('d-none');
+																						} else {
+																							console.error('Mesaj gönderme hatası:', data.error);
+																						}
+																					})
+																					.catch(error => {
+																						console.error('Mesaj gönderme hatası:', error);
+																					});
+																			}
+																		</script>
+																	</div>
+																	<div class="col-3 text-left">
+																		<div class="d-flex flex-column ml-2 my-1">
+																			<h5>Durum</h5>
+																			<select id="statusSelect{{ task.id }}" name="status" class="form-control mt-3" data-task-id="{{ task.id }}">
+																				{% for status in all_status %}
+																					{% if task.status == status %}
+																						<option value="{{ status }}" selected>{{ status }}</option>
+																					{% else %}
+																						<option value="{{ status }}">{{ status }}</option>
+																					{% endif %}
+																				{% endfor %}
+																				{#                                                                                <option value="{{ task.status }}">{{ task.status }}</option>#}
+																				{#                                                                                <option value="İnaktif">İnaktif</option>#}
+																			</select>
+																			<script>
+																				document.getElementById('statusSelect{{ task.id }}').addEventListener('change', function() {
+																					const csrftoken = getCookie('csrftoken');
+																					var selectedOption = this.value;
+																					var taskId = this.getAttribute('data-task-id');
+																					var xhr = new XMLHttpRequest();
+																					xhr.open('POST', '/update-task-status/', true);
+																					xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+																					xhr.setRequestHeader('X-CSRFToken', csrftoken);
+																					xhr.onreadystatechange = function() {
+																						if (xhr.readyState === 4 && xhr.status === 200) {
+																							console.log(xhr.responseText);
+																						}
+																					};
+																					xhr.send('task_id=' + taskId + '&status=' + selectedOption);
+																				});
+																			</script>
+																		</div>
+																		<hr class="mx-n3">
+																		<div class="row ml-4 my-1">
+																			<div class="row">
+																				<span>Başlangıç Tarihi: </span>&nbsp;<strong><span> {{ task.time_created }}</span></strong>
+																			</div>
+																			<div class="row">
+																				<span>Bitiş Tarihi: </span>&nbsp;<strong><span style="color: {% if task.due_date > time %} blue {% else %} red {% endif %}"> {{ task.due_date }}</span></strong>
+																			</div>
+																		</div>
+																		<hr class="mx-n3">
+																		<div class="d-flex flex-column ml-2 my-1">
+																			<h5>Öncelik:</h5>
+																			<select id="prioritySelect{{ task.id }}" name="priority" class="form-control mt-3" data-task-id="{{ task.id }}">
+																				{% for priority in priorities %}
+																					{% if task.priority == priority %}
+																						<option value="{{ priority }}" selected>{{ priority }}</option>
+																					{% else %}
+																						<option value="{{ priority }}">{{ priority }}</option>
+																					{% endif %}
+																				{% endfor %}
+																				{#                                                                                <option value="{{ task.status }}">{{ task.status }}</option>#}
+																				{#                                                                                <option value="İnaktif">İnaktif</option>#}
+																			</select>
+																			<script>
+																				document.getElementById('prioritySelect{{ task.id }}').addEventListener('change', function() {
+																					const csrftoken = getCookie('csrftoken');
+																					var selectedOption = this.value;
+																					var taskId = this.getAttribute('data-task-id');
+																					var xhr = new XMLHttpRequest();
+																					xhr.open('POST', '/update-task-priority/', true);
+																					xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+																					xhr.setRequestHeader('X-CSRFToken', csrftoken);
+																					xhr.onreadystatechange = function() {
+																						if (xhr.readyState === 4 && xhr.status === 200) {
+																							console.log(xhr.responseText);
+																						}
+																					};
+																					xhr.send('task_id=' + taskId + '&priority=' + selectedOption);
+																				});
+																			</script>
+																		</div>
+																		<hr>
+																		<div class="d-flex flex-column ml-2 my-1">
+																			<h5>Görevde Çalışanlar: {% if current_user == board.project.owner or current_user in project_staff %}<i class="bi bi-plus-square-fill" data-toggle="modal" data-target="#add-user-modal{{ task.id }}" style="color: green"></i>{% endif %}</h5>
+																			{% for user in task.assigned_to.all %}
+																				<span>{{ user.username }}&nbsp;{% if current_user == board.project.owner or current_user in project_staff %}<a href="{% url 'remove_task_user' task.id user.id %}" onclick="return confirm('Emin misiniz?')"><i class="bi bi-x-circle-fill" style="color: #d52525"></i></a>{% endif %}</span>
+																			{% endfor %}
+																		</div>
+																		<hr class="mx-n3">
+																		<div class="d-flex flex-column ml-2 my-1">
+																			<h5>Takip Eden Görevliler: <i class="bi bi-plus-square-fill" data-toggle="modal" data-target="#add-staff-modal{{ task.id }}" style="color: green"></i></h5>
+																			{% for user in task.followers.all %}
+																				<strong><span>{{ user.username }}</span>&nbsp;<a href="{% url 'remove_task_staff' task.id user.id %}" onclick="return confirm('Emin misiniz?')"><i class="bi bi-x-circle-fill" style="color: #d52525"></i></a></strong>
+																			{% endfor %}
+																		</div>
+																	</div>
+																</div>
+															</div>
+															<div class="modal-footer align-content-center justify-content-center">
+																<div class="row justify-content-center">
+																	<div class="px-5 pb-4 text-lg-center">
+																		<button id="closeModal" class="btn btn-secondary btn-lg" data-dismiss="modal" style="width: 240px;" onclick="location.reload();" data-task-id="{{ task.id }}">Kapat</button>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+												{#                                                --- Add User Modal ---      #}
                                                 <div class="modal fade" id="add-user-modal{{ task.id }}" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="add-user-modal">
                                                     <div class="modal-dialog" role="document">
                                                         <div class="modal-content" style="background-color: #e8e8e8">
@@ -343,1127 +345,180 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            {% endfor %}
-                                        {% else %}
-                                            <span class="text-center my-3">Henüz görev yok.</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="col-3 mb-3">
-                                    <div class="board-card card ml-2" data-board-id="{{ task.id }}" style="min-height: 300px; background-color: #e8e8e8; border-width: thick">
-                                        <div class="card-header row justify-content-center mx-0 mb-2" style="background-color: #f66e6e">
-                                            <div class="col-10 text-center mt-2 ml-1">
-                                                <h4 class="text-uppercase" style="color: black; font-size: 1rem">İNAKTİF</h4>
-                                            </div>
-                                        </div>
-                                        {% if inactive_tasks %}
-                                            {% for task in inactive_tasks %}
-                                                {% if current_user in task.assigned_to.all or current_user == board.project.owner or current_user in project_staff %}
-                                                    <div class="card mx-3 my-3" style="border-radius: 4%">
-                                                        <div class="card-content">
-                                                            <div class="card-body">
-                                                                <div class="media d-flex">
-                                                                    <div class="col-10 media-body text-left mr-1">
-                                                                        <a id="openModal" href="/görev" data-toggle="modal" data-target="#task-modal{{ task.id }}" data-task-id="{{ task.id }}"><h5 class="primary text-capitalize mb-2 mt-1">{{ task.title|truncatechars:10 }}</h5></a>
-                                                                        <strong><span style="color: {% if task.due_date > time %} blue {% else %} red {% endif %}; font-size: 0.8rem; position: absolute; bottom: -150%; left: 10%">Son tarih: {{ task.due_date }}</span></strong>
-                                                                    </div>
-                                                                    <div class="col-2 align-self-center ml-2">
-                                                                        <i class="bi bi-journal-text primary float-right mb-2" style="font-size: 2rem"></i>
-                                                                        <i class="bi bi-people-fill primary float-right mb-2" style="font-size: 2rem"></i>
-                                                                        <p style="position: absolute; bottom: 7.5%; right: 20%"><strong>{{ task.assigned_to.count }}</strong></p>
-                                                                        {% if current_user == board.project.owner or current_user in project_staff %}
-                                                                            <a href="{% url 'delete_task' task.id %}" onclick="return confirm('Bu görevi silmek istediğinizden emin misiniz? Bunu yaparsanız tüm görev verileri kaybolur!')"><i class="bi bi-trash-fill" style="color: #888888; position: absolute; right: 55%; bottom: -10%"></i></a>
-                                                                        {% endif %}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                {% endif %}
-                                                <div class="modal fade" id="task-modal{{ task.id }}" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="task-modal{{ task.id }}">
-                                                    <div class="modal-dialog" role="document">
-                                                        <div class="modal-content" style="min-width: 1200px; position: absolute; left: -70%">
-                                                            <div class="modal-header justify-content-center">
-                                                                <h2 class="text-capitalize"><a href="/project/{{ board.project.id }}/" style="color: #08b2ec">{{ board.project.name }}</a> > <a href="/board/{{ board.id }}" style="color: #08b2ec">{{ board.title }}</a> > {{ task.title }}</h2>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <div class="row">
-                                                                    <div class="col-9 text-left my-0" style="border-right: 1px solid #e5e6e8;">
-                                                                        <div class="d-flex flex-column">
-                                                                            <span class="ml-2">{{ task.description }}</span>
-                                                                        </div>
-                                                                        <section>
-                                                                            <div class="container py-5">
-                                                                                <div class="row">
-                                                                                    <div class="col-md-12">
-                                                                                        <div class="card" id="messageContainer{{ task.id }}" style="border-radius: 15px; background-color: #e0e0e0">
-                                                                                            <div class="card-body">
-                                                                                                <div class="row">
-                                                                                                    <div class="col-md-12">
-                                                                                                        <div class="pt-3 pe-3" data-mdb-perfect-scrollbar="true"
-                                                                                                             style="position: relative; height: 400px; overflow-y: auto;">
-                                                                                                            {% if task.post_set %}
-                                                                                                                {% for post in task.post_set.all %}
-                                                                                                                    {% if post.author == current_user %}
-                                                                                                                        <div class="d-flex flex-row justify-content-end">
-                                                                                                                            <div>
-                                                                                                                                <p class="p-2 me-3 mb-1 text-white rounded-3 bg-primary">{{ post.content }} <a href="{% url 'delete_post' post.id %}" onclick="return confirm('Emin misiniz?')"><i class="bi bi-trash-fill" style="position: absolute; right: 6.5%"></i></a></p>
-                                                                                                                                <p class="me-3 mb-3 rounded-3 text-muted">
-                                                                                                                                    {{ post.date_created|timesince }} önce</p>
-                                                                                                                            </div>
-                                                                                                                            <img {% if current_user.photo %}
-                                                                                                                                src="{{ current_user.photo.url }}"
-                                                                                                                            {% else %} src="{% static 'main/img/avatar/blank_profile.png' %}"
-                                                                                                                            {% endif %} class="img-avatar" alt="user profile image" style="width: 45px; height: 45px;">
-                                                                                                                        </div>
-                                                                                                                    {% else %}
-                                                                                                                        <div id="author" class="d-flex flex-row justify-content-start" data-author-id="{{ post.author.id }}">
-                                                                                                                            <img {% if post.author.photo %}
-                                                                                                                                src="{{ post.author.photo.url }}"
-                                                                                                                            {% else %} src="{% static 'main/img/avatar/blank_profile.png' %}"
-                                                                                                                            {% endif %} class="img-avatar" alt="user profile image" style="width: 45px; height: 45px;">
-                                                                                                                            <div>
-                                                                                                                                <p class="p-2 ms-3 mb-1 rounded-3" style="background-color: #f5f6f7;"><strong>{{ post.author.username }}: </strong>{{ post.content }}</p>
-                                                                                                                                <p class="ms-3 mb-3 rounded-3 text-muted float-end">{{ post.date_created|timesince }} önce</p>
-                                                                                                                                <input type="hidden" class="message-id" value="{{ post.id }}">
-                                                                                                                            </div>
-                                                                                                                        </div>
-                                                                                                                    {% endif %}
-                                                                                                                {% endfor %}
-                                                                                                            {% endif %}
-                                                                                                        </div>
-                                                                                                        <div class="text-muted d-flex justify-content-start align-items-center pe-3 pt-3 mt-2">
-                                                                                                            <img {% if current_user.photo %}
-                                                                                                                src="{{ current_user.photo.url }}"
-                                                                                                            {% else %} src="{% static 'main/img/avatar/blank_profile.png' %}"
-                                                                                                            {% endif %} class="img-avatar" alt="user profile image" style="width: 45px; height: 45px;">
-                                                                                                            <input type="text" class="form-control form-control-lg" id="exampleFormControlInput2{{ task.id }}" data-task-id="{{ task.id }}"
-                                                                                                                   placeholder="Mesajınız">
-                                                                                                            &nbsp;<label for="fileInput" class="ms-1 mt-2 mx-1 text-muted"><i class="fas fa-paperclip"></i></label>
-                                                                                                            <input type="file" id="fileInput" style="display: none;">
-                                                                                                            <div id="selectedFileContainer" class="d-none">
-                                                                                                                <span id="selectedFileName"></span>
-                                                                                                                <i id="removeFileIcon" class="fas fa-times-circle ms-1"></i>
-                                                                                                            </div>&nbsp;
-                                                                                                            <a class="ms-3 mx-1 text-muted" href="#"><i class="fas fa-smile"></i></a>&nbsp;
-                                                                                                            <a class="ms-3 mx-1" ><i onclick="sendMessage({{ task.id }})" tabindex="0" onkeydown="if (e.keyCode === 13) { sendMessage({{ task.id }}); }" class="fas fa-paper-plane"></i></a>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </section>
-                                                                        <script>
-                                                                            const fileInput = document.getElementById('fileInput');
-                                                                            const selectedFileName = document.getElementById('selectedFileName');
-                                                                            const removeFileIcon = document.getElementById('removeFileIcon');
-                                                                            const selectedFileContainer = document.getElementById('selectedFileContainer');
+											{% endfor %}	
+											<div class="card-body">
 
-                                                                            fileInput.addEventListener('change', function (event) {
-                                                                                const file = event.target.files[0];
-                                                                                if (file) {
-                                                                                    selectedFileName.textContent = file.name;
-                                                                                    selectedFileContainer.classList.remove('d-none');
-                                                                                } else {
-                                                                                    selectedFileName.textContent = '';
-                                                                                    selectedFileContainer.classList.add('d-none');
-                                                                                }
-                                                                            });
+											</div>
+										</div>
+									</div>
+								{% endfor %}	
+								</div>	
+							{% else %}
+								<div class="card-body">
+									<div class="row mx-3 mb-2">
+										<div class="col-12">
+											<h5>Hiç görev oluşturulmamış.</h5>
+										</div>
+									</div>
+								</div>
+							{% endif %}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
-                                                                            removeFileIcon.addEventListener('click', function () {
-                                                                                fileInput.value = '';
-                                                                                selectedFileName.textContent = '';
-                                                                                selectedFileContainer.classList.add('d-none');
-                                                                            });
-
-                                                                            function sendMessage(taskId) {
-                                                                                const messageInput = document.getElementById('exampleFormControlInput2' + taskId);
-                                                                                const message = messageInput.value;
-                                                                                const file = fileInput.files[0];
-                                                                                const csrftoken = getCookie('csrftoken');
-
-                                                                                const formData = new FormData();
-                                                                                formData.append('message', message);
-                                                                                formData.append('file', file);
-
-                                                                                fetch('/send_message/' + taskId + '/', {
-                                                                                    method: 'POST',
-                                                                                    headers: {
-                                                                                        'X-CSRFToken': csrftoken
-                                                                                    },
-                                                                                    body: formData
-                                                                                })
-                                                                                    .then(response => response.json())
-                                                                                    .then(data => {
-                                                                                        if (data.success) {
-                                                                                            messageInput.value = '';
-                                                                                            fileInput.value = '';
-                                                                                            selectedFileName.textContent = '';
-                                                                                            selectedFileContainer.classList.add('d-none');
-                                                                                        } else {
-                                                                                            console.error('Mesaj gönderme hatası:', data.error);
-                                                                                        }
-                                                                                    })
-                                                                                    .catch(error => {
-                                                                                        console.error('Mesaj gönderme hatası:', error);
-                                                                                    });
-                                                                            }
-                                                                        </script>
-                                                                    </div>
-                                                                    <div class="col-3 text-left">
-                                                                        <div class="d-flex flex-column ml-2 my-1">
-                                                                            <h5>Durum</h5>
-                                                                            <select id="statusSelect{{ task.id }}" name="status" class="form-control mt-3" data-task-id="{{ task.id }}">
-                                                                                {% for status in all_status %}
-                                                                                    {% if task.status == status %}
-                                                                                        <option value="{{ status }}" selected>{{ status }}</option>
-                                                                                    {% else %}
-                                                                                        <option value="{{ status }}">{{ status }}</option>
-                                                                                    {% endif %}
-                                                                                {% endfor %}
-                                                                                {#                                                                                <option value="{{ task.status }}">{{ task.status }}</option>#}
-                                                                                {#                                                                                <option value="İnaktif">İnaktif</option>#}
-                                                                            </select>
-                                                                            <script>
-                                                                                document.getElementById('statusSelect{{ task.id }}').addEventListener('change', function() {
-                                                                                    const csrftoken = getCookie('csrftoken');
-                                                                                    var selectedOption = this.value;
-                                                                                    var taskId = this.getAttribute('data-task-id');
-                                                                                    var xhr = new XMLHttpRequest();
-                                                                                    xhr.open('POST', '/update-task-status/', true);
-                                                                                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                                                                                    xhr.setRequestHeader('X-CSRFToken', csrftoken);
-                                                                                    xhr.onreadystatechange = function() {
-                                                                                        if (xhr.readyState === 4 && xhr.status === 200) {
-                                                                                            console.log(xhr.responseText);
-                                                                                        }
-                                                                                    };
-                                                                                    xhr.send('task_id=' + taskId + '&status=' + selectedOption);
-                                                                                });
-                                                                            </script>
-                                                                        </div>
-                                                                        <hr class="mx-n3">
-                                                                        <div class="row ml-4 my-1">
-                                                                            <div class="row">
-                                                                                <span>Başlangıç Tarihi: </span>&nbsp;<strong><span> {{ task.time_created }}</span></strong>
-                                                                            </div>
-                                                                            <div class="row">
-                                                                                <span>Bitiş Tarihi: </span>&nbsp;<strong><span style="color: {% if task.due_date > time %} blue {% else %} red {% endif %}"> {{ task.due_date }}</span></strong>
-                                                                            </div>
-                                                                        </div>
-                                                                        <hr class="mx-n3">
-                                                                        <div class="d-flex flex-column ml-2 my-1">
-                                                                            <h5>Öncelik:</h5>
-                                                                            <select id="prioritySelect{{ task.id }}" name="priority" class="form-control mt-3" data-task-id="{{ task.id }}">
-                                                                                {% for priority in priorities %}
-                                                                                    {% if task.priority == priority %}
-                                                                                        <option value="{{ priority }}" selected>{{ priority }}</option>
-                                                                                    {% else %}
-                                                                                        <option value="{{ priority }}">{{ priority }}</option>
-                                                                                    {% endif %}
-                                                                                {% endfor %}
-                                                                                {#                                                                                <option value="{{ task.status }}">{{ task.status }}</option>#}
-                                                                                {#                                                                                <option value="İnaktif">İnaktif</option>#}
-                                                                            </select>
-                                                                            <script>
-                                                                                document.getElementById('prioritySelect{{ task.id }}').addEventListener('change', function() {
-                                                                                    const csrftoken = getCookie('csrftoken');
-                                                                                    var selectedOption = this.value;
-                                                                                    var taskId = this.getAttribute('data-task-id');
-                                                                                    var xhr = new XMLHttpRequest();
-                                                                                    xhr.open('POST', '/update-task-priority/', true);
-                                                                                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                                                                                    xhr.setRequestHeader('X-CSRFToken', csrftoken);
-                                                                                    xhr.onreadystatechange = function() {
-                                                                                        if (xhr.readyState === 4 && xhr.status === 200) {
-                                                                                            console.log(xhr.responseText);
-                                                                                        }
-                                                                                    };
-                                                                                    xhr.send('task_id=' + taskId + '&priority=' + selectedOption);
-                                                                                });
-                                                                            </script>
-                                                                        </div>
-                                                                        <hr>
-                                                                        <div class="d-flex flex-column ml-2 my-1">
-                                                                            <h5>Görevde Çalışanlar: {% if current_user == board.project.owner or current_user in project_staff %}<i class="bi bi-plus-square-fill" data-toggle="modal" data-target="#add-user-modal{{ task.id }}" style="color: green"></i>{% endif %}</h5>
-                                                                            {% for user in task.assigned_to.all %}
-                                                                                <span>{{ user.username }}&nbsp;{% if current_user == board.project.owner or current_user in project_staff %}<a href="{% url 'remove_task_user' task.id user.id %}" onclick="return confirm('Emin misiniz?')"><i class="bi bi-x-circle-fill" style="color: #d52525"></i></a>{% endif %}</span>
-                                                                            {% endfor %}
-                                                                        </div>
-                                                                        <hr class="mx-n3">
-                                                                        <div class="d-flex flex-column ml-2 my-1">
-                                                                            <h5>Takip Eden Görevliler: <i class="bi bi-plus-square-fill" data-toggle="modal" data-target="#add-staff-modal{{ task.id }}" style="color: green"></i></h5>
-                                                                            {% for user in task.followers.all %}
-                                                                                <strong><span>{{ user.username }}</span>&nbsp;<a href="{% url 'remove_task_staff' task.id user.id %}" onclick="return confirm('Emin misiniz?')"><i class="bi bi-x-circle-fill" style="color: #d52525"></i></a></strong>
-                                                                            {% endfor %}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="modal-footer align-content-center justify-content-center">
-                                                                <div class="row justify-content-center">
-                                                                    <div class="px-5 pb-4 text-lg-center">
-                                                                        <button id="closeModal" class="btn btn-secondary btn-lg" data-dismiss="modal" style="width: 240px;" onclick="location.reload();" data-task-id="{{ task.id }}">Kapat</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {#                                                --- Add User Modal ---      #}
-                                                <div class="modal fade" id="add-user-modal{{ task.id }}" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="add-user-modal">
-                                                    <div class="modal-dialog" role="document">
-                                                        <div class="modal-content" style="background-color: #e8e8e8">
-                                                            <form method="post" action="{% url 'add-task-user' task.id %}" onsubmit="return validateForm()">
-                                                                {% csrf_token %}
-                                                                <div class="modal-body">
-                                                                    <span class="my-2"><strong>{{ task.title }}</strong> görevine eklemek istediğiniz kullanıcıyı seçiniz:</span>
-                                                                    <select id="userSelect" name="user" class="form-control mt-3">
-                                                                        {% for user in board.users.all %}
-                                                                            {% if user not in task.assigned_to.all %}
-                                                                                <option value="{{ user.id }}">{{ user.username }}</option>
-                                                                            {% endif %}
-                                                                        {% endfor %}
-                                                                    </select>
-                                                                </div>
-                                                                <div class="modal-footer align-content-center justify-content-center">
-                                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
-                                                                    <button type="submit" class="btn btn-success delete-button" style="width: 50px">Ekle</button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {#                                               --- Add staff modal ---     #}
-                                                <div class="modal fade" id="add-staff-modal{{ task.id }}" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="add-staff-modal">
-                                                    <div class="modal-dialog" role="document">
-                                                        <div class="modal-content" style="background-color: #e8e8e8">
-                                                            <form method="post" action="{% url 'add-task-staff' task.id %}">
-                                                                {% csrf_token %}
-                                                                <div class="modal-body">
-                                                                    <span class="my-2"><strong>{{ task.title }}</strong> görevine eklemek istediğiniz görevliyi seçiniz:</span>
-                                                                    <select id="userSelect" name="user" class="form-control mt-3">
-                                                                        {% for user in project_staff %}
-                                                                            <option value="{{ user.id }}">{{ user.username }}</option>
-                                                                        {% endfor %}
-                                                                    </select>
-                                                                </div>
-                                                                <div class="modal-footer align-content-center justify-content-center">
-                                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
-                                                                    <button type="submit" class="btn btn-success delete-button" style="width: 50px">Ekle</button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            {% endfor %}
-                                        {% else %}
-                                            <span class="text-center my-3">Henüz görev yok.</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="col-3 mb-3">
-                                    <div class="board-card card ml-2" data-board-id="{{ task.id }}" style="min-height: 300px; background-color: #e8e8e8; border-width: thick">
-                                        <div class="card-header row justify-content-center mx-0 mb-2" style="background-color: #f1b567">
-                                            <div class="col-10 text-center mt-2 ml-1">
-                                                <h4 class="text-uppercase" style="color: black; font-size: 1rem">BEKLİYOR</h4>
-                                            </div>
-                                        </div>
-                                        {% if waiting_tasks %}
-                                            {% for task in waiting_tasks %}
-                                                {% if current_user in task.assigned_to.all or current_user == board.project.owner or current_user in project_staff %}
-                                                    <div class="card mx-3 my-3" style="border-radius: 4%">
-                                                        <div class="card-content">
-                                                            <div class="card-body">
-                                                                <div class="media d-flex">
-                                                                    <div class="col-10 media-body text-left mr-1">
-                                                                        <a id="openModal" href="/görev" data-toggle="modal" data-target="#task-modal{{ task.id }}" data-task-id="{{ task.id }}"><h5 class="primary text-capitalize mb-2 mt-1">{{ task.title|truncatechars:10 }}</h5></a>
-                                                                        <strong><span style="color: {% if task.due_date > time %} blue {% else %} red {% endif %}; font-size: 0.8rem; position: absolute; bottom: -150%; left: 10%">Son tarih: {{ task.due_date }}</span></strong>
-                                                                    </div>
-                                                                    <div class="col-2 align-self-center ml-2">
-                                                                        <i class="bi bi-journal-text primary float-right mb-2" style="font-size: 2rem"></i>
-                                                                        <i class="bi bi-people-fill primary float-right mb-2" style="font-size: 2rem"></i>
-                                                                        <p style="position: absolute; bottom: 7.5%; right: 20%"><strong>{{ task.assigned_to.count }}</strong></p>
-                                                                        {% if current_user == board.project.owner or current_user in project_staff %}
-                                                                            <a href="{% url 'delete_task' task.id %}" onclick="return confirm('Bu görevi silmek istediğinizden emin misiniz? Bunu yaparsanız tüm görev verileri kaybolur!')"><i class="bi bi-trash-fill" style="color: #888888; position: absolute; right: 55%; bottom: -10%"></i></a>
-                                                                        {% endif %}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                {% endif %}
-                                                <div class="modal fade" id="task-modal{{ task.id }}" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="task-modal{{ task.id }}">
-                                                    <div class="modal-dialog" role="document">
-                                                        <div class="modal-content" style="min-width: 1200px; position: absolute; left: -70%">
-                                                            <div class="modal-header justify-content-center">
-                                                                <h2 class="text-capitalize"><a href="/project/{{ board.project.id }}/" style="color: #08b2ec">{{ board.project.name }}</a> > <a href="/board/{{ board.id }}" style="color: #08b2ec">{{ board.title }}</a> > {{ task.title }}</h2>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <div class="row">
-                                                                    <div class="col-9 text-left my-0" style="border-right: 1px solid #e5e6e8;">
-                                                                        <div class="d-flex flex-column">
-                                                                            <span class="ml-2">{{ task.description }}</span>
-                                                                        </div>
-                                                                        <section>
-                                                                            <div class="container py-5">
-                                                                                <div class="row">
-                                                                                    <div class="col-md-12">
-                                                                                        <div class="card" id="messageContainer{{ task.id }}" style="border-radius: 15px; background-color: #e0e0e0">
-                                                                                            <div class="card-body">
-                                                                                                <div class="row">
-                                                                                                    <div class="col-md-12">
-                                                                                                        <div class="pt-3 pe-3" data-mdb-perfect-scrollbar="true"
-                                                                                                             style="position: relative; height: 400px; overflow-y: auto;">
-                                                                                                            {% if task.post_set %}
-                                                                                                                {% for post in task.post_set.all %}
-                                                                                                                    {% if post.author == current_user %}
-                                                                                                                        <div class="d-flex flex-row justify-content-end">
-                                                                                                                            <div>
-                                                                                                                                <p class="p-2 me-3 mb-1 text-white rounded-3 bg-primary">{{ post.content }} <a href="{% url 'delete_post' post.id %}" onclick="return confirm('Emin misiniz?')"><i class="bi bi-trash-fill" style="position: absolute; right: 6.5%"></i></a></p>
-                                                                                                                                <p class="me-3 mb-3 rounded-3 text-muted">
-                                                                                                                                    {{ post.date_created|timesince }} önce</p>
-                                                                                                                            </div>
-                                                                                                                            <img {% if current_user.photo %}
-                                                                                                                                src="{{ current_user.photo.url }}"
-                                                                                                                            {% else %} src="{% static 'main/img/avatar/blank_profile.png' %}"
-                                                                                                                            {% endif %} class="img-avatar" alt="user profile image" style="width: 45px; height: 45px;">
-                                                                                                                        </div>
-                                                                                                                    {% else %}
-                                                                                                                        <div id="author" class="d-flex flex-row justify-content-start" data-author-id="{{ post.author.id }}">
-                                                                                                                            <img {% if post.author.photo %}
-                                                                                                                                src="{{ post.author.photo.url }}"
-                                                                                                                            {% else %} src="{% static 'main/img/avatar/blank_profile.png' %}"
-                                                                                                                            {% endif %} class="img-avatar" alt="user profile image" style="width: 45px; height: 45px;">
-                                                                                                                            <div>
-                                                                                                                                <p class="p-2 ms-3 mb-1 rounded-3" style="background-color: #f5f6f7;"><strong>{{ post.author.username }}: </strong>{{ post.content }}</p>
-                                                                                                                                <p class="ms-3 mb-3 rounded-3 text-muted float-end">{{ post.date_created|timesince }} önce</p>
-                                                                                                                                <input type="hidden" class="message-id" value="{{ post.id }}">
-                                                                                                                            </div>
-                                                                                                                        </div>
-                                                                                                                    {% endif %}
-                                                                                                                {% endfor %}
-                                                                                                            {% endif %}
-                                                                                                        </div>
-                                                                                                        <div class="text-muted d-flex justify-content-start align-items-center pe-3 pt-3 mt-2">
-                                                                                                            <img {% if current_user.photo %}
-                                                                                                                src="{{ current_user.photo.url }}"
-                                                                                                            {% else %} src="{% static 'main/img/avatar/blank_profile.png' %}"
-                                                                                                            {% endif %} class="img-avatar" alt="user profile image" style="width: 45px; height: 45px;">
-                                                                                                            <input type="text" class="form-control form-control-lg" id="exampleFormControlInput2{{ task.id }}" data-task-id="{{ task.id }}"
-                                                                                                                   placeholder="Mesajınız">
-                                                                                                            &nbsp;<label for="fileInput" class="ms-1 mt-2 mx-1 text-muted"><i class="fas fa-paperclip"></i></label>
-                                                                                                            <input type="file" id="fileInput" style="display: none;">
-                                                                                                            <div id="selectedFileContainer" class="d-none">
-                                                                                                                <span id="selectedFileName"></span>
-                                                                                                                <i id="removeFileIcon" class="fas fa-times-circle ms-1"></i>
-                                                                                                            </div>&nbsp;
-                                                                                                            <a class="ms-3 mx-1 text-muted" href="#"><i class="fas fa-smile"></i></a>&nbsp;
-                                                                                                            <a class="ms-3 mx-1" ><i onclick="sendMessage({{ task.id }})" tabindex="0" onkeydown="if (e.keyCode === 13) { sendMessage({{ task.id }}); }" class="fas fa-paper-plane"></i></a>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </section>
-                                                                        <script>
-                                                                            const fileInput = document.getElementById('fileInput');
-                                                                            const selectedFileName = document.getElementById('selectedFileName');
-                                                                            const removeFileIcon = document.getElementById('removeFileIcon');
-                                                                            const selectedFileContainer = document.getElementById('selectedFileContainer');
-
-                                                                            fileInput.addEventListener('change', function (event) {
-                                                                                const file = event.target.files[0];
-                                                                                if (file) {
-                                                                                    selectedFileName.textContent = file.name;
-                                                                                    selectedFileContainer.classList.remove('d-none');
-                                                                                } else {
-                                                                                    selectedFileName.textContent = '';
-                                                                                    selectedFileContainer.classList.add('d-none');
-                                                                                }
-                                                                            });
-
-                                                                            removeFileIcon.addEventListener('click', function () {
-                                                                                fileInput.value = '';
-                                                                                selectedFileName.textContent = '';
-                                                                                selectedFileContainer.classList.add('d-none');
-                                                                            });
-
-                                                                            function sendMessage(taskId) {
-                                                                                const messageInput = document.getElementById('exampleFormControlInput2' + taskId);
-                                                                                const message = messageInput.value;
-                                                                                const file = fileInput.files[0];
-                                                                                const csrftoken = getCookie('csrftoken');
-
-                                                                                const formData = new FormData();
-                                                                                formData.append('message', message);
-                                                                                formData.append('file', file);
-
-                                                                                fetch('/send_message/' + taskId + '/', {
-                                                                                    method: 'POST',
-                                                                                    headers: {
-                                                                                        'X-CSRFToken': csrftoken
-                                                                                    },
-                                                                                    body: formData
-                                                                                })
-                                                                                    .then(response => response.json())
-                                                                                    .then(data => {
-                                                                                        if (data.success) {
-                                                                                            messageInput.value = '';
-                                                                                            fileInput.value = '';
-                                                                                            selectedFileName.textContent = '';
-                                                                                            selectedFileContainer.classList.add('d-none');
-                                                                                        } else {
-                                                                                            console.error('Mesaj gönderme hatası:', data.error);
-                                                                                        }
-                                                                                    })
-                                                                                    .catch(error => {
-                                                                                        console.error('Mesaj gönderme hatası:', error);
-                                                                                    });
-                                                                            }
-                                                                        </script>
-                                                                    </div>
-                                                                    <div class="col-3 text-left">
-                                                                        <div class="d-flex flex-column ml-2 my-1">
-                                                                            <h5>Durum</h5>
-                                                                            <select id="statusSelect{{ task.id }}" name="status" class="form-control mt-3" data-task-id="{{ task.id }}">
-                                                                                {% for status in all_status %}
-                                                                                    {% if task.status == status %}
-                                                                                        <option value="{{ status }}" selected>{{ status }}</option>
-                                                                                    {% else %}
-                                                                                        <option value="{{ status }}">{{ status }}</option>
-                                                                                    {% endif %}
-                                                                                {% endfor %}
-                                                                                {#                                                                                <option value="{{ task.status }}">{{ task.status }}</option>#}
-                                                                                {#                                                                                <option value="İnaktif">İnaktif</option>#}
-                                                                            </select>
-                                                                            <script>
-                                                                                document.getElementById('statusSelect{{ task.id }}').addEventListener('change', function() {
-                                                                                    const csrftoken = getCookie('csrftoken');
-                                                                                    var selectedOption = this.value;
-                                                                                    var taskId = this.getAttribute('data-task-id');
-                                                                                    var xhr = new XMLHttpRequest();
-                                                                                    xhr.open('POST', '/update-task-status/', true);
-                                                                                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                                                                                    xhr.setRequestHeader('X-CSRFToken', csrftoken);
-                                                                                    xhr.onreadystatechange = function() {
-                                                                                        if (xhr.readyState === 4 && xhr.status === 200) {
-                                                                                            console.log(xhr.responseText);
-                                                                                        }
-                                                                                    };
-                                                                                    xhr.send('task_id=' + taskId + '&status=' + selectedOption);
-                                                                                });
-                                                                            </script>
-                                                                        </div>
-                                                                        <hr class="mx-n3">
-                                                                        <div class="row ml-4 my-1">
-                                                                            <div class="row">
-                                                                                <span>Başlangıç Tarihi: </span>&nbsp;<strong><span> {{ task.time_created }}</span></strong>
-                                                                            </div>
-                                                                            <div class="row">
-                                                                                <span>Bitiş Tarihi: </span>&nbsp;<strong><span style="color: {% if task.due_date > time %} blue {% else %} red {% endif %}"> {{ task.due_date }}</span></strong>
-                                                                            </div>
-                                                                        </div>
-                                                                        <hr class="mx-n3">
-                                                                        <div class="d-flex flex-column ml-2 my-1">
-                                                                            <h5>Öncelik:</h5>
-                                                                            <select id="prioritySelect{{ task.id }}" name="priority" class="form-control mt-3" data-task-id="{{ task.id }}">
-                                                                                {% for priority in priorities %}
-                                                                                    {% if task.priority == priority %}
-                                                                                        <option value="{{ priority }}" selected>{{ priority }}</option>
-                                                                                    {% else %}
-                                                                                        <option value="{{ priority }}">{{ priority }}</option>
-                                                                                    {% endif %}
-                                                                                {% endfor %}
-                                                                                {#                                                                                <option value="{{ task.status }}">{{ task.status }}</option>#}
-                                                                                {#                                                                                <option value="İnaktif">İnaktif</option>#}
-                                                                            </select>
-                                                                            <script>
-                                                                                document.getElementById('prioritySelect{{ task.id }}').addEventListener('change', function() {
-                                                                                    const csrftoken = getCookie('csrftoken');
-                                                                                    var selectedOption = this.value;
-                                                                                    var taskId = this.getAttribute('data-task-id');
-                                                                                    var xhr = new XMLHttpRequest();
-                                                                                    xhr.open('POST', '/update-task-priority/', true);
-                                                                                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                                                                                    xhr.setRequestHeader('X-CSRFToken', csrftoken);
-                                                                                    xhr.onreadystatechange = function() {
-                                                                                        if (xhr.readyState === 4 && xhr.status === 200) {
-                                                                                            console.log(xhr.responseText);
-                                                                                        }
-                                                                                    };
-                                                                                    xhr.send('task_id=' + taskId + '&priority=' + selectedOption);
-                                                                                });
-                                                                            </script>
-                                                                        </div>
-                                                                        <hr>
-                                                                        <div class="d-flex flex-column ml-2 my-1">
-                                                                            <h5>Görevde Çalışanlar: {% if current_user == board.project.owner or current_user in project_staff %}<i class="bi bi-plus-square-fill" data-toggle="modal" data-target="#add-user-modal{{ task.id }}" style="color: green"></i>{% endif %}</h5>
-                                                                            {% for user in task.assigned_to.all %}
-                                                                                <span>{{ user.username }}&nbsp;{% if current_user == board.project.owner or current_user in project_staff %}<a href="{% url 'remove_task_user' task.id user.id %}" onclick="return confirm('Emin misiniz?')"><i class="bi bi-x-circle-fill" style="color: #d52525"></i></a>{% endif %}</span>
-                                                                            {% endfor %}
-                                                                        </div>
-                                                                        <hr class="mx-n3">
-                                                                        <div class="d-flex flex-column ml-2 my-1">
-                                                                            <h5>Takip Eden Görevliler: <i class="bi bi-plus-square-fill" data-toggle="modal" data-target="#add-staff-modal{{ task.id }}" style="color: green"></i></h5>
-                                                                            {% for user in task.followers.all %}
-                                                                                <strong><span>{{ user.username }}</span>&nbsp;<a href="{% url 'remove_task_staff' task.id user.id %}" onclick="return confirm('Emin misiniz?')"><i class="bi bi-x-circle-fill" style="color: #d52525"></i></a></strong>
-                                                                            {% endfor %}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="modal-footer align-content-center justify-content-center">
-                                                                <div class="row justify-content-center">
-                                                                    <div class="px-5 pb-4 text-lg-center">
-                                                                        <button id="closeModal" class="btn btn-secondary btn-lg" data-dismiss="modal" style="width: 240px;" onclick="location.reload();" data-task-id="{{ task.id }}">Kapat</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {#                                                --- Add User Modal ---      #}
-                                                <div class="modal fade" id="add-user-modal{{ task.id }}" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="add-user-modal">
-                                                    <div class="modal-dialog" role="document">
-                                                        <div class="modal-content" style="background-color: #e8e8e8">
-                                                            <form method="post" action="{% url 'add-task-user' task.id %}" onsubmit="return validateForm()">
-                                                                {% csrf_token %}
-                                                                <div class="modal-body">
-                                                                    <span class="my-2"><strong>{{ task.title }}</strong> görevine eklemek istediğiniz kullanıcıyı seçiniz:</span>
-                                                                    <select id="userSelect" name="user" class="form-control mt-3">
-                                                                        {% for user in board.users.all %}
-                                                                            {% if user not in task.assigned_to.all %}
-                                                                                <option value="{{ user.id }}">{{ user.username }}</option>
-                                                                            {% endif %}
-                                                                        {% endfor %}
-                                                                    </select>
-                                                                </div>
-                                                                <div class="modal-footer align-content-center justify-content-center">
-                                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
-                                                                    <button type="submit" class="btn btn-success delete-button" style="width: 50px">Ekle</button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {#                                               --- Add staff modal ---     #}
-                                                <div class="modal fade" id="add-staff-modal{{ task.id }}" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="add-staff-modal">
-                                                    <div class="modal-dialog" role="document">
-                                                        <div class="modal-content" style="background-color: #e8e8e8">
-                                                            <form method="post" action="{% url 'add-task-staff' task.id %}">
-                                                                {% csrf_token %}
-                                                                <div class="modal-body">
-                                                                    <span class="my-2"><strong>{{ task.title }}</strong> görevine eklemek istediğiniz görevliyi seçiniz:</span>
-                                                                    <select id="userSelect" name="user" class="form-control mt-3">
-                                                                        {% for user in project_staff %}
-                                                                            <option value="{{ user.id }}">{{ user.username }}</option>
-                                                                        {% endfor %}
-                                                                    </select>
-                                                                </div>
-                                                                <div class="modal-footer align-content-center justify-content-center">
-                                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
-                                                                    <button type="submit" class="btn btn-success delete-button" style="width: 50px">Ekle</button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            {% endfor %}
-                                        {% else %}
-                                            <span class="text-center my-3">Henüz görev yok.</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="col-3 mb-3">
-                                    <div class="board-card card ml-2" data-board-id="{{ task.id }}" style="min-height: 300px; background-color: #e8e8e8; border-width: thick">
-                                        <div class="card-header row justify-content-center mx-0 mb-2" style="background-color: #1040a8">
-                                            <div class="col-10 text-center mt-2 ml-1">
-                                                <h4 class="text-uppercase" style="color: white; font-size: 1rem">TAMAMLANDI</h4>
-                                            </div>
-                                        </div>
-                                        {% if done_tasks %}
-                                            {% for task in done_tasks %}
-                                                {% if current_user in task.assigned_to.all or current_user == board.project.owner or current_user in project_staff %}
-                                                    <div class="card mx-3 my-3" style="border-radius: 4%">
-                                                        <div class="card-content">
-                                                            <div class="card-body">
-                                                                <div class="media d-flex">
-                                                                    <div class="col-10 media-body text-left mr-1">
-                                                                        <a id="openModal" href="/görev" data-toggle="modal" data-target="#task-modal{{ task.id }}" data-task-id="{{ task.id }}"><h5 class="primary text-capitalize mb-2 mt-1">{{ task.title|truncatechars:10 }}</h5></a>
-                                                                        <strong><span style="color: {% if task.due_date > time %} blue {% else %} red {% endif %}; font-size: 0.8rem; position: absolute; bottom: -150%; left: 10%">Son tarih: {{ task.due_date }}</span></strong>
-                                                                    </div>
-                                                                    <div class="col-2 align-self-center ml-2">
-                                                                        <i class="bi bi-journal-text primary float-right mb-2" style="font-size: 2rem"></i>
-                                                                        <i class="bi bi-people-fill primary float-right mb-2" style="font-size: 2rem"></i>
-                                                                        <p style="position: absolute; bottom: 7.5%; right: 20%"><strong>{{ task.assigned_to.count }}</strong></p>
-                                                                        {% if current_user == board.project.owner or current_user in project_staff %}
-                                                                            <a href="{% url 'delete_task' task.id %}" onclick="return confirm('Bu görevi silmek istediğinizden emin misiniz? Bunu yaparsanız tüm görev verileri kaybolur!')"><i class="bi bi-trash-fill" style="color: #888888; position: absolute; right: 55%; bottom: -10%"></i></a>
-                                                                        {% endif %}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                {% endif %}
-                                                <div class="modal fade" id="task-modal{{ task.id }}" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="task-modal{{ task.id }}">
-                                                    <div class="modal-dialog" role="document">
-                                                        <div class="modal-content" style="min-width: 1200px; position: absolute; left: -70%">
-                                                            <div class="modal-header justify-content-center">
-                                                                <h2 class="text-capitalize"><a href="/project/{{ board.project.id }}/" style="color: #08b2ec">{{ board.project.name }}</a> > <a href="/board/{{ board.id }}" style="color: #08b2ec">{{ board.title }}</a> > {{ task.title }}</h2>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <div class="row">
-                                                                    <div class="col-9 text-left my-0" style="border-right: 1px solid #e5e6e8;">
-                                                                        <div class="d-flex flex-column">
-                                                                            <span class="ml-2">{{ task.description }}</span>
-                                                                        </div>
-                                                                        <section>
-                                                                            <div class="container py-5">
-                                                                                <div class="row">
-                                                                                    <div class="col-md-12">
-                                                                                        <div class="card" id="messageContainer{{ task.id }}" style="border-radius: 15px; background-color: #e0e0e0">
-                                                                                            <div class="card-body">
-                                                                                                <div class="row">
-                                                                                                    <div class="col-md-12">
-                                                                                                        <div class="pt-3 pe-3" data-mdb-perfect-scrollbar="true"
-                                                                                                             style="position: relative; height: 400px; overflow-y: auto;">
-                                                                                                            {% if task.post_set %}
-                                                                                                                {% for post in task.post_set.all %}
-                                                                                                                    {% if post.author == current_user %}
-                                                                                                                        <div class="d-flex flex-row justify-content-end">
-                                                                                                                            <div>
-                                                                                                                                <p class="p-2 me-3 mb-1 text-white rounded-3 bg-primary">{{ post.content }} <a href="{% url 'delete_post' post.id %}" onclick="return confirm('Emin misiniz?')"><i class="bi bi-trash-fill" style="position: absolute; right: 6.5%"></i></a></p>
-                                                                                                                                <p class="me-3 mb-3 rounded-3 text-muted">
-                                                                                                                                    {{ post.date_created|timesince }} önce</p>
-                                                                                                                            </div>
-                                                                                                                            <img {% if current_user.photo %}
-                                                                                                                                src="{{ current_user.photo.url }}"
-                                                                                                                            {% else %} src="{% static 'main/img/avatar/blank_profile.png' %}"
-                                                                                                                            {% endif %} class="img-avatar" alt="user profile image" style="width: 45px; height: 45px;">
-                                                                                                                        </div>
-                                                                                                                    {% else %}
-                                                                                                                        <div id="author" class="d-flex flex-row justify-content-start" data-author-id="{{ post.author.id }}">
-                                                                                                                            <img {% if post.author.photo %}
-                                                                                                                                src="{{ post.author.photo.url }}"
-                                                                                                                            {% else %} src="{% static 'main/img/avatar/blank_profile.png' %}"
-                                                                                                                            {% endif %} class="img-avatar" alt="user profile image" style="width: 45px; height: 45px;">
-                                                                                                                            <div>
-                                                                                                                                <p class="p-2 ms-3 mb-1 rounded-3" style="background-color: #f5f6f7;"><strong>{{ post.author.username }}: </strong>{{ post.content }}</p>
-                                                                                                                                <p class="ms-3 mb-3 rounded-3 text-muted float-end">{{ post.date_created|timesince }} önce</p>
-                                                                                                                                <input type="hidden" class="message-id" value="{{ post.id }}">
-                                                                                                                            </div>
-                                                                                                                        </div>
-                                                                                                                    {% endif %}
-                                                                                                                {% endfor %}
-                                                                                                            {% endif %}
-                                                                                                        </div>
-                                                                                                        <div class="text-muted d-flex justify-content-start align-items-center pe-3 pt-3 mt-2">
-                                                                                                            <img {% if current_user.photo %}
-                                                                                                                src="{{ current_user.photo.url }}"
-                                                                                                            {% else %} src="{% static 'main/img/avatar/blank_profile.png' %}"
-                                                                                                            {% endif %} class="img-avatar" alt="user profile image" style="width: 45px; height: 45px;">
-                                                                                                            <input type="text" class="form-control form-control-lg" id="exampleFormControlInput2{{ task.id }}" data-task-id="{{ task.id }}"
-                                                                                                                   placeholder="Mesajınız">
-                                                                                                            &nbsp;<label for="fileInput" class="ms-1 mt-2 mx-1 text-muted"><i class="fas fa-paperclip"></i></label>
-                                                                                                            <input type="file" id="fileInput" style="display: none;">
-                                                                                                            <div id="selectedFileContainer" class="d-none">
-                                                                                                                <span id="selectedFileName"></span>
-                                                                                                                <i id="removeFileIcon" class="fas fa-times-circle ms-1"></i>
-                                                                                                            </div>&nbsp;
-                                                                                                            <a class="ms-3 mx-1 text-muted" href="#"><i class="fas fa-smile"></i></a>&nbsp;
-                                                                                                            <a class="ms-3 mx-1" ><i onclick="sendMessage({{ task.id }})" tabindex="0" onkeydown="if (e.keyCode === 13) { sendMessage({{ task.id }}); }" class="fas fa-paper-plane"></i></a>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        </section>
-                                                                        <script>
-                                                                            const fileInput = document.getElementById('fileInput');
-                                                                            const selectedFileName = document.getElementById('selectedFileName');
-                                                                            const removeFileIcon = document.getElementById('removeFileIcon');
-                                                                            const selectedFileContainer = document.getElementById('selectedFileContainer');
-
-                                                                            fileInput.addEventListener('change', function (event) {
-                                                                                const file = event.target.files[0];
-                                                                                if (file) {
-                                                                                    selectedFileName.textContent = file.name;
-                                                                                    selectedFileContainer.classList.remove('d-none');
-                                                                                } else {
-                                                                                    selectedFileName.textContent = '';
-                                                                                    selectedFileContainer.classList.add('d-none');
-                                                                                }
-                                                                            });
-
-                                                                            removeFileIcon.addEventListener('click', function () {
-                                                                                fileInput.value = '';
-                                                                                selectedFileName.textContent = '';
-                                                                                selectedFileContainer.classList.add('d-none');
-                                                                            });
-
-                                                                            function sendMessage(taskId) {
-                                                                                const messageInput = document.getElementById('exampleFormControlInput2' + taskId);
-                                                                                const message = messageInput.value;
-                                                                                const file = fileInput.files[0];
-                                                                                const csrftoken = getCookie('csrftoken');
-
-                                                                                const formData = new FormData();
-                                                                                formData.append('message', message);
-                                                                                formData.append('file', file);
-
-                                                                                fetch('/send_message/' + taskId + '/', {
-                                                                                    method: 'POST',
-                                                                                    headers: {
-                                                                                        'X-CSRFToken': csrftoken
-                                                                                    },
-                                                                                    body: formData
-                                                                                })
-                                                                                    .then(response => response.json())
-                                                                                    .then(data => {
-                                                                                        if (data.success) {
-                                                                                            messageInput.value = '';
-                                                                                            fileInput.value = '';
-                                                                                            selectedFileName.textContent = '';
-                                                                                            selectedFileContainer.classList.add('d-none');
-                                                                                        } else {
-                                                                                            console.error('Mesaj gönderme hatası:', data.error);
-                                                                                        }
-                                                                                    })
-                                                                                    .catch(error => {
-                                                                                        console.error('Mesaj gönderme hatası:', error);
-                                                                                    });
-                                                                            }
-                                                                        </script>
-                                                                    </div>
-                                                                    <div class="col-3 text-left">
-                                                                        <div class="d-flex flex-column ml-2 my-1">
-                                                                            <h5>Durum</h5>
-                                                                            <select id="statusSelect{{ task.id }}" name="status" class="form-control mt-3" data-task-id="{{ task.id }}">
-                                                                                {% for status in all_status %}
-                                                                                    {% if task.status == status %}
-                                                                                        <option value="{{ status }}" selected>{{ status }}</option>
-                                                                                    {% else %}
-                                                                                        <option value="{{ status }}">{{ status }}</option>
-                                                                                    {% endif %}
-                                                                                {% endfor %}
-                                                                                {#                                                                                <option value="{{ task.status }}">{{ task.status }}</option>#}
-                                                                                {#                                                                                <option value="İnaktif">İnaktif</option>#}
-                                                                            </select>
-                                                                            <script>
-                                                                                document.getElementById('statusSelect{{ task.id }}').addEventListener('change', function() {
-                                                                                    const csrftoken = getCookie('csrftoken');
-                                                                                    var selectedOption = this.value;
-                                                                                    var taskId = this.getAttribute('data-task-id');
-                                                                                    var xhr = new XMLHttpRequest();
-                                                                                    xhr.open('POST', '/update-task-status/', true);
-                                                                                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                                                                                    xhr.setRequestHeader('X-CSRFToken', csrftoken);
-                                                                                    xhr.onreadystatechange = function() {
-                                                                                        if (xhr.readyState === 4 && xhr.status === 200) {
-                                                                                            console.log(xhr.responseText);
-                                                                                        }
-                                                                                    };
-                                                                                    xhr.send('task_id=' + taskId + '&status=' + selectedOption);
-                                                                                });
-                                                                            </script>
-                                                                        </div>
-                                                                        <hr class="mx-n3">
-                                                                        <div class="row ml-4 my-1">
-                                                                            <div class="row">
-                                                                                <span>Başlangıç Tarihi: </span>&nbsp;<strong><span> {{ task.time_created }}</span></strong>
-                                                                            </div>
-                                                                            <div class="row">
-                                                                                <span>Bitiş Tarihi: </span>&nbsp;<strong><span style="color: {% if task.due_date > time %} blue {% else %} red {% endif %}"> {{ task.due_date }}</span></strong>
-                                                                            </div>
-                                                                        </div>
-                                                                        <hr class="mx-n3">
-                                                                        <div class="d-flex flex-column ml-2 my-1">
-                                                                            <h5>Öncelik:</h5>
-                                                                            <select id="prioritySelect{{ task.id }}" name="priority" class="form-control mt-3" data-task-id="{{ task.id }}">
-                                                                                {% for priority in priorities %}
-                                                                                    {% if task.priority == priority %}
-                                                                                        <option value="{{ priority }}" selected>{{ priority }}</option>
-                                                                                    {% else %}
-                                                                                        <option value="{{ priority }}">{{ priority }}</option>
-                                                                                    {% endif %}
-                                                                                {% endfor %}
-                                                                                {#                                                                                <option value="{{ task.status }}">{{ task.status }}</option>#}
-                                                                                {#                                                                                <option value="İnaktif">İnaktif</option>#}
-                                                                            </select>
-                                                                            <script>
-                                                                                document.getElementById('prioritySelect{{ task.id }}').addEventListener('change', function() {
-                                                                                    const csrftoken = getCookie('csrftoken');
-                                                                                    var selectedOption = this.value;
-                                                                                    var taskId = this.getAttribute('data-task-id');
-                                                                                    var xhr = new XMLHttpRequest();
-                                                                                    xhr.open('POST', '/update-task-priority/', true);
-                                                                                    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                                                                                    xhr.setRequestHeader('X-CSRFToken', csrftoken);
-                                                                                    xhr.onreadystatechange = function() {
-                                                                                        if (xhr.readyState === 4 && xhr.status === 200) {
-                                                                                            console.log(xhr.responseText);
-                                                                                        }
-                                                                                    };
-                                                                                    xhr.send('task_id=' + taskId + '&priority=' + selectedOption);
-                                                                                });
-                                                                            </script>
-                                                                        </div>
-                                                                        <hr>
-                                                                        <div class="d-flex flex-column ml-2 my-1">
-                                                                            <h5>Görevde Çalışanlar: {% if current_user == board.project.owner or current_user in project_staff %}<i class="bi bi-plus-square-fill" data-toggle="modal" data-target="#add-user-modal{{ task.id }}" style="color: green"></i>{% endif %}</h5>
-                                                                            {% for user in task.assigned_to.all %}
-                                                                                <span>{{ user.username }}&nbsp;{% if current_user == board.project.owner or current_user in project_staff %}<a href="{% url 'remove_task_user' task.id user.id %}" onclick="return confirm('Emin misiniz?')"><i class="bi bi-x-circle-fill" style="color: #d52525"></i></a>{% endif %}</span>
-                                                                            {% endfor %}
-                                                                        </div>
-                                                                        <hr class="mx-n3">
-                                                                        <div class="d-flex flex-column ml-2 my-1">
-                                                                            <h5>Takip Eden Görevliler: <i class="bi bi-plus-square-fill" data-toggle="modal" data-target="#add-staff-modal{{ task.id }}" style="color: green"></i></h5>
-                                                                            {% for user in task.followers.all %}
-                                                                                <strong><span>{{ user.username }}</span>&nbsp;<a href="{% url 'remove_task_staff' task.id user.id %}" onclick="return confirm('Emin misiniz?')"><i class="bi bi-x-circle-fill" style="color: #d52525"></i></a></strong>
-                                                                            {% endfor %}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="modal-footer align-content-center justify-content-center">
-                                                                <div class="row justify-content-center">
-                                                                    <div class="px-5 pb-4 text-lg-center">
-                                                                        <button id="closeModal" class="btn btn-secondary btn-lg" data-dismiss="modal" style="width: 240px;" onclick="location.reload();" data-task-id="{{ task.id }}">Kapat</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {#                                                --- Add User Modal ---      #}
-                                                <div class="modal fade" id="add-user-modal{{ task.id }}" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="add-user-modal">
-                                                    <div class="modal-dialog" role="document">
-                                                        <div class="modal-content" style="background-color: #e8e8e8">
-                                                            <form method="post" action="{% url 'add-task-user' task.id %}" onsubmit="return validateForm()">
-                                                                {% csrf_token %}
-                                                                <div class="modal-body">
-                                                                    <span class="my-2"><strong>{{ task.title }}</strong> görevine eklemek istediğiniz kullanıcıyı seçiniz:</span>
-                                                                    <select id="userSelect" name="user" class="form-control mt-3">
-                                                                        {% for user in board.users.all %}
-                                                                            {% if user not in task.assigned_to.all %}
-                                                                                <option value="{{ user.id }}">{{ user.username }}</option>
-                                                                            {% endif %}
-                                                                        {% endfor %}
-                                                                    </select>
-                                                                </div>
-                                                                <div class="modal-footer align-content-center justify-content-center">
-                                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
-                                                                    <button type="submit" class="btn btn-success delete-button" style="width: 50px">Ekle</button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                {#                                               --- Add staff modal ---     #}
-                                                <div class="modal fade" id="add-staff-modal{{ task.id }}" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="add-staff-modal">
-                                                    <div class="modal-dialog" role="document">
-                                                        <div class="modal-content" style="background-color: #e8e8e8">
-                                                            <form method="post" action="{% url 'add-task-staff' task.id %}">
-                                                                {% csrf_token %}
-                                                                <div class="modal-body">
-                                                                    <span class="my-2"><strong>{{ task.title }}</strong> görevine eklemek istediğiniz görevliyi seçiniz:</span>
-                                                                    <select id="userSelect" name="user" class="form-control mt-3">
-                                                                        {% for user in project_staff %}
-                                                                            <option value="{{ user.id }}">{{ user.username }}</option>
-                                                                        {% endfor %}
-                                                                    </select>
-                                                                </div>
-                                                                <div class="modal-footer align-content-center justify-content-center">
-                                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
-                                                                    <button type="submit" class="btn btn-success delete-button" style="width: 50px">Ekle</button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            {% endfor %}
-                                        {% else %}
-                                            <span class="text-center my-3">Henüz görev yok.</span>
-                                        {% endif %}
-
-                                    </div>
-                                </div>
-                            {% else %}
-                                <div class="card-body">
-                                    <div class="row mx-3 mb-2">
-                                        <div class="col-12">
-                                            <h5>Hiç görev oluşturulmamış.</h5>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {#----Modals----#}
-    <div class="modal fade" id="confirm{{ board.id }}" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="confirm">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <strong>{{ board.title }}</strong> panosunu silmek istediğinize emin misiniz?
-                    Bu işlemi yaparsanız alt görevler kaybolur.
-                </div>
-                <div class="modal-footer align-content-center justify-content-center">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
-                    <a href="{% url 'delete_board' board.id %}" class="btn btn-danger delete-button" style="width: 50px">Sil</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    {#    #}
-    {#    #}
-    <div class="modal fade" id="board-update-form" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="board-update-form" style="min-width: 500px">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content" style="min-width: 750px; position: absolute; left: -30%">
-                <form method="post" enctype="multipart/form-data" action="{% url 'update_board' board.id %}">
-                    {% csrf_token %}
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="card-body">
-                                <div class="row align-items-center justify-content-center pt-4 pb-3 px-3">
-                                    <div class="col-md-3">
-                                        <h6 class="mb-0">Pano Başlığı:</h6>
-                                    </div>
-                                    <div class="col-md-9">
-                                        {% render_field board_form.title class+="form-control" placeholder="Başlık" %}
-                                    </div>
-                                </div>
-                                <hr class="mx-n3">
-                                <div class="row py-3 px-3">
-                                    <div class="col-md-3">
-                                        <h6 class="mb-0">Kullanıcı Ekleyin: </h6>
-                                    </div>
-                                    <div class="col-md-9">
-                                        {% render_field board_form.users class+="form-control" %}
-                                    </div>
-                                </div>
-                                <hr class="mx-n3">
-                                <div class="row py-3 px-3">
-                                    <div class="col-md-3">
-                                        <h6 class="mb-0">Açıklama: </h6>
-                                    </div>
-                                    <div class="col-md-9">
-                                        {% render_field board_form.description class+="form-control" %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer align-content-center justify-content-center">
-                        <div class="row justify-content-center">
-                            <div class="px-5 pb-4 text-lg-center">
-                                <button type="submit" class="btn btn-success btn-lg" style="width: 200px;">Güncelle</button>
-                                <button class="btn btn-secondary btn-lg" data-dismiss="modal" style="width: 200px;">İptal</button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="task-form" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="board-form" style="min-width: 500px">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content" style="min-width: 750px; position: absolute; left: -30%">
-                <form method="post" enctype="multipart/form-data" action="{% url 'create_task' board.id %}">
-                    {% csrf_token %}
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="card-body">
-                                <div class="row align-items-center justify-content-center pt-4 pb-3 px-3">
-                                    <div class="col-md-3">
-                                        <h6 class="mb-0">Görev Başlığı:</h6>
-                                    </div>
-                                    <div class="col-md-9">
-                                        {% render_field task_form.title class+="form-control" placeholder="Başlık" %}
-                                    </div>
-                                </div>
-                                <hr class="mx-n3">
-                                <div class="row py-3 px-3">
-                                    <div class="col-md-3">
-                                        <h6 class="mb-0">Açıklama: </h6>
-                                    </div>
-                                    <div class="col-md-9">
-                                        {% render_field task_form.description class+="form-control" %}
-                                    </div>
-                                </div>
-                                <hr class="mx-n3">
-                                <div class="row py-3 px-3">
-                                    <div class="col-md-3">
-                                        <h6 class="mb-0">Görevin Atanacağı Kişi: </h6>
-                                    </div>
-                                    <div class="col-md-9">
-                                        {% render_field task_form.assigned_to class+="form-control" %}
-                                    </div>
-                                </div>
-                                <hr class="mx-n3">
-                                <div class="row py-3 px-3">
-                                    <div class="col-md-3">
-                                        <h6 class="mb-0">Öncelik: </h6>
-                                    </div>
-                                    <div class="col-md-9">
-                                        {% render_field task_form.priority class+="form-control" %}
-                                    </div>
-                                </div>
-                                <div class="row py-3 px-3">
-                                    <div class="col-md-3">
-                                        <h6 class="mb-0">Son Tarih: </h6>
-                                    </div>
-                                    <div class="col-md-9">
-                                        {% render_field task_form.due_date class+="form-control" %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer align-content-center justify-content-center">
-                        <div class="row justify-content-center">
-                            <div class="px-5 pb-4 text-lg-center">
-                                <button type="submit" class="btn btn-success btn-lg" style="width: 200px;">Oluştur</button>
-                                <button class="btn btn-secondary btn-lg" data-dismiss="modal" style="width: 200px;">İptal</button>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    {#----End of Modals----#}
+	{#----Modals----#}
+	<div class="modal fade" id="confirm{{ board.id }}" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="confirm">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-body">
+					<strong>{{ board.title }}</strong> panosunu silmek istediğinize emin misiniz?
+					Bu işlemi yaparsanız alt görevler kaybolur.
+				</div>
+				<div class="modal-footer align-content-center justify-content-center">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+					<a href="{% url 'delete_board' board.id %}" class="btn btn-danger delete-button" style="width: 50px">Sil</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	{#    #}
+	{#    #}
+	<div class="modal fade" id="board-update-form" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="board-update-form" style="min-width: 500px">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content" style="min-width: 750px; position: absolute; left: -30%">
+				<form method="post" enctype="multipart/form-data" action="{% url 'update_board' board.id %}">
+					{% csrf_token %}
+					<div class="row">
+						<div class="col-md-12">
+							<div class="card-body">
+								<div class="row align-items-center justify-content-center pt-4 pb-3 px-3">
+									<div class="col-md-3">
+										<h6 class="mb-0">Pano Başlığı:</h6>
+									</div>
+									<div class="col-md-9">
+										{% render_field board_form.title class+="form-control" placeholder="Başlık" %}
+									</div>
+								</div>
+								<hr class="mx-n3">
+								<div class="row py-3 px-3">
+									<div class="col-md-3">
+										<h6 class="mb-0">Kullanıcı Ekleyin: </h6>
+									</div>
+									<div class="col-md-9">
+										{% render_field board_form.users class+="form-control" %}
+									</div>
+								</div>
+								<hr class="mx-n3">
+								<div class="row py-3 px-3">
+									<div class="col-md-3">
+										<h6 class="mb-0">Açıklama: </h6>
+									</div>
+									<div class="col-md-9">
+										{% render_field board_form.description class+="form-control" %}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer align-content-center justify-content-center">
+						<div class="row justify-content-center">
+							<div class="px-5 pb-4 text-lg-center">
+								<button type="submit" class="btn btn-success btn-lg" style="width: 200px;">Güncelle</button>
+								<button class="btn btn-secondary btn-lg" data-dismiss="modal" style="width: 200px;">İptal</button>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="task-form" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="board-form" style="min-width: 500px">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content" style="min-width: 750px; position: absolute; left: -30%">
+				<form method="post" enctype="multipart/form-data" action="{% url 'create_task' board.id %}">
+					{% csrf_token %}
+					<div class="row">
+						<div class="col-md-12">
+							<div class="card-body">
+								<div class="row align-items-center justify-content-center pt-4 pb-3 px-3">
+									<div class="col-md-3">
+										<h6 class="mb-0">Görev Başlığı:</h6>
+									</div>
+									<div class="col-md-9">
+										{% render_field task_form.title class+="form-control" placeholder="Başlık" %}
+									</div>
+								</div>
+								<hr class="mx-n3">
+								<div class="row py-3 px-3">
+									<div class="col-md-3">
+										<h6 class="mb-0">Açıklama: </h6>
+									</div>
+									<div class="col-md-9">
+										{% render_field task_form.description class+="form-control" %}
+									</div>
+								</div>
+								<hr class="mx-n3">
+								<div class="row py-3 px-3">
+									<div class="col-md-3">
+										<h6 class="mb-0">Görevin Atanacağı Kişi: </h6>
+									</div>
+									<div class="col-md-9">
+										{% render_field task_form.assigned_to class+="form-control" %}
+									</div>
+								</div>
+								<hr class="mx-n3">
+								<div class="row py-3 px-3">
+									<div class="col-md-3">
+										<h6 class="mb-0">Öncelik: </h6>
+									</div>
+									<div class="col-md-9">
+										{% render_field task_form.priority class+="form-control" %}
+									</div>
+								</div>
+								<div class="row py-3 px-3">
+									<div class="col-md-3">
+										<h6 class="mb-0">Son Tarih: </h6>
+									</div>
+									<div class="col-md-9">
+										{% render_field task_form.due_date class+="form-control" %}
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer align-content-center justify-content-center">
+						<div class="row justify-content-center">
+							<div class="px-5 pb-4 text-lg-center">
+								<button type="submit" class="btn btn-success btn-lg" style="width: 200px;">Oluştur</button>
+								<button class="btn btn-secondary btn-lg" data-dismiss="modal" style="width: 200px;">İptal</button>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	{#----End of Modals----#}
 {% endblock %}
 
 <script>
-    function getCookie(name) {
+	function getCookie(name) {
 
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
+		let cookieValue = null;
+		if (document.cookie && document.cookie !== '') {
+			const cookies = document.cookie.split(';');
+			for (let i = 0; i < cookies.length; i++) {
+				const cookie = cookies[i].trim();
+				if (cookie.substring(0, name.length + 1) === (name + '=')) {
+					cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+					break;
+				}
+			}
+		}
+		return cookieValue;
+	}
 </script>
